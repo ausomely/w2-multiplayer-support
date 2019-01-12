@@ -1,5 +1,9 @@
 /* A simple server in the internet domain using TCP
    The port number is passed as an argument */
+
+/* Updated version to support multi-client connections using
+   multithread */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
