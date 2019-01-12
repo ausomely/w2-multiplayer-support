@@ -39,12 +39,24 @@ void Connect(char* hostName, int portNumber){
       NetworkError("ERROR connecting");
   }
 
-  bzero(Buffer, BUFFER_SIZE);
-  // Read data from server
-  Result = read(SocketFileDescriptor, Buffer, BUFFER_SIZE-1);
-  if(0 > Result){
-      NetworkError("ERROR reading from socket");
+  while(1)
+  {
+      printf("Please enter the message: ");
+      bzero(Buffer, BUFFER_SIZE);
+      fgets(Buffer, BUFFER_SIZE-1, stdin);
+
+      // Write data to server
+      Result = write(SocketFileDescriptor, Buffer, strlen(Buffer));
+      if(0 > Result){ 
+           error("ERROR writing to socket");
+      }
+      bzero(Buffer, BUFFER_SIZE);
+      // Read data from server
+      Result = read(SocketFileDescriptor, Buffer, BUFFER_SIZE-1);
+      if(0 > Result){ 
+          error("ERROR reading from socket");
+      }
+      printf("%s\n",Buffer);
   }
-  printf("%s\n",Buffer);
   close(SocketFileDescriptor);
 }
