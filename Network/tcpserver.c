@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
@@ -15,12 +16,38 @@ void error(const char *message){
     exit(1);
 }
 
+void* handle_data(void * NewSocketFileDescriptor){
+    int SocketFileDescriptor = *((int *) NewSocketFileDescriptor);
+    int Result;
+    char Buffer[BUFFER_SIZE];
+
+    // Read data from client
+    while(1)
+    {
+	    bzero(Buffer, BUFFER_SIZE);
+	    Result = read(SocketFileDescriptor, Buffer, BUFFER_SIZE-1);
+	    if(0 > Result) {
+	         error("Error reading from socket");
+	    }
+	    
+	    printf("Here's the message: %s\n", Buffer);
+	    Result = write(SocketFileDescriptor, "I got your message", 18);
+            if(0 > Result) {
+		 error("Error writing to socket");
+	    }
+
+    }
+
+    close(SocketFileDescriptor);
+    // exit the thread
+    pthread_exit(NULL);
+}
+
+
 int main(int argc, char *argv[]){
     int SocketFileDescriptor, NewSocketFileDescriptor, PortNumber;
     socklen_t ClientLength;
-    char Buffer[BUFFER_SIZE];
     struct sockaddr_in ServerAddress, ClientAddress;
-    int Result;
     
     if(2 > argc){
         fprintf(stderr,"ERROR, no port provided\n");
@@ -47,38 +74,26 @@ int main(int argc, char *argv[]){
     }
     // Listing for client
     listen(SocketFileDescriptor, 5);
+    printf("Started listening\n");
     while(1)
     {
 	    ClientLength = sizeof(ClientAddress);
 	    // Accept connection from client
-	    printf("Listening\n");
 	    
 	    NewSocketFileDescriptor = accept(SocketFileDescriptor, (struct sockaddr *)&ClientAddress, &ClientLength);
 
-            printf("%d\n", ClientAddress.sin_addr.s_addr);
 	    if(0 > NewSocketFileDescriptor){ 
 		error("ERROR on accept");
 	    }
+            
+            printf("A new client has joined\n");
 
-	    printf("Accepted\n");
-	    bzero(Buffer, BUFFER_SIZE);
-	    // Read data from client
-	    /*
-            Result = read(NewSocketFileDescriptor, Buffer, BUFFER_SIZE-1);
-	    if(0 > Result){
-		error("ERROR reading from socket");
-	    }
-
-	    printf("Here is the message: %s\n", Buffer);*/
-	    // Write data to client
-	    Result = write(NewSocketFileDescriptor, "Connected", 20);
-	    if(0 > Result){
-		error("ERROR writing to socket");
-	    }
-            //close(SocketFileDescriptor);
-	//    close(NewSocketFileDescriptor);
+	    // Multithreading
+	    pthread_t thread_id;
+	    if(pthread_create(&thread_id, NULL, &handle_data, (void *)(&NewSocketFileDescriptor)) == -1) {
+                error("pthread create error");
+            }
     }
-    close(NewSocketFileDescriptor);
     close(SocketFileDescriptor);
     return 0; 
 }
