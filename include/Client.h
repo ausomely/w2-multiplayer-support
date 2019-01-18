@@ -26,8 +26,8 @@ class Client {
 
     //public:
       void NetworkError(const char *message);
-      void Connect(char* hostName, int portNumber);
-      void SendMessage(char* data);
+      void Connect(std::string hostName, int portNumber);
+      void SendMessage(std::string data);
       void CloseConnection();
 
 };

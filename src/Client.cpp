@@ -6,7 +6,7 @@ void Client::NetworkError(const char *message){
   exit(0);
 }
 
-void Client::Connect(char* hostName, int portNumber){
+void Client::Connect(std::string hostName, int portNumber){
   PortNumber = portNumber;
   if((1 > PortNumber)||(65535 < PortNumber)){
       fprintf(stderr,"Port %d is an invalid port number\n",PortNumber);
@@ -19,7 +19,7 @@ void Client::Connect(char* hostName, int portNumber){
       NetworkError("ERROR opening socket");
   }
   // Convert/resolve host name
-  Server = gethostbyname(hostName);
+  Server = gethostbyname(hostName.c_str());
   if(NULL == Server){
       fprintf(stderr,"ERROR, no such host\n");
       exit(0);
@@ -35,13 +35,10 @@ void Client::Connect(char* hostName, int portNumber){
   }
 }
 
-void Client::SendMessage(char* data){
-      printf("Please enter the message: ");
-      bzero(Buffer, BUFFER_SIZE);
-      fgets(Buffer, BUFFER_SIZE-1, stdin);
+void Client::SendMessage(std::string data){
 
       // Write data to server
-      Result = write(SocketFileDescriptor, Buffer, strlen(Buffer));
+      Result = write(SocketFileDescriptor, data.c_str(), strlen(data.c_str()));
       if(0 > Result){
            NetworkError("ERROR writing to socket");
       }

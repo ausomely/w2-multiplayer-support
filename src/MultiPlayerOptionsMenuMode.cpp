@@ -42,10 +42,10 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(std::shared_ptr<
 }
 
 void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(std::shared_ptr< CApplicationData > context){
-    //Connect("localhost",2003);
+    //
     Client client;
-    client.Connect("localhost", 2003);
-    client.SendMessage("this is the message");
+    client.Connect(context->DRemoteHostname, context->DMultiplayerPort);
+    client.SendMessage(context->DUsername);
 }
 
 void CMultiPlayerOptionsMenuMode::MainMenuButtonCallback(std::shared_ptr< CApplicationData > context){

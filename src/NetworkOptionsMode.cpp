@@ -7,11 +7,11 @@
     purposes. It may not be distributed beyond those enrolled in the course without
     prior permission from the copyright holder.
 
-    All sound files, sound fonts, midi files, and images that have been included 
-    that were extracted from original Warcraft II by Blizzard Entertainment 
-    were found freely available via internet sources and have been labeld as 
-    abandonware. They have been included in this distribution for educational 
-    purposes only and this copyright notice does not attempt to claim any 
+    All sound files, sound fonts, midi files, and images that have been included
+    that were extracted from original Warcraft II by Blizzard Entertainment
+    were found freely available via internet sources and have been labeld as
+    abandonware. They have been included in this distribution for educational
+    purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
 #include "NetworkOptionsMode.h"
@@ -26,12 +26,12 @@ CNetworkOptionsMode::CNetworkOptionsMode(const SPrivateConstructorType &key){
     DButtonFunctions.push_back(NetworkOptionsUpdateButtonCallback);
     DButtonTexts.push_back("Cancel");
     DButtonFunctions.push_back(OptionsButtonCallback);
-    
+
     DEditTitles.push_back("User Name:");
     DEditValidationFunctions.push_back(ValidHostnameCallback);
     DEditTitles.push_back("Remote Hostname:");
     DEditValidationFunctions.push_back(ValidHostnameCallback);
-    DEditTitles.push_back("Remote Hostname:");
+    DEditTitles.push_back("Remote Host Port number:");
     DEditValidationFunctions.push_back(ValidPortNumberCallback);
 }
 
@@ -39,7 +39,7 @@ bool CNetworkOptionsMode::ValidHostnameCallback(const std::string &str){
     int CharSinceDot = 0;
 
     if(253 < str.length()){
-        return false;    
+        return false;
     }
     if(0 == str.length()){
         return false;
@@ -54,7 +54,7 @@ bool CNetworkOptionsMode::ValidHostnameCallback(const std::string &str){
         else{
             CharSinceDot++;
             if(63 < CharSinceDot){
-                return false;   
+                return false;
             }
             if(('-' != Char)&&(!(('0' <= Char)&&('9' >= Char)))&&(!(('a' <= Char)&&('z' >= Char)))&&(!(('A' <= Char)&&('Z' >= Char)))){
                 return false;
@@ -77,10 +77,10 @@ bool CNetworkOptionsMode::ValidPortNumberCallback(const std::string &str){
     return false;
 }
 
-void CNetworkOptionsMode::NetworkOptionsUpdateButtonCallback(std::shared_ptr< CApplicationData > context){    
+void CNetworkOptionsMode::NetworkOptionsUpdateButtonCallback(std::shared_ptr< CApplicationData > context){
     for(int Index = 0; Index < DNetworkOptionsModePointer->DEditText.size(); Index++){
         if(!DNetworkOptionsModePointer->DEditValidationFunctions[Index](DNetworkOptionsModePointer->DEditText[Index])){
-            return;   
+            return;
         }
     }
     context->DUsername = DNetworkOptionsModePointer->DEditText[0];
@@ -92,7 +92,7 @@ void CNetworkOptionsMode::NetworkOptionsUpdateButtonCallback(std::shared_ptr< CA
 void CNetworkOptionsMode::OptionsButtonCallback(std::shared_ptr< CApplicationData > context){
     context->ChangeApplicationMode(COptionsMenuMode::Instance());
 }
-       
+
 std::shared_ptr< CApplicationMode > CNetworkOptionsMode::Instance(){
     if(DNetworkOptionsModePointer == nullptr){
         DNetworkOptionsModePointer = std::make_shared< CNetworkOptionsMode >(SPrivateConstructorType());
@@ -110,4 +110,3 @@ void CNetworkOptionsMode::InitializeChange(std::shared_ptr< CApplicationData > c
     DEditText.push_back(context->DRemoteHostname);
     DEditText.push_back(std::to_string(context->DMultiplayerPort));
 }
-
