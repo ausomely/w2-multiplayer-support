@@ -15,19 +15,18 @@
 #define BUFFER_SIZE     256
 
 class Client {
-  public:
+    public:
     //protected:
-      int SocketFileDescriptor;
-      int PortNumber;
-      int Result;
-      struct sockaddr_in ServerAddress;
-      struct hostent *Server;
-      char Buffer[BUFFER_SIZE];
+        int SocketFileDescriptor;
+        int PortNumber;
+        int Result;
+        struct sockaddr_in ServerAddress;
+        struct hostent *Server;
 
     //public:
-      bool Connect(std::string hostName, int portNumber);
-      void SendMessage(std::string data);
-      void CloseConnection();
+        bool Connect(std::string hostName, int portNumber);
+        void SendMessage(std::string data);
+        void CloseConnection();
 
 };
 #endif
