@@ -25,8 +25,7 @@ class Client {
       char Buffer[BUFFER_SIZE];
 
     //public:
-      void NetworkError(const char *message);
-      void Connect(std::string hostName, int portNumber);
+      bool Connect(std::string hostName, int portNumber);
       void SendMessage(std::string data);
       void CloseConnection();
 

@@ -7,11 +7,11 @@
     purposes. It may not be distributed beyond those enrolled in the course without
     prior permission from the copyright holder.
 
-    All sound files, sound fonts, midi files, and images that have been included 
-    that were extracted from original Warcraft II by Blizzard Entertainment 
-    were found freely available via internet sources and have been labeld as 
-    abandonware. They have been included in this distribution for educational 
-    purposes only and this copyright notice does not attempt to claim any 
+    All sound files, sound fonts, midi files, and images that have been included
+    that were extracted from original Warcraft II by Blizzard Entertainment
+    were found freely available via internet sources and have been labeld as
+    abandonware. They have been included in this distribution for educational
+    purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
 #include "MainMenuMode.h"
@@ -20,6 +20,7 @@
 #include "MapSelectionMode.h"
 #include "ApplicationData.h"
 #include "MemoryDataSource.h"
+#include "Client.h"
 
 std::shared_ptr< CApplicationMode > CMainMenuMode::DMainMenuModePointer;
 
@@ -39,12 +40,16 @@ CMainMenuMode::CMainMenuMode(const SPrivateConstructorType &key){
 
 void CMainMenuMode::SinglePlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
     context->DGameSessionType = CApplicationData::gstSinglePlayer;
-    
+
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 
 void CMainMenuMode::MultiPlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
-    context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+    Client client;
+    if(client.Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
+        client.SendMessage(context->DUsername);
+        context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+    }
 }
 
 void CMainMenuMode::OptionsButtonCallback(std::shared_ptr< CApplicationData > context){
