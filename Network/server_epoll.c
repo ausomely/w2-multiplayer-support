@@ -115,9 +115,10 @@ int main(int argc, char *argv[])
         if(active_num < 0) {
             printf("epoll wait error\n");
 	    break;
-        } else if(active_num == 0) {
-	      printf("timeout ...\n");
-	      continue;
+        } 
+	else if(active_num == 0) {
+	    printf("timeout ...\n");
+	    continue;
         }
         // go through active connection
         for(i = 0; i < active_num; i++) {
