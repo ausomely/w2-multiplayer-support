@@ -1,5 +1,7 @@
 #include "Client.h"
 
+Client::Client() {}
+
 bool Client::Connect(std::string hostName, int portNumber){
     PortNumber = portNumber;
     if((1 > PortNumber)||(65535 < PortNumber)){

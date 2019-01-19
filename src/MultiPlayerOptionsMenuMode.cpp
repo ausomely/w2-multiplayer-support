@@ -46,6 +46,7 @@ void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(std::shared_ptr<
 }
 
 void CMultiPlayerOptionsMenuMode::MainMenuButtonCallback(std::shared_ptr< CApplicationData > context){
+    context->ClientPointer->CloseConnection();
     context->ChangeApplicationMode(CMainMenuMode::Instance());
 }
 

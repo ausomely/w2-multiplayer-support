@@ -10,20 +10,19 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string>
-//Susing namespace std;
 
 #define BUFFER_SIZE     256
 
 class Client {
     public:
-    //protected:
+    // members
         int SocketFileDescriptor;
         int PortNumber;
-        int Result;
         struct sockaddr_in ServerAddress;
         struct hostent *Server;
 
-    //public:
+    // member functions
+        Client();
         bool Connect(std::string hostName, int portNumber);
         void SendMessage(std::string data);
         void CloseConnection();

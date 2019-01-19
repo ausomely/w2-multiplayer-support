@@ -45,9 +45,9 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(std::shared_ptr< CApplication
 }
 
 void CMainMenuMode::MultiPlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
-    Client client;
-    if(client.Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
-        client.SendMessage(context->DUsername);
+    context->ClientPointer = std::make_shared< Client >();
+    if(context->ClientPointer->Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
+        context->ClientPointer->SendMessage(context->DUsername);
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
 }

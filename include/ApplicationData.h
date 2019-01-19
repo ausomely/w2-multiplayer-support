@@ -7,11 +7,11 @@
     purposes. It may not be distributed beyond those enrolled in the course without
     prior permission from the copyright holder.
 
-    All sound files, sound fonts, midi files, and images that have been included 
-    that were extracted from original Warcraft II by Blizzard Entertainment 
-    were found freely available via internet sources and have been labeld as 
-    abandonware. They have been included in this distribution for educational 
-    purposes only and this copyright notice does not attempt to claim any 
+    All sound files, sound fonts, midi files, and images that have been included
+    that were extracted from original Warcraft II by Blizzard Entertainment
+    were found freely available via internet sources and have been labeld as
+    abandonware. They have been included in this distribution for educational
+    purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
 #ifndef APPLICATIONDATA_H
@@ -33,6 +33,7 @@
 #include "EditRenderer.h"
 #include "ListViewRenderer.h"
 #include "ApplicationMode.h"
+#include "Client.h"
 
 typedef void (*TButtonCallbackFunction)(void *calldata);
 typedef bool (*TEditTextValidationCallbackFunction)(const std::string &text);
@@ -61,7 +62,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
             ctTargetOn,
             ctMax
         } ECursorType, *ECursorTypeRef;
-        
+
         typedef enum{
             uictNone = 0,
             uictViewport,
@@ -74,13 +75,13 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
             uictUserAction,
             uictMenuButton
         } EUIComponentType, *EUIComponentTypeRef;
-        
+
         typedef enum{
             gstSinglePlayer,
             gstMultiPlayerHost,
             gstMultiPlayerClient
         } EGameSessionType, *EGameSessionTypeRef;
-        
+
         typedef enum{
             ptNone = 0,
             ptHuman,
@@ -88,7 +89,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
             ptAIMedium,
             ptAIHard
         } EPlayerType, *EPlayerTypeRef;
-        
+
         static std::shared_ptr< CApplicationData > DApplicationDataPointer;
         bool DDeleted;
         EGameSessionType DGameSessionType;
@@ -128,7 +129,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         std::vector< std::string > DOptionsEditTitles;
         std::vector< std::string > DOptionsEditText;
         std::vector< TEditTextValidationCallbackFunction > DOptionsEditValidationFunctions;
-        
+
         std::shared_ptr< CMapRenderer > DMapRenderer;
         std::shared_ptr< CCursorSet > DCursorSet;
         int DCursorIndices[ctMax];
@@ -174,19 +175,22 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         std::shared_ptr< CButtonRenderer > DButtonRenderer;
         std::shared_ptr< CListViewRenderer > DMapSelectListViewRenderer;
         std::shared_ptr< CEditRenderer > DOptionsEditRenderer;
-        
+
+        // add shared_ptr to Client
+        std::shared_ptr< Client > ClientPointer;
+
         // Model
         EPlayerNumber DPlayerNumber;
         std::shared_ptr< CGameModel > DGameModel;
-        std::array< SPlayerCommandRequest, to_underlying(EPlayerNumber::Max) > DPlayerCommands;                
-        std::array< std::shared_ptr< CAIPlayer >, to_underlying(EPlayerNumber::Max) > DAIPlayers;                         
+        std::array< SPlayerCommandRequest, to_underlying(EPlayerNumber::Max) > DPlayerCommands;
+        std::array< std::shared_ptr< CAIPlayer >, to_underlying(EPlayerNumber::Max) > DAIPlayers;
         std::array< EPlayerType, to_underlying(EPlayerNumber::Max) > DLoadingPlayerTypes;
         std::array< EPlayerColor, to_underlying(EPlayerNumber::Max) > DLoadingPlayerColors;
         std::array< std::string, to_underlying(EPlayerNumber::Max) > DPlayerNames;
-        
+
         std::shared_ptr< CApplicationMode > DApplicationMode;
         std::shared_ptr< CApplicationMode > DNextApplicationMode;
-        
+
         std::unordered_map< uint32_t, EAssetCapabilityType > DUnitHotKeyMap;
         std::unordered_map< uint32_t, EAssetCapabilityType > DBuildHotKeyMap;
         std::unordered_map< uint32_t, EAssetCapabilityType > DTrainHotKeyMap;
@@ -195,14 +199,14 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         std::vector< uint32_t > DPressedKeys;
         std::vector< uint32_t > DReleasedKeys;
         int DCurrentX;
-        int DCurrentY;                                                              
+        int DCurrentY;
         CPixelPosition DMouseDown;
-        int DLeftClick;                                                       
+        int DLeftClick;
         int DRightClick;
         bool DLeftDown;
-        bool DRightDown;    
+        bool DRightDown;
         CButtonRenderer::EButtonState DMenuButtonState;
-        
+
         static void ActivateCallback(TGUICalldata data);
         static bool TimeoutCallback(TGUICalldata data);
         static bool MainWindowDeleteEventCallback(std::shared_ptr<CGUIWidget> widget, TGUICalldata data);
@@ -214,8 +218,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         static bool DrawingAreaButtonPressEventCallback(std::shared_ptr<CGUIWidget> widget, SGUIButtonEvent &event, TGUICalldata data);
         static bool DrawingAreaButtonReleaseEventCallback(std::shared_ptr<CGUIWidget> widget, SGUIButtonEvent &event, TGUICalldata data);
         static bool DrawingAreaMotionNotifyEventCallback(std::shared_ptr<CGUIWidget> widget, SGUIMotionEvent &event, TGUICalldata data);
-        
-        
+
+
         void Activate();
         bool Timeout();
         bool MainWindowDeleteEvent(std::shared_ptr<CGUIWidget> widget);
@@ -227,7 +231,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         bool DrawingAreaButtonPressEvent(std::shared_ptr<CGUIWidget> widget, SGUIButtonEvent &event);
         bool DrawingAreaButtonReleaseEvent(std::shared_ptr<CGUIWidget> widget, SGUIButtonEvent &event);
         bool DrawingAreaMotionNotifyEvent(std::shared_ptr<CGUIWidget> widget, SGUIMotionEvent &event);
-        
+
         EUIComponentType FindUIComponentType(const CPixelPosition &pos);
         CPixelPosition ScreenToViewport(const CPixelPosition &pos);
         CPixelPosition ScreenToMiniMap(const CPixelPosition &pos);
@@ -236,28 +240,27 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>{
         CPixelPosition ScreenToUnitAction(const CPixelPosition &pos);
         CPixelPosition ViewportToDetailedMap(const CPixelPosition &pos);
         CPixelPosition MiniMapToDetailedMap(const CPixelPosition &pos);
-        
+
         // Output
         void RenderMenuTitle(const std::string &title, int &titlebottomy, int &pagewidth, int &pageheight);
         void RenderSplashStep();
         static void SoundLoadingCallback(TSoundLibraryLoadingCalldata data);
-        
-        
+
+
         void ChangeApplicationMode(std::shared_ptr< CApplicationMode > mode);
         bool ModeIsChanging();
-               
+
         void LoadGameMap(int index);
         void ResetPlayerColors();
         void ResizeCanvases();
- 
+
     public:
         explicit CApplicationData(const std::string &appname, const SPrivateApplicationType &key);
         ~CApplicationData();
-        
+
         static std::shared_ptr< CApplicationData > Instance(const std::string &appname);
-        
+
         int Run(int argc, char *argv[]);
-        
+
 };
 #endif
-
