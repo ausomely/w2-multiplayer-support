@@ -37,7 +37,7 @@ bool Client::Connect(std::string hostName, int portNumber){
 void Client::SendMessage(std::string data){
       int Result;
       // Write data to server
-      Result = write(SocketFileDescriptor, data.c_str(), strlen(data.c_str()));
+      Result = write(SocketFileDescriptor, data.c_str(), strlen(data.c_str())+1); //added + 1, need space for null char
       if(0 > Result){
            perror("ERROR writing to socket");
       }
