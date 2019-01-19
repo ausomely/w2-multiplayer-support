@@ -18,18 +18,38 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <signal.h> //  our new library
 
 #define BUF_SIZE 200
 #define MAX_CONNECTION 10
 
+using namespace std;
+
+struct ClientDescriptor{
+	int FD;
+	string username;
+};
+
+int glbl_sockFD;
+
+void End_Program(int sig){	//Particularly, when we get ctrl+c signal (SIGINT), we will close FD before exit.
+
+	fflush(stdout);
+	printf("\nClosing Socket FD: %d",glbl_sockFD);
+	close(glbl_sockFD);
+
+}
+
 int main(int argc, char *argv[])
 {
+
 	int ServerSocketFD, ClientSocketFD;
 	socklen_t ClientLength;
 	struct sockaddr_in ServerAddress, ClientAddress;
 	char buff[BUF_SIZE];
 	int ret;
-	std::vector<std::string> ClientList;
+	ClientDescriptor UserInfoCD;
+	vector<ClientDescriptor> ClientList;
 
   if(2 > argc){
       fprintf(stderr,"ERROR, no port provided\n");
@@ -47,6 +67,9 @@ int main(int argc, char *argv[])
 		fprintf(stderr,"Socket error:%s\n\a", strerror(errno));
 		exit(1);
 	}
+
+	glbl_sockFD = ServerSocketFD;
+	signal(SIGINT, End_Program); //we want to handle the ctrl+c command, will trigger closing of port then exit program.
 
 	// Setup ServerAddress data structure
 	bzero((char *) &ServerAddress, sizeof(ServerAddress));
@@ -86,12 +109,13 @@ int main(int argc, char *argv[])
 	{
 		// print out client list
 		printf("Connected Client List:\n");
-		for(unsigned int k = 0; k < ClientList.size(); k++)
-		  std::cout << ClientList[k] << std::endl;
+		for(unsigned int k = 0; k < ClientList.size(); k++){
+		  cout << ClientList[k].username << endl;
+		}
 
 		// get active number of connections from epoll
-		int active_num = epoll_wait(epollfd, eventList, MAX_CONNECTION, timeout);
-		printf("active_num: %d\n", active_num);
+		int active_num = epoll_wait(epollfd, eventList, MAX_CONNECTION, -1);
+		printf("\nactive_num (Number of I/O requests ready)\n: %d", active_num);
 		if(active_num < 0) {
 			printf("epoll wait error\n");
 			break;
@@ -119,7 +143,9 @@ int main(int argc, char *argv[])
 					printf("accept error\n");
 					continue;
 				}
-				printf("Accept Connection: %d\n", ClientSocketFD);
+
+
+				UserInfoCD.FD = ClientSocketFD;
 
 				// Add new connection to epoll for listening
 				struct epoll_event event;
@@ -134,9 +160,16 @@ int main(int argc, char *argv[])
 
 				if (ret <= 0) {
 					// client closed
-					printf("client[%d] close\n", i);
+					printf("client[%d] closed\n", eventList[i].data.fd);
 					close(eventList[i].data.fd);
-					printf("%d\n", eventList[i].data.fd);
+					printf("\nWhich File Descriptor: %d\n", eventList[i].data.fd);
+
+					for(int n = 0; n < ClientList.size(); n++){
+							if(ClientList[n].FD == eventList[i].data.fd){
+								ClientList.erase(ClientList.begin()+n); //Client leaving, remove them from the users list!
+							}
+					}
+
 
 					// delete the connection from epoll
 					epoll_ctl(epollfd, EPOLL_CTL_DEL, eventList[i].data.fd, NULL);
@@ -146,10 +179,12 @@ int main(int argc, char *argv[])
 					if (ret < BUF_SIZE) {
 						memset(&buff[ret - 1], '\0', 1);
 					}
-				  printf("client[%d] send:%s\n", i, buff);
+				  printf("client[%d] send:%s\n", eventList[i].data.fd, buff);
 
 					// add current connection and copy the username to client list
-					ClientList.push_back(std::string(buff));
+					UserInfoCD.username = string(buff);
+					ClientList.push_back(UserInfoCD);
+					printf("Accept Connection: %d\n", ClientSocketFD);
 
 					// send message back
 					send(eventList[i].data.fd, "You are connected!", 19, 0);
