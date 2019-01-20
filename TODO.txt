@@ -1,1 +1,5 @@
-
+1. Try to convert the server code into a class (maybe with boost)
+2. Try to get response from linux team about interface we sent them.
+3. Try to get response from web server team (the progress with their webserver for authentication)
+4. Establish coding structure for Client class.
+5. Figure out ways to tag the information the client sent to the server so the server knows what to do with it.
