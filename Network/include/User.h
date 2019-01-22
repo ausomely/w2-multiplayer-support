@@ -25,6 +25,7 @@ class User: public std::enable_shared_from_this<User>
         User(tcp::socket socket_, Lobby& lobby_)
             : socket(std::move(socket_)), lobby(lobby_) {}
         void InitializeSession();
+        void ChangeSession(std::shared_ptr<Session> session);
 };
 
 typedef std::shared_ptr<User> User_ptr;
