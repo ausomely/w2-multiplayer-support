@@ -12,6 +12,8 @@ class Session
     public:
         virtual ~Session() {}
         virtual std::string GetName() = 0;
+        virtual void DoRead() = 0;
+        virtual void DoWrite() = 0;
 };
 
 typedef std::shared_ptr<Session> Session_ptr;

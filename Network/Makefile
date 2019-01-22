@@ -21,7 +21,7 @@ all: $(SERVER_NAME)
 $(SERVER_NAME): $(SERVER_OBJS)
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(BOOSTFLAGS) $(SERVER_OBJS) -o $(SERVER_NAME)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp 
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c $< -o $@
 
 .PHONY: directories
