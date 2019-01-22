@@ -11,12 +11,13 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 {
     //Class for managing a single connection with a client
     private:
-        /*tcp::socket socket;
-        char data[MAX_BUFFER];
-        std::string name; //username associated with session
-        Lobby& lobby; //shared lobby object*/
+        struct SPrivateSessionType{};
+    protected:
+        static std::shared_ptr< Session > DLoginSessionPointer;
+    public:
+        explicit LoginSession(const SPrivateSessionType &key) {}
 
-        //std::string GetName();
+        static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
         void DoRead(User_ptr UserPtr);
@@ -26,9 +27,6 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 
         //start reading from connection
         void Start(User_ptr UserPtr);
-
-    public:
-        LoginSession() {}
 };
 
 #endif

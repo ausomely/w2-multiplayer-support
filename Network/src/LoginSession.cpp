@@ -1,8 +1,14 @@
 #include "LoginSession.h"
 
-/*std::string LoginSession::GetName() {
-    return name;
-}*/
+std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
+
+std::shared_ptr< Session > LoginSession::Instance() {
+    if(DLoginSessionPointer == nullptr) {
+        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType());
+    }
+    return DLoginSessionPointer;
+}
+
 
 void LoginSession::DoRead(User_ptr UserPtr)
 {

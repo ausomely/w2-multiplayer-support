@@ -3,6 +3,6 @@
 #include "LoginSession.h"
 
 void User::InitializeSession() {
-    CurrentSession = std::make_shared<LoginSession>();
+    CurrentSession = LoginSession::Instance();
     CurrentSession->Start(shared_from_this());
 }
