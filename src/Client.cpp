@@ -35,21 +35,21 @@ bool Client::Connect(std::string hostName, int portNumber){
 }
 
 void Client::SendMessage(std::string data){
-      int Result;
-      // Write data to server
-      Result = write(SocketFileDescriptor, data.c_str(), strlen(data.c_str())+1); //added + 1, need space for null char
-      if(0 > Result){
-           perror("ERROR writing to socket");
-      }
+    int Result;
+    // Write data to server
+    Result = write(SocketFileDescriptor, data.c_str(), strlen(data.c_str())+1); //added + 1, need space for null char
+    if(0 > Result){
+        perror("ERROR writing to socket");
+    }
 
-      char Buffer[BUFFER_SIZE];
-      bzero(Buffer, BUFFER_SIZE);
-      // Read data from server
-      Result = read(SocketFileDescriptor, Buffer, BUFFER_SIZE-1);
-      if(0 > Result){
-          perror("ERROR reading from socket");
-      }
-      printf("%s\n",Buffer);
+    char Buffer[BUFFER_SIZE];
+    bzero(Buffer, BUFFER_SIZE);
+    // Read data from server
+    Result = read(SocketFileDescriptor, Buffer, BUFFER_SIZE-1);
+    if(0 > Result){
+        perror("ERROR reading from socket");
+    }
+    printf("%s\n",Buffer);
 }
 
 void Client::CloseConnection(){
