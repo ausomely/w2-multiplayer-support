@@ -1,9 +1,10 @@
 #ifndef LOBBY_H
 #define LOBBY_H
 
-#include "Session.h"
 #include <boost/algorithm/string/join.hpp>
 #include <set>
+#include "Session.h"
+#include "User.h"
 
 class Lobby
 {
@@ -11,17 +12,17 @@ class Lobby
     //I'd see it being used to managing overall game communication
     //and data management
     private:
-        std::set<Session_ptr> Users;
+        std::set<User_ptr> Users;
         std::vector<std::string> UserNames;
     public:
         //constructor, no need to initialize members yet
         Lobby() {}
 
         //a new client has joined
-        void join(Session_ptr user);
+        void join(User_ptr UserPtr);
 
         //a client has left
-        void leave(Session_ptr user);
+        void leave(User_ptr UserPtr);
 
         //print the current connected clients
         void PrintNames();

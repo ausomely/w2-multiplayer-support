@@ -1,22 +1,22 @@
 #include "Lobby.h"
 
 //a new client has joined
-void Lobby::join(Session_ptr user) {
-    Users.insert(user);
-    UserNames.push_back(user->GetName());
+void Lobby::join(User_ptr UserPtr) {
+    Users.insert(UserPtr);
+    UserNames.push_back(UserPtr->name);
 }
 
 //a client has left
-void Lobby::leave(Session_ptr user) {
-    Users.erase(user);
+void Lobby::leave(User_ptr UserPtr) {
+    Users.erase(UserPtr);
     for (auto iter = UserNames.begin();
          iter != UserNames.end(); iter++) {
-        if (*iter == user->GetName()) { //name found
+        if (*iter == UserPtr->name) { //name found
             UserNames.erase(iter);
             break;
         }
     }
-    std::cout << "Client " << user->GetName() << " has left the session!" << std::endl;
+    std::cout << "Client " << UserPtr->name << " has left the session!" << std::endl;
     PrintNames();
 }
 

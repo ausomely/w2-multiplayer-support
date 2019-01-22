@@ -11,7 +11,7 @@ void Server::DoAccept() {
         [this](boost::system::error_code err) {
         if (!err) {
             //accept new connection and create new Session for it
-            std::make_shared<LoginSession>(std::move(socket), lobby)->Start();
+            std::make_shared<User>(std::move(socket), lobby)->InitializeSession();
         }
         //continue to listen for new connections
         DoAccept();

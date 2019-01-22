@@ -7,15 +7,16 @@
 #include <vector>
 #include <boost/asio.hpp>
 
+#include "User.h"
+
 class Session
 {
     public:
         virtual ~Session() {}
-        virtual std::string GetName() = 0;
-        virtual void DoRead() = 0;
-        virtual void DoWrite() = 0;
+        //virtual std::string GetName() = 0;
+        virtual void DoRead(User_ptr UserPtr) = 0;
+        virtual void DoWrite(User_ptr UserPtr) = 0;
+        virtual void Start(User_ptr UserPtr) = 0;
 };
-
-typedef std::shared_ptr<Session> Session_ptr;
 
 #endif
