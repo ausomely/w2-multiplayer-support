@@ -14,6 +14,7 @@ class User: public std::enable_shared_from_this<User>
 {
     friend class Session;
     friend class LoginSession;
+    friend class AcceptedSession;
     friend class Lobby;
     protected:
         tcp::socket socket;

@@ -12,9 +12,10 @@ INCLUDE  += -I $(INC_DIR)
 SERVER_NAME = boostServer
 SERVER_OBJS = $(OBJ_DIR)/main.o \
 	      $(OBJ_DIR)/User.o \
-              $(OBJ_DIR)/Lobby.o \
+        $(OBJ_DIR)/Lobby.o \
 	      $(OBJ_DIR)/LoginSession.o \
-	      $(OBJ_DIR)/Server.o
+	      $(OBJ_DIR)/Server.o \
+        $(OBJ_DIR)/AcceptedSession.o
 
 all: $(SERVER_NAME)
 
@@ -30,6 +31,6 @@ directories:
 	mkdir -p $(OBJ_DIR)
 
 clean::
-	-rm $(SERVER_OBJS) $(SERVER_NAME)
+	-rm -f $(SERVER_OBJS) $(SERVER_NAME)
 
 .PHONY: clean

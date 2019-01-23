@@ -1,37 +1,24 @@
-#include "LoginSession.h"
+#include "AcceptedSession.h"
 
-std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
+std::shared_ptr< Session > AcceptedSession::DAcceptedSessionPointer;
 
-std::shared_ptr< Session > LoginSession::Instance() {
-    if(DLoginSessionPointer == nullptr) {
-        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType());
+std::shared_ptr< Session > AcceptedSession::Instance() {
+    if(DAcceptedSessionPointer == nullptr) {
+        DAcceptedSessionPointer = std::make_shared< AcceptedSession >(SPrivateSessionType());
     }
-    return DLoginSessionPointer;
+    return DAcceptedSessionPointer;
 }
 
 
-void LoginSession::DoRead(User_ptr UserPtr)
+void AcceptedSession::DoRead(User_ptr UserPtr)
 {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
         [this, UserPtr](boost::system::error_code err, std::size_t length) {
-        //data to be processed
+        //TODO: determine how to handle just authenticated session
         if (!err) {
-            //TODO: parse login packet (username and password)
-            //set session's username
-            UserPtr->name = std::string(UserPtr->data);
-            
-            //TODO: send authentication request to web server
-
-            //if authenticated
-            //add name to list of users
-            UserPtr->lobby.join(UserPtr);
-            //TODO: change to have two writes for login: fail and success
-            DoWrite(UserPtr); //in write change session type to accepted
-            
-            //else
-            //send fail and continue reading as login session
+            DoWrite(UserPtr);
         }
 
         //end of connection
@@ -43,7 +30,7 @@ void LoginSession::DoRead(User_ptr UserPtr)
     });
 }
 
-void LoginSession::DoWrite(User_ptr UserPtr)
+void AcceptedSession::DoWrite(User_ptr UserPtr)
 {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
@@ -61,7 +48,7 @@ void LoginSession::DoWrite(User_ptr UserPtr)
  }
 
 //start reading from connection
-void LoginSession::Start(User_ptr UserPtr)
+void AcceptedSession::Start(User_ptr UserPtr)
 {
     DoRead(UserPtr);
 }
