@@ -8,6 +8,7 @@ using boost::asio::ip::tcp;
 
 class Session;
 class LoginSession;
+class AcceptedSession;
 class Lobby;
 
 class User: public std::enable_shared_from_this<User>

@@ -1,6 +1,7 @@
 #include "User.h"
 #include "Session.h"
 #include "LoginSession.h"
+#include "AcceptedSession.h"
 
 void User::InitializeSession() {
     CurrentSession = LoginSession::Instance();

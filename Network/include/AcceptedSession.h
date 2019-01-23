@@ -1,5 +1,5 @@
-#ifndef LOGINSESSION_H
-#define LOGINSESSION_H
+#ifndef ACCEPTEDLOGINSESSION_H
+#define ACCEPTEDLOGINSESSION_H
 
 #include "Session.h"
 #include "Lobby.h"

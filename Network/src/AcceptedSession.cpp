@@ -10,8 +10,7 @@ std::shared_ptr< Session > AcceptedSession::Instance() {
 }
 
 
-void AcceptedSession::DoRead(User_ptr UserPtr)
-{
+void AcceptedSession::DoRead(User_ptr UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
@@ -30,8 +29,7 @@ void AcceptedSession::DoRead(User_ptr UserPtr)
     });
 }
 
-void AcceptedSession::DoWrite(User_ptr UserPtr)
-{
+void AcceptedSession::DoWrite(User_ptr UserPtr) {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
@@ -48,7 +46,7 @@ void AcceptedSession::DoWrite(User_ptr UserPtr)
  }
 
 //start reading from connection
-void AcceptedSession::Start(User_ptr UserPtr)
-{
+void AcceptedSession::Start(User_ptr UserPtr) {
+    std::cout << UserPtr->name << " has joined accepted session" << std::endl;
     DoRead(UserPtr);
 }

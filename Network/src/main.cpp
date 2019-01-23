@@ -10,8 +10,7 @@
 
 #define DEFAULT_PORT 55107 //same default port of game client
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     try {
         int Port;
 

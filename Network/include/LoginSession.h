@@ -27,6 +27,12 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 
         //start reading from connection
         void Start(User_ptr UserPtr);
+
+        //restart and read data from client again if fails GetAuthentication
+        void Restart(User_ptr UserPtr);
+
+        //get authentication by sending http request to the web server
+        bool GetAuthentication(User_ptr UserPtr);
 };
 
 #endif
