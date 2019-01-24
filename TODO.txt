@@ -4,6 +4,8 @@ Server:
        such as sending request and handling credentials and infomration and sending back authentication result back to server.
        Flow should be Client send username and password -> Our server receives, sends a HTTP request -> Web server sends back yes/no              answer -> Our Server sends the answer -> Client should move to the next session if succeeds or stay in LoginSession and try 
        sending the information again if fails.
+       (DONE with exchanging username and password. Still need to do the HTTP request.)
+       FIXED ME!! : Have some problems compiling with protobuf in CSIF
     2. For InGameSession, Add ability to handle the commands stream the client will send to the server and store it into file(not sure)
        so that later on we can verify with the client side for correctness. Maybe send the commands stream back to the client for testing.
        (Zack)
@@ -14,7 +16,7 @@ Server:
        (Zack)
 Client:
     Hard Goals:
-    1. Convert our Client.cpp and Client.h to boost. Add needed flags in Makefile.
+    1. Convert our Client.cpp and Client.h to boost. Add needed flags in Makefile. (DONE!)
     2. Add functions to Client class to send command streams.(Need understanding of the source code of the game)
        (Zack)
     
