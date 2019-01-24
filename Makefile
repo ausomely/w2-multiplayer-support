@@ -95,15 +95,19 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/UnitUpgradeCapabilities.o        \
     $(OBJ_DIR)/ViewportRenderer.o               \
     $(OBJ_DIR)/VisibilityMap.o									\
+		$(OBJ_DIR)/LoginInfo.pb.o                   \
 		$(OBJ_DIR)/Client.o
 
 all: directories $(BIN_DIR)/$(GAME_NAME)
 
 $(BIN_DIR)/$(GAME_NAME): $(GAME_OBJS)
-	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS) $(BOOSTFLAGS)
+	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS) $(BOOSTFLAGS) $(PROTOCFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(INCLUDE) -c $< -o $@
+
+$(OBJ_DIR)/%.pb.o: $(SRC_DIR)/%.pb.cc
+	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c $< -o $@
 
 .PHONY: directories
 directories:

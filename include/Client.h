@@ -27,6 +27,9 @@ class Client
         tcp::socket socket;
         tcp::resolver resolver;
 
+        std::string username;
+        std::string password;
+
         /* TO DO */
         /* potentially a flag or shared_ptr to indicate the client mode we have
            connection mode in which we tries to connect the clients
@@ -35,9 +38,9 @@ class Client
            game playing mode in which we exchange game information */
 
     // member functions
-        Client();
+        Client(std::string username_, std::string password_);
         bool Connect(std::string hostName, int portNumber);
-        void SendMessage(std::string data);
+        void SendLoginInfo();
         void CloseConnection();
 
     /* TO DO  */

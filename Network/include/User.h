@@ -20,6 +20,7 @@ class User: public std::enable_shared_from_this<User>
     protected:
         tcp::socket socket;
         char data[MAX_BUFFER];
+        std::string password;
         std::string name; //username associated with session
         Lobby& lobby; //shared lobby object
         std::shared_ptr<Session> CurrentSession;

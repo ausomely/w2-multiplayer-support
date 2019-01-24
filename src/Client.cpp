@@ -1,8 +1,10 @@
 #include "Client.h"
+#include "LoginInfo.pb.h"
 
 using boost::asio::ip::tcp;
 
-Client::Client() : socket(io_service), resolver(io_service) {
+Client::Client(std::string username_, std::string password_)
+    : socket(io_service), resolver(io_service), username(username_), password(password_) {
 
 }
 
@@ -17,9 +19,16 @@ bool Client::Connect(std::string hostName, int portNumber){
     return true;
 }
 
-void Client::SendMessage(std::string data){
+void Client::SendLoginInfo() {
     boost::system::error_code err;
-    boost::asio::write(socket, boost::asio::buffer(data, data.size()), err);
+    LoginInfo::Credential credential;
+    
+    credential.set_username(username);
+    credential.set_password(password);
+    std::string buffer;
+    credential.SerializeToString(&buffer);
+
+    boost::asio::write(socket, boost::asio::buffer(buffer, buffer.size()), err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
         return;

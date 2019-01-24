@@ -46,9 +46,15 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(std::shared_ptr< CApplication
 }
 
 void CMainMenuMode::MultiPlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
-    context->ClientPointer = std::make_shared< Client >();
+    //replace this with interface for asking password
+    std::cout << "Enter your password: ";
+    std::string password;
+    std::getline(std::cin, password);
+
+    context->ClientPointer = std::make_shared< Client >(context->DUsername, password);
+
     if(context->ClientPointer->Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
-        context->ClientPointer->SendMessage(context->DUsername);
+        context->ClientPointer->SendLoginInfo();
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
 }

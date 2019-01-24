@@ -21,7 +21,15 @@ void LoginSession::DoRead(User_ptr UserPtr) {
         if (!err) {
             //TODO: parse login packet (username and password)
             //set session's username
-            UserPtr->name = std::string(UserPtr->data);
+
+            LoginInfo::Credential credential;
+
+            credential.ParseFromString(UserPtr->data);
+            UserPtr->name = credential.username();
+            UserPtr->password = credential.password();
+
+            //testing if we got the password!
+            std::cout << "Password for " << UserPtr->name << " is " << UserPtr->password << std::endl;
 
             //TODO: send authentication request to web server
 
