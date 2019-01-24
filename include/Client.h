@@ -10,22 +10,22 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <boost/asio.hpp>
 
-#define BUFFER_SIZE     256
+using boost::asio::ip::tcp;
 
-class Client {
+#define BUFFER_SIZE 1024
 
-    /* TO DO */
-    // friend classes to get access of the class info
-
-    // potentially a Package class
-
+class Client
+{
     public:
     // members
-        int SocketFileDescriptor;
-        int PortNumber;
-        struct sockaddr_in ServerAddress;
-        struct hostent *Server;
+        boost::asio::io_service io_service;
+        tcp::socket socket;
+        tcp::resolver resolver;
 
         /* TO DO */
         /* potentially a flag or shared_ptr to indicate the client mode we have

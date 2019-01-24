@@ -20,6 +20,8 @@ PKGS = gtk+-3.0 sndfile libmpg123
 ifdef DEBUG_MODE
 DEFINES  += -DDEBUG
 CFLAGS   += -g -ggdb -D_GLIBCXX_DEBUG
+BOOSTFLAGS += -lboost_system
+PROTOCFLAGS += `pkg-config --cflags --libs protobuf`
 #LDFLAGS  += -Wl,-no_pie
 else
 CFLAGS   += -O3
@@ -93,12 +95,12 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/UnitUpgradeCapabilities.o        \
     $(OBJ_DIR)/ViewportRenderer.o               \
     $(OBJ_DIR)/VisibilityMap.o									\
-		$(OBJ_DIR)/Client.o							
+		$(OBJ_DIR)/Client.o
 
 all: directories $(BIN_DIR)/$(GAME_NAME)
 
 $(BIN_DIR)/$(GAME_NAME): $(GAME_OBJS)
-	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS)
+	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS) $(BOOSTFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(INCLUDE) -c $< -o $@

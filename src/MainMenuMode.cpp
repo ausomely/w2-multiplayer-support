@@ -21,6 +21,7 @@
 #include "ApplicationData.h"
 #include "MemoryDataSource.h"
 #include "Client.h"
+#include <boost/asio.hpp>
 
 std::shared_ptr< CApplicationMode > CMainMenuMode::DMainMenuModePointer;
 
