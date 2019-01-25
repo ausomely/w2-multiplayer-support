@@ -62,10 +62,9 @@ void LoginSession::DoWrite(User_ptr UserPtr) {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
-    size_t Length = UserPtr->lobby.PrepareUsersInfo(UserPtr->data);
-
+    UserPtr->lobby.PrepareUsersInfo(UserPtr->data);
     //write list of clients to socket
-    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, Length),
+    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, MAX_BUFFER),
         [UserPtr](boost::system::error_code err, std::size_t ) {
         //if no error, move to the next session
         if (!err) {
@@ -84,9 +83,9 @@ void LoginSession::Restart(User_ptr UserPtr) {
     auto self(shared_from_this());
     char message[100] = "Your login information is wrong. Please try again\n";
     std::cout << "Client " << UserPtr->name << " failed to authenticate!" << std::endl;
-    size_t Length = strlen(message);
+
     //write list of clients to socket
-    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(message, Length),
+    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(message, MAX_BUFFER),
         [this, UserPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket to get log in info
         if (!err) {

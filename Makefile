@@ -101,7 +101,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
 all: directories $(BIN_DIR)/$(GAME_NAME)
 
 $(BIN_DIR)/$(GAME_NAME): $(GAME_OBJS)
-	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS) $(BOOSTFLAGS) $(PROTOCFLAGS)
+	$(CXX) $(GAME_OBJS) -o $(BIN_DIR)/$(GAME_NAME) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(LDFLAGS) $(BOOSTFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(DEFINES) $(INCLUDE) -c $< -o $@

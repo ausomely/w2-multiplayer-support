@@ -22,13 +22,13 @@ bool Client::Connect(std::string hostName, int portNumber){
 void Client::SendLoginInfo() {
     boost::system::error_code err;
     LoginInfo::Credential credential;
-    
+
     credential.set_username(username);
     credential.set_password(password);
-    
+
     boost::asio::streambuf stream_buffer;
     std::ostream output_stream(&stream_buffer);
-    
+
     credential.SerializeToOstream(&output_stream);
 
     boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
@@ -37,7 +37,7 @@ void Client::SendLoginInfo() {
         return;
     }
 
-    char response[1024];
+    char response[BUFFER_SIZE];
     boost::asio::read(socket, boost::asio::buffer(response, BUFFER_SIZE), err);
     if(err) {
         std::cerr << "ERROR reading" << std::endl;
