@@ -25,16 +25,19 @@ void Client::SendLoginInfo() {
     
     credential.set_username(username);
     credential.set_password(password);
-    std::string buffer;
-    credential.SerializeToString(&buffer);
+    
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    
+    credential.SerializeToOstream(&output_stream);
 
-    boost::asio::write(socket, boost::asio::buffer(buffer, buffer.size()), err);
+    boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
         return;
     }
 
-    std::string response;
+    char response[1024];
     boost::asio::read(socket, boost::asio::buffer(response, BUFFER_SIZE), err);
     if(err) {
         std::cerr << "ERROR reading" << std::endl;

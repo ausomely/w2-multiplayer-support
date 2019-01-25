@@ -15,17 +15,17 @@ BIN_DIR = ./bin
 
 DEBUG_MODE=TRUE
 
-PKGS = gtk+-3.0 sndfile libmpg123
+PKGS = gtk+-3.0 sndfile libmpg123 protobuf
 
 ifdef DEBUG_MODE
 DEFINES  += -DDEBUG
 CFLAGS   += -g -ggdb -D_GLIBCXX_DEBUG
-BOOSTFLAGS += -lboost_system
-PROTOCFLAGS += `pkg-config --cflags --libs protobuf`
 #LDFLAGS  += -Wl,-no_pie
 else
 CFLAGS   += -O3
 endif
+
+BOOSTFLAGS += -lboost_system
 
 INCLUDE  += -I $(INC_DIR)
 CFLAGS   +=  -Wall `pkg-config --cflags $(PKGS)`
