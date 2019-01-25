@@ -57,12 +57,14 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/FileDataSource.o                 \
     $(OBJ_DIR)/FogRenderer.o                    \
     $(OBJ_DIR)/FontTileset.o                    \
+		$(OBJ_DIR)/GameOverMenuMode.o               \
     $(OBJ_DIR)/GameModel.o                      \
     $(OBJ_DIR)/GraphicFactoryCairo.o            \
     $(OBJ_DIR)/GraphicMulticolorTileset.o       \
     $(OBJ_DIR)/GraphicRecolorMap.o              \
     $(OBJ_DIR)/GraphicTileset.o                 \
     $(OBJ_DIR)/GUIFactoryGTK3.o                 \
+		$(OBJ_DIR)/InGameMenuMode.o                 \
     $(OBJ_DIR)/IOFactoryGlib.o                  \
     $(OBJ_DIR)/LineDataSource.o                 \
     $(OBJ_DIR)/ListViewRenderer.o               \

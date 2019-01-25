@@ -2,10 +2,10 @@
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
 
-    All source material (source code, images, sounds, etc.) have been provided to
-    University of California, Davis students of course ECS 160 for educational
-    purposes. It may not be distributed beyond those enrolled in the course without
-    prior permission from the copyright holder.
+    All source material (source code, images, sounds, etc.) have been provided
+    to University of California, Davis students of course ECS 160 for educational
+    purposes. It may not be distributed beyond those enrolled in the course
+    without prior permission from the copyright holder.
 
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
@@ -15,17 +15,18 @@
     ownership of this material.
 */
 #include "MainMenuMode.h"
-#include "OptionsMenuMode.h"
-#include "MultiPlayerOptionsMenuMode.h"
-#include "MapSelectionMode.h"
 #include "ApplicationData.h"
+#include "MapSelectionMode.h"
 #include "MemoryDataSource.h"
+#include "MultiPlayerOptionsMenuMode.h"
+#include "OptionsMenuMode.h"
 #include "Client.h"
 #include <boost/asio.hpp>
 
-std::shared_ptr< CApplicationMode > CMainMenuMode::DMainMenuModePointer;
+std::shared_ptr<CApplicationMode> CMainMenuMode::DMainMenuModePointer;
 
-CMainMenuMode::CMainMenuMode(const SPrivateConstructorType &key){
+CMainMenuMode::CMainMenuMode(const SPrivateConstructorType &key)
+{
     DTitle = "The Game";
     DButtonTexts.push_back("Single Player Game");
     DButtonFunctions.push_back(SinglePlayerGameButtonCallback);
@@ -39,19 +40,20 @@ CMainMenuMode::CMainMenuMode(const SPrivateConstructorType &key){
     DButtonFunctions.push_back(ExitGameButtonCallback);
 }
 
-void CMainMenuMode::SinglePlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
+//! @brief Opens single player menu
+void CMainMenuMode::SinglePlayerGameButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
     context->DGameSessionType = CApplicationData::gstSinglePlayer;
 
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 
-void CMainMenuMode::MultiPlayerGameButtonCallback(std::shared_ptr< CApplicationData > context){
-    //replace this with interface for asking password
-    std::cout << "Enter your password: ";
-    std::string password;
-    std::getline(std::cin, password);
-
-    context->ClientPointer = std::make_shared< Client >(context->DUsername, password);
+//! @brief Opens multi player menu
+void CMainMenuMode::MultiPlayerGameButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
+    context->ClientPointer = std::make_shared< Client >(context->DUsername, context->DPassword);
 
     if(context->ClientPointer->Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
         context->ClientPointer->SendLoginInfo();
@@ -59,17 +61,27 @@ void CMainMenuMode::MultiPlayerGameButtonCallback(std::shared_ptr< CApplicationD
     }
 }
 
-void CMainMenuMode::OptionsButtonCallback(std::shared_ptr< CApplicationData > context){
+//! @brief Opens game settings
+void CMainMenuMode::OptionsButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
     context->ChangeApplicationMode(COptionsMenuMode::Instance());
 }
 
-void CMainMenuMode::ExitGameButtonCallback(std::shared_ptr< CApplicationData > context){
+//! @brief Closes the game
+void CMainMenuMode::ExitGameButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
     context->DMainWindow->Close();
 }
 
-std::shared_ptr< CApplicationMode > CMainMenuMode::Instance(){
-    if(DMainMenuModePointer == nullptr){
-        DMainMenuModePointer = std::make_shared< CMainMenuMode >(SPrivateConstructorType());
+//! @brief Creates an instance of Main Menu
+std::shared_ptr<CApplicationMode> CMainMenuMode::Instance()
+{
+    if (DMainMenuModePointer == nullptr)
+    {
+        DMainMenuModePointer =
+            std::make_shared<CMainMenuMode>(SPrivateConstructorType());
     }
     return DMainMenuModePointer;
 }

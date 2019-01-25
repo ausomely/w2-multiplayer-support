@@ -2,29 +2,30 @@
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
 
-    All source material (source code, images, sounds, etc.) have been provided to
-    University of California, Davis students of course ECS 160 for educational
-    purposes. It may not be distributed beyond those enrolled in the course without
-    prior permission from the copyright holder.
+    All source material (source code, images, sounds, etc.) have been provided
+    to University of California, Davis students of course ECS 160 for educational
+    purposes. It may not be distributed beyond those enrolled in the course
+    without prior permission from the copyright holder.
 
-    All sound files, sound fonts, midi files, and images that have been included 
-    that were extracted from original Warcraft II by Blizzard Entertainment 
-    were found freely available via internet sources and have been labeld as 
-    abandonware. They have been included in this distribution for educational 
-    purposes only and this copyright notice does not attempt to claim any 
+    All sound files, sound fonts, midi files, and images that have been included
+    that were extracted from original Warcraft II by Blizzard Entertainment
+    were found freely available via internet sources and have been labeld as
+    abandonware. They have been included in this distribution for educational
+    purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
 #ifndef GUIEVENT_H
 #define GUIEVENT_H
-#include <memory>
 #include <cstdint>
+#include <memory>
 
 class CGUIWidget;
 class CGraphicResourceContext;
 
 using TGUICalldata = void *;
 
-struct SGUIButtonEventType{
+struct SGUIButtonEventType
+{
     uint32_t DType;
     static const uint32_t DButtonPress;
     static const uint32_t DDoubleButtonPress;
@@ -36,8 +37,9 @@ struct SGUIButtonEventType{
     bool IsButtonRelease() const;
 };
 
-struct SGUIModifierType{
-    uint32_t DState; 
+struct SGUIModifierType
+{
+    uint32_t DState;
     static const uint32_t Shift;
     static const uint32_t Lock;
     static const uint32_t Control;
@@ -46,11 +48,12 @@ struct SGUIModifierType{
     static const uint32_t Button2;
     static const uint32_t Button3;
     bool ModifierIsSet(uint32_t val) const;
-    void SetModifier(uint32_t val);  
+    void SetModifier(uint32_t val);
     void ClearModifier(uint32_t val);
 };
-  
-struct SGUIKeyType{
+
+struct SGUIKeyType
+{
     uint32_t DValue;
     static const uint32_t LeftShift;
     static const uint32_t RightShift;
@@ -139,7 +142,8 @@ struct SGUIKeyType{
     bool IsASCII() const;
 };
 
-struct SGUIButtonEvent{
+struct SGUIButtonEvent
+{
     SGUIButtonEventType DType;
     double DWindowX;
     double DWindowY;
@@ -149,39 +153,60 @@ struct SGUIButtonEvent{
     double DScreenY;
 };
 
-struct SGUIMotionEvent{
+struct SGUIMotionEvent
+{
     double DWindowX;
-    double DWindowY;          
+    double DWindowY;
     SGUIModifierType DModifier;
     double DScreenX;
     double DScreenY;
 };
 
-struct SGUIConfigureEvent{
+struct SGUIConfigureEvent
+{
     int DX;
     int DY;
     int DWidth;
     int DHeight;
 };
 
-struct SGUIKeyEvent{
+struct SGUIKeyEvent
+{
     SGUIKeyType DValue;
     SGUIModifierType DModifier;
 };
 
-enum class EGUIEvent{Expose, Motion, ButtonPress, ButtonRelease, KeyPress, KeyRelease};
+enum class EGUIEvent
+{
+    Expose,
+    Motion,
+    ButtonPress,
+    ButtonRelease,
+    KeyPress,
+    KeyRelease
+};
 
 using TGUIApplicationCallback = void (*)(TGUICalldata data);
 using TGUITimeoutCallback = bool (*)(TGUICalldata data);
-using TGUIActivateEventCallback = void (*)(std::shared_ptr<CGUIWidget> widget, TGUICalldata data);
-using TGUIDeleteEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, TGUICalldata data);
-using TGUIDestroyEventCallback = void (*)(std::shared_ptr<CGUIWidget> widget, TGUICalldata data);
-using TGUIButtonEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, SGUIButtonEvent &event, TGUICalldata data);
-using TGUIMotionEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, SGUIMotionEvent &event, TGUICalldata data);
-using TGUIConfigureEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, SGUIConfigureEvent &event, TGUICalldata data);
-using TGUIDrawEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, std::shared_ptr<CGraphicResourceContext> rc, TGUICalldata data);
-using TGUIKeyEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget, SGUIKeyEvent &event, TGUICalldata data);
-
+using TGUIActivateEventCallback = void (*)(std::shared_ptr<CGUIWidget> widget,
+                                           TGUICalldata data);
+using TGUIDeleteEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget,
+                                         TGUICalldata data);
+using TGUIDestroyEventCallback = void (*)(std::shared_ptr<CGUIWidget> widget,
+                                          TGUICalldata data);
+using TGUIButtonEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget,
+                                         SGUIButtonEvent &event,
+                                         TGUICalldata data);
+using TGUIMotionEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget,
+                                         SGUIMotionEvent &event,
+                                         TGUICalldata data);
+using TGUIConfigureEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget,
+                                            SGUIConfigureEvent &event,
+                                            TGUICalldata data);
+using TGUIDrawEventCallback =
+    bool (*)(std::shared_ptr<CGUIWidget> widget,
+             std::shared_ptr<CGraphicResourceContext> rc, TGUICalldata data);
+using TGUIKeyEventCallback = bool (*)(std::shared_ptr<CGUIWidget> widget,
+                                      SGUIKeyEvent &event, TGUICalldata data);
 
 #endif
-

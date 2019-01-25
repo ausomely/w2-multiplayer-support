@@ -2,42 +2,46 @@
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
 
-    All source material (source code, images, sounds, etc.) have been provided to
-    University of California, Davis students of course ECS 160 for educational
-    purposes. It may not be distributed beyond those enrolled in the course without
-    prior permission from the copyright holder.
+    All source material (source code, images, sounds, etc.) have been provided
+    to University of California, Davis students of course ECS 160 for educational
+    purposes. It may not be distributed beyond those enrolled in the course
+    without prior permission from the copyright holder.
 
-    All sound files, sound fonts, midi files, and images that have been included 
-    that were extracted from original Warcraft II by Blizzard Entertainment 
-    were found freely available via internet sources and have been labeld as 
-    abandonware. They have been included in this distribution for educational 
-    purposes only and this copyright notice does not attempt to claim any 
+    All sound files, sound fonts, midi files, and images that have been included
+    that were extracted from original Warcraft II by Blizzard Entertainment
+    were found freely available via internet sources and have been labeld as
+    abandonware. They have been included in this distribution for educational
+    purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
 #include "GUIFactoryGTK3.h"
-#include "GraphicFactoryCairo.h"
 #include <glib.h>
 #include <glib/gi18n.h>
 #include "Debug.h"
+#include "GraphicFactoryCairo.h"
 
 const uint32_t SGUIButtonEventType::DButtonPress = GDK_BUTTON_PRESS;
 const uint32_t SGUIButtonEventType::DDoubleButtonPress = GDK_2BUTTON_PRESS;
 const uint32_t SGUIButtonEventType::DTripleButtonPress = GDK_3BUTTON_PRESS;
 const uint32_t SGUIButtonEventType::DButtonRelease = GDK_BUTTON_RELEASE;
 
-bool SGUIButtonEventType::IsButtonPress() const{
+bool SGUIButtonEventType::IsButtonPress() const
+{
     return DType == DButtonPress;
 }
 
-bool SGUIButtonEventType::IsDoubleButtonPress() const{
+bool SGUIButtonEventType::IsDoubleButtonPress() const
+{
     return DType == DDoubleButtonPress;
 }
 
-bool SGUIButtonEventType::IsTripleButtonPress() const{
+bool SGUIButtonEventType::IsTripleButtonPress() const
+{
     return DType == DTripleButtonPress;
 }
 
-bool SGUIButtonEventType::IsButtonRelease() const{
+bool SGUIButtonEventType::IsButtonRelease() const
+{
     return DType == DButtonRelease;
 }
 
@@ -48,15 +52,18 @@ const uint32_t SGUIModifierType::Alt = GDK_MOD1_MASK;
 const uint32_t SGUIModifierType::Button1 = GDK_BUTTON1_MASK;
 const uint32_t SGUIModifierType::Button2 = GDK_BUTTON2_MASK;
 const uint32_t SGUIModifierType::Button3 = GDK_BUTTON3_MASK;
-bool SGUIModifierType::ModifierIsSet(uint32_t val) const{
+bool SGUIModifierType::ModifierIsSet(uint32_t val) const
+{
     return DState & val;
 }
 
-void SGUIModifierType::SetModifier(uint32_t val){
+void SGUIModifierType::SetModifier(uint32_t val)
+{
     DState |= val;
 }
 
-void SGUIModifierType::ClearModifier(uint32_t val){
+void SGUIModifierType::ClearModifier(uint32_t val)
+{
     DState &= ~val;
 }
 
@@ -138,135 +145,186 @@ const uint32_t SGUIKeyType::Keyx = GDK_KEY_x;
 const uint32_t SGUIKeyType::Keyy = GDK_KEY_y;
 const uint32_t SGUIKeyType::Keyz = GDK_KEY_z;
 
-
-bool SGUIKeyType::IsKey(uint32_t val) const{
+bool SGUIKeyType::IsKey(uint32_t val) const
+{
     return DValue == val;
 }
 
-void SGUIKeyType::SetKey(uint32_t val){
+void SGUIKeyType::SetKey(uint32_t val)
+{
     DValue = val;
 }
 
-bool SGUIKeyType::IsAlpha() const{
+bool SGUIKeyType::IsAlpha() const
+{
     return IsUpper() || IsLower();
 }
 
-bool SGUIKeyType::IsAlphaNumeric() const{
+bool SGUIKeyType::IsAlphaNumeric() const
+{
     return IsAlpha() || IsDigit();
 }
 
-bool SGUIKeyType::IsDigit() const{
-    return ((Key0 <= DValue)&&(Key9 >= DValue));
+bool SGUIKeyType::IsDigit() const
+{
+    return ((Key0 <= DValue) && (Key9 >= DValue));
 }
 
-bool SGUIKeyType::IsUpper() const{
-    return ((KeyA <= DValue)&&(KeyZ >= DValue));
+bool SGUIKeyType::IsUpper() const
+{
+    return ((KeyA <= DValue) && (KeyZ >= DValue));
 }
 
-bool SGUIKeyType::IsLower() const{
-    return ((Keya <= DValue)&&(Keyz >= DValue));
+bool SGUIKeyType::IsLower() const
+{
+    return ((Keya <= DValue) && (Keyz >= DValue));
 }
 
-bool SGUIKeyType::IsASCII() const{
+bool SGUIKeyType::IsASCII() const
+{
     return 127 >= DValue;
 }
 
-
 std::shared_ptr<CGUIApplication> CGUIFactory::DApplicationPointer = nullptr;
 
-std::shared_ptr<CGUIApplication> CGUIFactory::ApplicationInstance(const std::string &appname){
-    if(!DApplicationPointer && appname.length()){
+std::shared_ptr<CGUIApplication> CGUIFactory::ApplicationInstance(
+    const std::string &appname)
+{
+    if (!DApplicationPointer && appname.length())
+    {
         DApplicationPointer = std::make_shared<CGUIApplicationGTK3>(appname);
     }
     return DApplicationPointer;
 }
 
-std::shared_ptr<CGUIDisplay> CGUIFactory::DefaultDisplay(){
-    return std::make_shared<CGUIDisplayGTK3>(gdk_display_get_default());   
+std::shared_ptr<CGUIDisplay> CGUIFactory::DefaultDisplay()
+{
+    return std::make_shared<CGUIDisplayGTK3>(gdk_display_get_default());
 }
 
-std::shared_ptr<CGUIDrawingArea> CGUIFactory::NewDrawingArea(){
+std::shared_ptr<CGUIDrawingArea> CGUIFactory::NewDrawingArea()
+{
     return std::make_shared<CGUIDrawingAreaGTK3>(gtk_drawing_area_new());
 }
 
-std::shared_ptr<CGUIBox> CGUIFactory::NewBox(CGUIBox::EOrientation orientation, int spacing){
-    return std::make_shared<CGUIBoxGTK3>(gtk_box_new(orientation == CGUIBox::EOrientation::Horizontal ? GTK_ORIENTATION_HORIZONTAL : GTK_ORIENTATION_VERTICAL, spacing));
+std::shared_ptr<CGUIBox> CGUIFactory::NewBox(CGUIBox::EOrientation orientation,
+                                             int spacing)
+{
+    return std::make_shared<CGUIBoxGTK3>(
+        gtk_box_new(orientation == CGUIBox::EOrientation::Horizontal
+                        ? GTK_ORIENTATION_HORIZONTAL
+                        : GTK_ORIENTATION_VERTICAL,
+                    spacing));
 }
 
-std::shared_ptr<CGUIMenu> CGUIFactory::NewMenu(){
+std::shared_ptr<CGUIMenu> CGUIFactory::NewMenu()
+{
     return std::make_shared<CGUIMenuGTK3>(gtk_menu_new());
 }
 
-std::shared_ptr<CGUIMenuBar> CGUIFactory::NewMenuBar(){
+std::shared_ptr<CGUIMenuBar> CGUIFactory::NewMenuBar()
+{
     return std::make_shared<CGUIMenuBarGTK3>(gtk_menu_bar_new());
 }
 
-std::shared_ptr<CGUIMenuItem> CGUIFactory::NewMenuItem(const std::string &label){
-    return std::make_shared<CGUIMenuItemGTK3>(gtk_menu_item_new_with_label(label.c_str()));
+std::shared_ptr<CGUIMenuItem> CGUIFactory::NewMenuItem(const std::string &label)
+{
+    return std::make_shared<CGUIMenuItemGTK3>(
+        gtk_menu_item_new_with_label(label.c_str()));
 }
 
-std::shared_ptr<CGUIFileFilter> CGUIFactory::NewFileFilter(){
-    return std::make_shared<CGUIFileFilterGTK3>(gtk_file_filter_new());   
+std::shared_ptr<CGUIFileFilter> CGUIFactory::NewFileFilter()
+{
+    return std::make_shared<CGUIFileFilterGTK3>(gtk_file_filter_new());
 }
 
-std::shared_ptr<CGUIFileChooserDialog> CGUIFactory::NewFileChooserDialog(const std::string &title, bool openfile, std::shared_ptr<CGUIWindow> parent){
+std::shared_ptr<CGUIFileChooserDialog> CGUIFactory::NewFileChooserDialog(
+    const std::string &title, bool openfile, std::shared_ptr<CGUIWindow> parent)
+{
     GtkWindow *ParentWidget = NULL;
-    if(parent){
-        std::shared_ptr<CGUIWindowGTK3> ParentWindow = std::dynamic_pointer_cast<CGUIWindowGTK3>(parent);
-    
+    if (parent)
+    {
+        std::shared_ptr<CGUIWindowGTK3> ParentWindow =
+            std::dynamic_pointer_cast<CGUIWindowGTK3>(parent);
+
         ParentWidget = GTK_WINDOW(ParentWindow->Widget());
-    }   
-    if(openfile){
-        return std::make_shared<CGUIFileChooserDialogGTK3>(gtk_file_chooser_dialog_new(title.c_str(), ParentWidget, GTK_FILE_CHOOSER_ACTION_OPEN, _("_Cancel"), GTK_RESPONSE_CANCEL, _("_Open"), GTK_RESPONSE_ACCEPT, NULL));
     }
-    else{
-        return std::make_shared<CGUIFileChooserDialogGTK3>(gtk_file_chooser_dialog_new(title.c_str(), ParentWidget, GTK_FILE_CHOOSER_ACTION_SAVE, _("_Cancel"), GTK_RESPONSE_CANCEL, _("_Save"), GTK_RESPONSE_ACCEPT, NULL));
+    if (openfile)
+    {
+        return std::make_shared<CGUIFileChooserDialogGTK3>(
+            gtk_file_chooser_dialog_new(title.c_str(), ParentWidget,
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Open"), GTK_RESPONSE_ACCEPT, NULL));
+    }
+    else
+    {
+        return std::make_shared<CGUIFileChooserDialogGTK3>(
+            gtk_file_chooser_dialog_new(title.c_str(), ParentWidget,
+                                        GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Save"), GTK_RESPONSE_ACCEPT, NULL));
     }
 }
 
-CGUIApplicationGTK3::CGUIApplicationGTK3(const std::string &appname){
-    DApplication = gtk_application_new (appname.c_str(), G_APPLICATION_FLAGS_NONE);
-    //g_signal_connect(DApplication, "startup", G_CALLBACK (StartupCallback), NULL);
-    g_signal_connect(DApplication, "activate", G_CALLBACK (ActivateCallback), this);
-    
+CGUIApplicationGTK3::CGUIApplicationGTK3(const std::string &appname)
+{
+    DApplication =
+        gtk_application_new(appname.c_str(), G_APPLICATION_FLAGS_NONE);
+    // g_signal_connect(DApplication, "startup", G_CALLBACK (StartupCallback),
+    // NULL);
+    g_signal_connect(DApplication, "activate", G_CALLBACK(ActivateCallback),
+                     this);
+
     DActivateCalldata = nullptr;
     DActivateCallback = nullptr;
 
     DTimerHandle = -1;
     DTimerCalldata = nullptr;
     DTimerCallback = nullptr;
-    //DPeriodicTimeout = std::make_shared< CPeriodicTimeout > (50);
+    // DPeriodicTimeout = std::make_shared< CPeriodicTimeout > (50);
 }
 
-CGUIApplicationGTK3::~CGUIApplicationGTK3(){
+CGUIApplicationGTK3::~CGUIApplicationGTK3() {}
 
-}
-
-void CGUIApplicationGTK3::ActivateCallback(GtkApplication* app, gpointer data){
+void CGUIApplicationGTK3::ActivateCallback(GtkApplication *app, gpointer data)
+{
     CGUIApplicationGTK3 *App = static_cast<CGUIApplicationGTK3 *>(data);
-    if(App->DActivateCallback){
+    if (App->DActivateCallback)
+    {
         App->DActivateCallback(App->DActivateCalldata);
     }
 }
 
-gboolean CGUIApplicationGTK3::TimeoutCallback(gpointer data){
+gboolean CGUIApplicationGTK3::TimeoutCallback(gpointer data)
+{
     CGUIApplicationGTK3 *App = static_cast<CGUIApplicationGTK3 *>(data);
-    if(App->DTimerCallback){
-        if(App->DTimerCallback(App->DTimerCalldata)){
-            App->DTimerHandle = g_timeout_add(App->DPeriodicTimeout->MiliSecondsUntilDeadline(), TimeoutCallback, data);
+    if (App->DTimerCallback)
+    {
+        if (App->DTimerCallback(App->DTimerCalldata))
+        {
+            App->DTimerHandle =
+                g_timeout_add(App->DPeriodicTimeout->MiliSecondsUntilDeadline(),
+                              TimeoutCallback, data);
         }
     }
     return FALSE;
 }
 
-void CGUIApplicationGTK3::SetActivateCallback(TGUICalldata calldata, TGUIApplicationCallback callback){
+void CGUIApplicationGTK3::SetActivateCallback(TGUICalldata calldata,
+                                              TGUIApplicationCallback callback)
+{
     DActivateCalldata = calldata;
     DActivateCallback = callback;
 }
 
-void CGUIApplicationGTK3::SetTimer(int timems, TGUICalldata calldata, TGUITimeoutCallback callback){
-    if(0 >= timems){
-        if(0 <= DTimerHandle){
+void CGUIApplicationGTK3::SetTimer(int timems, TGUICalldata calldata,
+                                   TGUITimeoutCallback callback)
+{
+    if (0 >= timems)
+    {
+        if (0 <= DTimerHandle)
+        {
             g_source_remove(DTimerHandle);
             DTimerHandle = -1;
         }
@@ -274,139 +332,172 @@ void CGUIApplicationGTK3::SetTimer(int timems, TGUICalldata calldata, TGUITimeou
         DTimerCallback = nullptr;
         return;
     }
-    if(callback){
-        if(0 <= DTimerHandle){
+    if (callback)
+    {
+        if (0 <= DTimerHandle)
+        {
             g_source_remove(DTimerHandle);
             DTimerHandle = -1;
         }
         DTimerCalldata = calldata;
         DTimerCallback = callback;
-        DPeriodicTimeout = std::make_shared< CPeriodicTimeout > (timems);
-        DTimerHandle = g_timeout_add(DPeriodicTimeout->MiliSecondsUntilDeadline(), TimeoutCallback, this);
+        DPeriodicTimeout = std::make_shared<CPeriodicTimeout>(timems);
+        DTimerHandle =
+            g_timeout_add(DPeriodicTimeout->MiliSecondsUntilDeadline(),
+                          TimeoutCallback, this);
     }
 }
 
-void CGUIApplicationGTK3::ProcessEvents(bool block){
+void CGUIApplicationGTK3::ProcessEvents(bool block)
+{
     gtk_main_iteration_do(block ? TRUE : FALSE);
 }
 
-int CGUIApplicationGTK3::Run(int argc, char *argv[]){
+int CGUIApplicationGTK3::Run(int argc, char *argv[])
+{
     return g_application_run(G_APPLICATION(DApplication), argc, argv);
 }
 
-void CGUIApplicationGTK3::Quit(){
+void CGUIApplicationGTK3::Quit()
+{
     g_application_quit(G_APPLICATION(DApplication));
 }
 
-std::shared_ptr<CGUIWindow> CGUIApplicationGTK3::NewWindow(){
-    return std::make_shared<CGUIWindowGTK3>(gtk_application_window_new(DApplication));
+std::shared_ptr<CGUIWindow> CGUIApplicationGTK3::NewWindow()
+{
+    return std::make_shared<CGUIWindowGTK3>(
+        gtk_application_window_new(DApplication));
 }
 
-CGUIDisplayGTK3::CGUIDisplayGTK3(GdkDisplay *display) : CGUIDisplay(){
+CGUIDisplayGTK3::CGUIDisplayGTK3(GdkDisplay *display) : CGUIDisplay()
+{
     DDisplay = display;
 }
 
-CGUIDisplayGTK3::~CGUIDisplayGTK3(){
+CGUIDisplayGTK3::~CGUIDisplayGTK3() {}
 
-}
-
-void CGUIDisplayGTK3::Sync(){
+void CGUIDisplayGTK3::Sync()
+{
     gdk_display_sync(DDisplay);
 }
 
-void CGUIDisplayGTK3::Flush(){
+void CGUIDisplayGTK3::Flush()
+{
     gdk_display_flush(DDisplay);
 }
 
-std::shared_ptr< CGUICursor > CGUIDisplayGTK3::NewCursor(CGUICursor::ECursorType type){
+std::shared_ptr<CGUICursor> CGUIDisplayGTK3::NewCursor(
+    CGUICursor::ECursorType type)
+{
     GdkCursorType CursorType = GDK_BLANK_CURSOR;
-    switch(type){
-        case CGUICursor::ECursorType::RightPointer:     CursorType = GDK_RIGHT_PTR;
-                                                        break;
-        case CGUICursor::ECursorType::LeftPointer:      CursorType = GDK_LEFT_PTR;
-                                                        break;
-        case CGUICursor::ECursorType::CenterPointer:    CursorType = GDK_CENTER_PTR;
-                                                        break;
-        case CGUICursor::ECursorType::Crosshair:        CursorType = GDK_CROSSHAIR;
-                                                        break;
-        default:                                        break;
+    switch (type)
+    {
+        case CGUICursor::ECursorType::RightPointer:
+            CursorType = GDK_RIGHT_PTR;
+            break;
+        case CGUICursor::ECursorType::LeftPointer:
+            CursorType = GDK_LEFT_PTR;
+            break;
+        case CGUICursor::ECursorType::CenterPointer:
+            CursorType = GDK_CENTER_PTR;
+            break;
+        case CGUICursor::ECursorType::Crosshair:
+            CursorType = GDK_CROSSHAIR;
+            break;
+        default:
+            break;
     }
-    
-    return std::make_shared<CGUICursorGTK3>(gdk_cursor_new_for_display(DDisplay, CursorType));
+
+    return std::make_shared<CGUICursorGTK3>(
+        gdk_cursor_new_for_display(DDisplay, CursorType));
 }
-        
-CGUICursorGTK3::CGUICursorGTK3(GdkCursor *cursor) : CGUICursor(){
+
+CGUICursorGTK3::CGUICursorGTK3(GdkCursor *cursor) : CGUICursor()
+{
     DCursor = cursor;
 }
 
-CGUICursorGTK3::~CGUICursorGTK3(){
-    
-}
+CGUICursorGTK3::~CGUICursorGTK3() {}
 
-CGUICursor::ECursorType CGUICursorGTK3::Type(){
-    switch(gdk_cursor_get_cursor_type(DCursor)){
-        case GDK_CENTER_PTR:    return ECursorType::CenterPointer;
-        case GDK_LEFT_PTR:      return ECursorType::LeftPointer;
-        case GDK_RIGHT_PTR:     return ECursorType::RightPointer;
-        case GDK_CROSSHAIR:     return ECursorType::Crosshair;
-        default:                return ECursorType::Blank;
+CGUICursor::ECursorType CGUICursorGTK3::Type()
+{
+    switch (gdk_cursor_get_cursor_type(DCursor))
+    {
+        case GDK_CENTER_PTR:
+            return ECursorType::CenterPointer;
+        case GDK_LEFT_PTR:
+            return ECursorType::LeftPointer;
+        case GDK_RIGHT_PTR:
+            return ECursorType::RightPointer;
+        case GDK_CROSSHAIR:
+            return ECursorType::Crosshair;
+        default:
+            return ECursorType::Blank;
     }
 }
 
-
-CGUIWidgetGTK3::CGUIWidgetGTK3(GtkWidget *widget, bool reference){
+CGUIWidgetGTK3::CGUIWidgetGTK3(GtkWidget *widget, bool reference)
+{
     DWidget = widget;
-    //if(reference){ // Seems to fail on exit if not always referenced.
-        g_object_ref(DWidget);
+    // if(reference){ // Seems to fail on exit if not always referenced.
+    g_object_ref(DWidget);
     //}
-    
+
     DActivateCalldata = nullptr;
     DActivateCallback = nullptr;
-    
+
     DButtonPressCalldata = nullptr;
     DButtonPressCallback = nullptr;
-    
+
     DButtonReleaseCalldata = nullptr;
     DButtonReleaseCallback = nullptr;
-    
+
     DMotionCalldata = nullptr;
     DMotionCallback = nullptr;
-    
-    DKeyPressCalldata = nullptr; 
+
+    DKeyPressCalldata = nullptr;
     DKeyPressCallback = nullptr;
-    
-    DKeyReleaseCalldata = nullptr; 
+
+    DKeyReleaseCalldata = nullptr;
     DKeyReleaseCallback = nullptr;
-    
+
     DExposeCalldata = nullptr;
     DExposeCallback = nullptr;
-    
+
     DConfigureCalldata = nullptr;
     DConfigureCallback = nullptr;
-    
+
     DDrawCalldata = nullptr;
     DDrawCallback = nullptr;
 }
 
-CGUIWidgetGTK3::~CGUIWidgetGTK3(){
-    if(DWidget){
+CGUIWidgetGTK3::~CGUIWidgetGTK3()
+{
+    if (DWidget)
+    {
         gtk_widget_destroy(DWidget);
     }
 }
 
+void CGUIWidgetGTK3::ActivateEventCallback(GtkWidget *widget, gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-void CGUIWidgetGTK3::ActivateEventCallback(GtkWidget *widget, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
-
-    if(Widget->DActivateCallback){
-        Widget->DActivateCallback(Widget->shared_from_this(),Widget->DActivateCalldata);
+    if (Widget->DActivateCallback)
+    {
+        Widget->DActivateCallback(Widget->shared_from_this(),
+                                  Widget->DActivateCalldata);
     }
 }
 
-gboolean CGUIWidgetGTK3::ButtonPressEventCallback(GtkWidget *widget, GdkEventButton *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::ButtonPressEventCallback(GtkWidget *widget,
+                                                  GdkEventButton *event,
+                                                  gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DButtonPressCallback){
+    if (Widget->DButtonPressCallback)
+    {
         SGUIButtonEvent TempEvent;
         TempEvent.DType.DType = event->type;
         TempEvent.DWindowX = event->x;
@@ -416,15 +507,21 @@ gboolean CGUIWidgetGTK3::ButtonPressEventCallback(GtkWidget *widget, GdkEventBut
         TempEvent.DScreenX = event->x_root;
         TempEvent.DScreenY = event->y_root;
 
-        return Widget->DButtonPressCallback(Widget->shared_from_this(), TempEvent, Widget->DButtonPressCalldata);
+        return Widget->DButtonPressCallback(Widget->shared_from_this(),
+                                            TempEvent,
+                                            Widget->DButtonPressCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::ButtonReleaseEventCallback(GtkWidget *widget, GdkEventButton *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::ButtonReleaseEventCallback(GtkWidget *widget,
+                                                    GdkEventButton *event,
+                                                    gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DButtonPressCallback){
+    if (Widget->DButtonPressCallback)
+    {
         SGUIButtonEvent TempEvent;
         TempEvent.DType.DType = event->type;
         TempEvent.DWindowX = event->x;
@@ -434,35 +531,47 @@ gboolean CGUIWidgetGTK3::ButtonReleaseEventCallback(GtkWidget *widget, GdkEventB
         TempEvent.DScreenX = event->x_root;
         TempEvent.DScreenY = event->y_root;
 
-        return Widget->DButtonReleaseCallback(Widget->shared_from_this(), TempEvent, Widget->DButtonReleaseCalldata);
+        return Widget->DButtonReleaseCallback(Widget->shared_from_this(),
+                                              TempEvent,
+                                              Widget->DButtonReleaseCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::DeleteEventCallback(GtkWidget *widget, GdkEvent *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::DeleteEventCallback(GtkWidget *widget, GdkEvent *event,
+                                             gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
     PrintDebug(DEBUG_HIGH, "CGUIWidgetGTK3::DeleteEventCallback\n");
-    if(Widget->DDeleteCallback){
-        Widget->DDeleteCallback(Widget->shared_from_this(), Widget->DDeleteCalldata);
+    if (Widget->DDeleteCallback)
+    {
+        Widget->DDeleteCallback(Widget->shared_from_this(),
+                                Widget->DDeleteCalldata);
     }
     return FALSE;
 }
 
-void CGUIWidgetGTK3::DestroyEventCallback(GtkWidget *widget, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+void CGUIWidgetGTK3::DestroyEventCallback(GtkWidget *widget, gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
     PrintDebug(DEBUG_HIGH, "CGUIWidgetGTK3::DestroyEventCallback\n");
-    if(Widget->DDestroyCallback){
-        Widget->DDestroyCallback(Widget->shared_from_this(), Widget->DDestroyCalldata);
+    if (Widget->DDestroyCallback)
+    {
+        Widget->DDestroyCallback(Widget->shared_from_this(),
+                                 Widget->DDestroyCalldata);
     }
 }
 
+gboolean CGUIWidgetGTK3::MotionNotifyEventCallback(GtkWidget *widget,
+                                                   GdkEventMotion *event,
+                                                   gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-gboolean CGUIWidgetGTK3::MotionNotifyEventCallback(GtkWidget *widget, GdkEventMotion *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
-
-    if(Widget->DMotionCallback){
+    if (Widget->DMotionCallback)
+    {
         SGUIMotionEvent TempEvent;
 
         TempEvent.DWindowX = event->x;
@@ -470,488 +579,623 @@ gboolean CGUIWidgetGTK3::MotionNotifyEventCallback(GtkWidget *widget, GdkEventMo
         TempEvent.DModifier.DState = event->state;
         TempEvent.DScreenX = event->x_root;
         TempEvent.DScreenY = event->y_root;
-        
-        return Widget->DMotionCallback(Widget->shared_from_this(), TempEvent, Widget->DMotionCalldata);
+
+        return Widget->DMotionCallback(Widget->shared_from_this(), TempEvent,
+                                       Widget->DMotionCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::KeyPressEventCallback(GtkWidget *widget, GdkEventKey *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::KeyPressEventCallback(GtkWidget *widget,
+                                               GdkEventKey *event,
+                                               gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DKeyPressCallback){
+    if (Widget->DKeyPressCallback)
+    {
         SGUIKeyEvent TempEvent;
 
         TempEvent.DValue.DValue = event->keyval;
         TempEvent.DModifier.DState = event->state;
-        
-        return Widget->DKeyPressCallback(Widget->shared_from_this(), TempEvent, Widget->DKeyPressCalldata);
+
+        return Widget->DKeyPressCallback(Widget->shared_from_this(), TempEvent,
+                                         Widget->DKeyPressCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::KeyReleaseEventCallback(GtkWidget *widget, GdkEventKey *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::KeyReleaseEventCallback(GtkWidget *widget,
+                                                 GdkEventKey *event,
+                                                 gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DKeyReleaseCallback){
+    if (Widget->DKeyReleaseCallback)
+    {
         SGUIKeyEvent TempEvent;
 
         TempEvent.DValue.DValue = event->keyval;
         TempEvent.DModifier.DState = event->state;
-        
-        return Widget->DKeyReleaseCallback(Widget->shared_from_this(), TempEvent, Widget->DKeyReleaseCalldata);
+
+        return Widget->DKeyReleaseCallback(
+            Widget->shared_from_this(), TempEvent, Widget->DKeyReleaseCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::ExposeEventCallback(GtkWidget *widget, GdkEventExpose *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::ExposeEventCallback(GtkWidget *widget,
+                                             GdkEventExpose *event,
+                                             gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DExposeCallback){
+    if (Widget->DExposeCallback)
+    {
         SGUIConfigureEvent TempEvent;
 
         TempEvent.DX = event->area.x;
         TempEvent.DY = event->area.y;
         TempEvent.DWidth = event->area.width;
         TempEvent.DHeight = event->area.height;
-        
-        return Widget->DExposeCallback(Widget->shared_from_this(), TempEvent, Widget->DExposeCalldata);
+
+        return Widget->DExposeCallback(Widget->shared_from_this(), TempEvent,
+                                       Widget->DExposeCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::ConfigureEventCallback(GtkWidget *widget, GdkEventConfigure *event, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::ConfigureEventCallback(GtkWidget *widget,
+                                                GdkEventConfigure *event,
+                                                gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DConfigureCallback){
+    if (Widget->DConfigureCallback)
+    {
         SGUIConfigureEvent TempEvent;
 
         TempEvent.DX = event->x;
         TempEvent.DY = event->y;
         TempEvent.DWidth = event->width;
         TempEvent.DHeight = event->height;
-        
-        return Widget->DConfigureCallback(Widget->shared_from_this(), TempEvent, Widget->DConfigureCalldata);
+
+        return Widget->DConfigureCallback(Widget->shared_from_this(), TempEvent,
+                                          Widget->DConfigureCalldata);
     }
     return FALSE;
 }
 
-gboolean CGUIWidgetGTK3::DrawEventCallback(GtkWidget *widget, cairo_t *cr, gpointer data){
-    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data); 
+gboolean CGUIWidgetGTK3::DrawEventCallback(GtkWidget *widget, cairo_t *cr,
+                                           gpointer data)
+{
+    CGUIWidgetGTK3 *Widget = static_cast<CGUIWidgetGTK3 *>(data);
 
-    if(Widget->DDrawCallback){
-        return Widget->DDrawCallback(Widget->shared_from_this(), std::make_shared<CGraphicResourceContextCairo>(cr, true), Widget->DDrawCalldata);
+    if (Widget->DDrawCallback)
+    {
+        return Widget->DDrawCallback(
+            Widget->shared_from_this(),
+            std::make_shared<CGraphicResourceContextCairo>(cr, true),
+            Widget->DDrawCalldata);
     }
-    return FALSE;    
+    return FALSE;
 }
 
-
-void CGUIWidgetGTK3::Show(){
+void CGUIWidgetGTK3::Show()
+{
     gtk_widget_show(DWidget);
 }
 
-void CGUIWidgetGTK3::ShowAll(){
+void CGUIWidgetGTK3::ShowAll()
+{
     gtk_widget_show_all(DWidget);
 }
 
-
-void CGUIWidgetGTK3::Hide(){
+void CGUIWidgetGTK3::Hide()
+{
     gtk_widget_hide(DWidget);
 }
 
-
-int CGUIWidgetGTK3::AllocatedWidth(){
+int CGUIWidgetGTK3::AllocatedWidth()
+{
     GtkAllocation AllocatedArea;
 
     gtk_widget_get_allocation(DWidget, &AllocatedArea);
     return AllocatedArea.width;
 }
 
-int CGUIWidgetGTK3::AllocatedHeight(){
+int CGUIWidgetGTK3::AllocatedHeight()
+{
     GtkAllocation AllocatedArea;
 
     gtk_widget_get_allocation(DWidget, &AllocatedArea);
     return AllocatedArea.height;
 }
 
-void CGUIWidgetGTK3::Invalidate(){
+void CGUIWidgetGTK3::Invalidate()
+{
     GtkAllocation AllocatedArea;
 
     gtk_widget_get_allocation(DWidget, &AllocatedArea);
-    
-    gtk_widget_queue_draw_area(DWidget, 0, 0, AllocatedArea.width, AllocatedArea.height);
+
+    gtk_widget_queue_draw_area(DWidget, 0, 0, AllocatedArea.width,
+                               AllocatedArea.height);
 }
 
-void CGUIWidgetGTK3::SetCursor(std::shared_ptr< CGUICursor > cursor){
-    std::shared_ptr<CGUICursorGTK3> Cursor = std::dynamic_pointer_cast<CGUICursorGTK3>(cursor);
-    
+void CGUIWidgetGTK3::SetCursor(std::shared_ptr<CGUICursor> cursor)
+{
+    std::shared_ptr<CGUICursorGTK3> Cursor =
+        std::dynamic_pointer_cast<CGUICursorGTK3>(cursor);
+
     gdk_window_set_cursor(gtk_widget_get_window(DWidget), Cursor->DCursor);
 }
 
-std::shared_ptr<CGraphicSurface> CGUIWidgetGTK3::CreateSimilarSurface(int width, int height){
-    return std::make_shared<CGraphicSurfaceCairo>(gdk_window_create_similar_image_surface(gtk_widget_get_window(DWidget),
-                                                       CAIRO_FORMAT_ARGB32,
-                                                       width,
-                                                       height, 0));
+std::shared_ptr<CGraphicSurface> CGUIWidgetGTK3::CreateSimilarSurface(
+    int width, int height)
+{
+    return std::make_shared<CGraphicSurfaceCairo>(
+        gdk_window_create_similar_image_surface(gtk_widget_get_window(DWidget),
+                                                CAIRO_FORMAT_ARGB32, width,
+                                                height, 0));
 }
 
-std::shared_ptr<CGraphicResourceContext> CGUIWidgetGTK3::CreateResourceContext(){
-#if GTK_CHECK_VERSION(3, 22, 0) //(GDK_VERSION_MAX_ALLOWED >= GDK_VERSION_3_22)
+std::shared_ptr<CGraphicResourceContext> CGUIWidgetGTK3::CreateResourceContext()
+{
+#if GTK_CHECK_VERSION(3, 22, 0)  //(GDK_VERSION_MAX_ALLOWED >= GDK_VERSION_3_22)
     GtkAllocation AllocatedArea;
 
     gtk_widget_get_allocation(DWidget, &AllocatedArea);
-    cairo_rectangle_int_t WidgetRectangle{AllocatedArea.x, AllocatedArea.y, AllocatedArea.width, AllocatedArea.height};
+    cairo_rectangle_int_t WidgetRectangle{AllocatedArea.x, AllocatedArea.y,
+                                          AllocatedArea.width,
+                                          AllocatedArea.height};
     cairo_region_t *Region = cairo_region_create_rectangle(&WidgetRectangle);
     GdkWindow *Window = gtk_widget_get_window(DWidget);
-    GdkDrawingContext *DrawingContext = gdk_window_begin_draw_frame(Window, Region);
+    GdkDrawingContext *DrawingContext =
+        gdk_window_begin_draw_frame(Window, Region);
     cairo_region_destroy(Region);
-    
-    return std::make_shared<CGraphicResourceContextCairo>(Window, DrawingContext);
+
+    return std::make_shared<CGraphicResourceContextCairo>(Window,
+                                                          DrawingContext);
 #else
     GdkWindow *Window = gtk_widget_get_window(DWidget);
-    return std::make_shared<CGraphicResourceContextCairo>(gdk_cairo_create(Window));
+    return std::make_shared<CGraphicResourceContextCairo>(
+        gdk_cairo_create(Window));
 #endif
 }
 
-void CGUIWidgetGTK3::EnableEvent(EGUIEvent event){
+void CGUIWidgetGTK3::EnableEvent(EGUIEvent event)
+{
     gint CurrentMask = gtk_widget_get_events(DWidget);
-    switch(event){
-        case EGUIEvent::Expose:         CurrentMask |= GDK_EXPOSURE_MASK;
-                                        break;
-        case EGUIEvent::Motion:         CurrentMask |= GDK_POINTER_MOTION_MASK;
-                                        break;
-        case EGUIEvent::ButtonPress:    CurrentMask |= GDK_BUTTON_PRESS_MASK;
-                                        break;
-        case EGUIEvent::ButtonRelease:  CurrentMask |= GDK_BUTTON_RELEASE_MASK;
-                                        break;
-        case EGUIEvent::KeyPress:       CurrentMask |= GDK_KEY_PRESS_MASK;
-                                        break;
-        case EGUIEvent::KeyRelease:     CurrentMask |= GDK_KEY_RELEASE_MASK;
-                                        break;
-        default:                        break;
+    switch (event)
+    {
+        case EGUIEvent::Expose:
+            CurrentMask |= GDK_EXPOSURE_MASK;
+            break;
+        case EGUIEvent::Motion:
+            CurrentMask |= GDK_POINTER_MOTION_MASK;
+            break;
+        case EGUIEvent::ButtonPress:
+            CurrentMask |= GDK_BUTTON_PRESS_MASK;
+            break;
+        case EGUIEvent::ButtonRelease:
+            CurrentMask |= GDK_BUTTON_RELEASE_MASK;
+            break;
+        case EGUIEvent::KeyPress:
+            CurrentMask |= GDK_KEY_PRESS_MASK;
+            break;
+        case EGUIEvent::KeyRelease:
+            CurrentMask |= GDK_KEY_RELEASE_MASK;
+            break;
+        default:
+            break;
     }
     gtk_widget_set_events(DWidget, CurrentMask);
 }
 
-void CGUIWidgetGTK3::DisableEvent(EGUIEvent event){
+void CGUIWidgetGTK3::DisableEvent(EGUIEvent event)
+{
     gint CurrentMask = gtk_widget_get_events(DWidget);
-    switch(event){
-        case EGUIEvent::Expose:         CurrentMask &= ~GDK_EXPOSURE_MASK;
-                                        break;
-        case EGUIEvent::Motion:         CurrentMask &= ~GDK_POINTER_MOTION_MASK;
-                                        break;
-        case EGUIEvent::ButtonPress:    CurrentMask &= ~GDK_BUTTON_PRESS_MASK;
-                                        break;
-        case EGUIEvent::ButtonRelease:  CurrentMask &= ~GDK_BUTTON_RELEASE_MASK;
-                                        break;
-        case EGUIEvent::KeyPress:       CurrentMask &= ~GDK_KEY_PRESS_MASK;
-                                        break;
-        case EGUIEvent::KeyRelease:     CurrentMask &= ~GDK_KEY_RELEASE_MASK;
-                                        break;
-        default:                        break;
+    switch (event)
+    {
+        case EGUIEvent::Expose:
+            CurrentMask &= ~GDK_EXPOSURE_MASK;
+            break;
+        case EGUIEvent::Motion:
+            CurrentMask &= ~GDK_POINTER_MOTION_MASK;
+            break;
+        case EGUIEvent::ButtonPress:
+            CurrentMask &= ~GDK_BUTTON_PRESS_MASK;
+            break;
+        case EGUIEvent::ButtonRelease:
+            CurrentMask &= ~GDK_BUTTON_RELEASE_MASK;
+            break;
+        case EGUIEvent::KeyPress:
+            CurrentMask &= ~GDK_KEY_PRESS_MASK;
+            break;
+        case EGUIEvent::KeyRelease:
+            CurrentMask &= ~GDK_KEY_RELEASE_MASK;
+            break;
+        default:
+            break;
     }
     gtk_widget_set_events(DWidget, CurrentMask);
 }
 
-void CGUIWidgetGTK3::SetActivateEventCallback(TGUICalldata calldata, TGUIActivateEventCallback callback){
+void CGUIWidgetGTK3::SetActivateEventCallback(
+    TGUICalldata calldata, TGUIActivateEventCallback callback)
+{
     DActivateCalldata = calldata;
     DActivateCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "activate", G_CALLBACK(ActivateEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "activate", G_CALLBACK(ActivateEventCallback),
+                         this);
     }
 }
-                                       
-void CGUIWidgetGTK3::SetButtonPressEventCallback(TGUICalldata calldata, TGUIButtonEventCallback callback){
+
+void CGUIWidgetGTK3::SetButtonPressEventCallback(
+    TGUICalldata calldata, TGUIButtonEventCallback callback)
+{
     DButtonPressCalldata = calldata;
     DButtonPressCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "button-press-event", G_CALLBACK(ButtonPressEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "button-press-event",
+                         G_CALLBACK(ButtonPressEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetButtonReleaseEventCallback(TGUICalldata calldata, TGUIButtonEventCallback callback){
+void CGUIWidgetGTK3::SetButtonReleaseEventCallback(
+    TGUICalldata calldata, TGUIButtonEventCallback callback)
+{
     DButtonReleaseCalldata = calldata;
     DButtonReleaseCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "button-release-event", G_CALLBACK(ButtonReleaseEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "button-release-event",
+                         G_CALLBACK(ButtonReleaseEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetDeleteEventCallback(TGUICalldata calldata, TGUIDeleteEventCallback callback){
+void CGUIWidgetGTK3::SetDeleteEventCallback(TGUICalldata calldata,
+                                            TGUIDeleteEventCallback callback)
+{
     DDeleteCalldata = calldata;
     DDeleteCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "delete-event", G_CALLBACK(DeleteEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "delete-event",
+                         G_CALLBACK(DeleteEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetDestroyEventCallback(TGUICalldata calldata, TGUIDestroyEventCallback callback){
+void CGUIWidgetGTK3::SetDestroyEventCallback(TGUICalldata calldata,
+                                             TGUIDestroyEventCallback callback)
+{
     DDestroyCalldata = calldata;
     DDestroyCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "destroy", G_CALLBACK(DestroyEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "destroy", G_CALLBACK(DestroyEventCallback),
+                         this);
     }
 }
 
-void CGUIWidgetGTK3::SetMotionEventCallback(TGUICalldata calldata, TGUIMotionEventCallback callback){
+void CGUIWidgetGTK3::SetMotionEventCallback(TGUICalldata calldata,
+                                            TGUIMotionEventCallback callback)
+{
     DMotionCalldata = calldata;
     DMotionCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "motion-notify-event", G_CALLBACK(MotionNotifyEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "motion-notify-event",
+                         G_CALLBACK(MotionNotifyEventCallback), this);
     }
-}                                                                   
+}
 
-void CGUIWidgetGTK3::SetKeyPressEventCallback(TGUICalldata calldata, TGUIKeyEventCallback callback){
+void CGUIWidgetGTK3::SetKeyPressEventCallback(TGUICalldata calldata,
+                                              TGUIKeyEventCallback callback)
+{
     DKeyPressCalldata = calldata;
     DKeyPressCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "key-press-event", G_CALLBACK(KeyPressEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "key-press-event",
+                         G_CALLBACK(KeyPressEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetKeyReleaseEventCallback(TGUICalldata calldata, TGUIKeyEventCallback callback){
+void CGUIWidgetGTK3::SetKeyReleaseEventCallback(TGUICalldata calldata,
+                                                TGUIKeyEventCallback callback)
+{
     DKeyReleaseCalldata = calldata;
     DKeyReleaseCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "key-release-event", G_CALLBACK(KeyReleaseEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "key-release-event",
+                         G_CALLBACK(KeyReleaseEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetExposeEventCallback(TGUICalldata calldata, TGUIConfigureEventCallback callback){
+void CGUIWidgetGTK3::SetExposeEventCallback(TGUICalldata calldata,
+                                            TGUIConfigureEventCallback callback)
+{
     DExposeCalldata = calldata;
     DExposeCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "expose-event", G_CALLBACK(ExposeEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "expose-event",
+                         G_CALLBACK(ExposeEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetConfigureEventCallback(TGUICalldata calldata, TGUIConfigureEventCallback callback){
+void CGUIWidgetGTK3::SetConfigureEventCallback(
+    TGUICalldata calldata, TGUIConfigureEventCallback callback)
+{
     DConfigureCalldata = calldata;
     DConfigureCallback = callback;
-    if(callback){
-        g_signal_connect(DWidget, "configure-event", G_CALLBACK(ConfigureEventCallback), this);
+    if (callback)
+    {
+        g_signal_connect(DWidget, "configure-event",
+                         G_CALLBACK(ConfigureEventCallback), this);
     }
 }
 
-void CGUIWidgetGTK3::SetDrawEventCallback(TGUICalldata calldata, TGUIDrawEventCallback callback){
+void CGUIWidgetGTK3::SetDrawEventCallback(TGUICalldata calldata,
+                                          TGUIDrawEventCallback callback)
+{
     DDrawCalldata = calldata;
     DDrawCallback = callback;
-    if(callback){
+    if (callback)
+    {
         g_signal_connect(DWidget, "draw", G_CALLBACK(DrawEventCallback), this);
-    }    
+    }
 }
 
-
-CGUIContainerGTK3::CGUIContainerGTK3(GtkWidget *widget, bool reference) : CGUIWidgetGTK3(widget, reference){
-    
+CGUIContainerGTK3::CGUIContainerGTK3(GtkWidget *widget, bool reference)
+        : CGUIWidgetGTK3(widget, reference)
+{
 }
 
-CGUIContainerGTK3::~CGUIContainerGTK3(){
-    
-}
+CGUIContainerGTK3::~CGUIContainerGTK3() {}
 
-void CGUIContainerGTK3::SetBorderWidth(int width){
+void CGUIContainerGTK3::SetBorderWidth(int width)
+{
     gtk_container_set_border_width(GTK_CONTAINER(DWidget), width);
 }
 
-void CGUIContainerGTK3::Add(std::shared_ptr<CGUIWidget> widget){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
+void CGUIContainerGTK3::Add(std::shared_ptr<CGUIWidget> widget)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+
     gtk_container_add(GTK_CONTAINER(DWidget), WidgetToAdd->Widget());
 }
 
-void CGUIContainerGTK3::Remove(std::shared_ptr<CGUIWidget> widget){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
-    gtk_container_remove(GTK_CONTAINER(DWidget), WidgetToAdd->Widget());    
+void CGUIContainerGTK3::Remove(std::shared_ptr<CGUIWidget> widget)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+
+    gtk_container_remove(GTK_CONTAINER(DWidget), WidgetToAdd->Widget());
 }
 
-CGUILabelGTK3::CGUILabelGTK3(GtkWidget *widget, bool reference) : CGUIWidgetGTK3(widget, reference){
-    
+CGUILabelGTK3::CGUILabelGTK3(GtkWidget *widget, bool reference)
+        : CGUIWidgetGTK3(widget, reference)
+{
 }
 
-CGUILabelGTK3::~CGUILabelGTK3(){
-    
-}
+CGUILabelGTK3::~CGUILabelGTK3() {}
 
-std::string CGUILabelGTK3::GetText(){
+std::string CGUILabelGTK3::GetText()
+{
     return gtk_label_get_text(GTK_LABEL(DWidget));
 }
 
-void CGUILabelGTK3::SetText(const std::string &str){
+void CGUILabelGTK3::SetText(const std::string &str)
+{
     gtk_label_set_text(GTK_LABEL(DWidget), str.c_str());
 }
 
-void CGUILabelGTK3::SetMarkup(const std::string &str){
+void CGUILabelGTK3::SetMarkup(const std::string &str)
+{
     gtk_label_set_markup(GTK_LABEL(DWidget), str.c_str());
 }
 
-
-CGUIDrawingAreaGTK3::CGUIDrawingAreaGTK3(GtkWidget *widget, bool reference) : CGUIWidgetGTK3(widget, reference){
-    
+CGUIDrawingAreaGTK3::CGUIDrawingAreaGTK3(GtkWidget *widget, bool reference)
+        : CGUIWidgetGTK3(widget, reference)
+{
 }
 
-CGUIDrawingAreaGTK3::~CGUIDrawingAreaGTK3(){
+CGUIDrawingAreaGTK3::~CGUIDrawingAreaGTK3() {}
 
+CGUIBoxGTK3::CGUIBoxGTK3(GtkWidget *widget, bool reference)
+        : CGUIContainerGTK3(widget, reference)
+{
 }
 
-CGUIBoxGTK3::CGUIBoxGTK3(GtkWidget *widget, bool reference) : CGUIContainerGTK3(widget, reference){
+CGUIBoxGTK3::~CGUIBoxGTK3() {}
 
+void CGUIBoxGTK3::PackStart(std::shared_ptr<CGUIWidget> widget, bool expand,
+                            bool fill, int padding)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+
+    gtk_box_pack_start(GTK_BOX(DWidget), WidgetToAdd->Widget(), expand, fill,
+                       padding);
 }
 
-CGUIBoxGTK3::~CGUIBoxGTK3(){
+void CGUIBoxGTK3::PackEnd(std::shared_ptr<CGUIWidget> widget, bool expand,
+                          bool fill, int padding)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
 
+    gtk_box_pack_end(GTK_BOX(DWidget), WidgetToAdd->Widget(), expand, fill,
+                     padding);
 }
 
-void CGUIBoxGTK3::PackStart(std::shared_ptr<CGUIWidget> widget, bool expand, bool fill, int padding){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
-    gtk_box_pack_start(GTK_BOX(DWidget), WidgetToAdd->Widget(), expand, fill, padding);
+CGUIMenuShellGTK3::CGUIMenuShellGTK3(GtkWidget *widget, bool reference)
+        : CGUIContainerGTK3(widget, reference)
+{
 }
 
-void CGUIBoxGTK3::PackEnd(std::shared_ptr<CGUIWidget> widget, bool expand, bool fill, int padding){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
-    gtk_box_pack_end(GTK_BOX(DWidget), WidgetToAdd->Widget(), expand, fill, padding);
-}
+CGUIMenuShellGTK3::~CGUIMenuShellGTK3() {}
 
-CGUIMenuShellGTK3::CGUIMenuShellGTK3(GtkWidget *widget, bool reference) : CGUIContainerGTK3(widget, reference){
-    
-}
+void CGUIMenuShellGTK3::Append(std::shared_ptr<CGUIWidget> widget)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
 
-CGUIMenuShellGTK3::~CGUIMenuShellGTK3(){
-    
-}
-
-void CGUIMenuShellGTK3::Append(std::shared_ptr<CGUIWidget> widget){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
     gtk_menu_shell_append(GTK_MENU_SHELL(DWidget), WidgetToAdd->Widget());
 }
 
-CGUIMenuGTK3::CGUIMenuGTK3(GtkWidget *widget, bool reference) : CGUIMenuShellGTK3(widget, reference){
-    
+CGUIMenuGTK3::CGUIMenuGTK3(GtkWidget *widget, bool reference)
+        : CGUIMenuShellGTK3(widget, reference)
+{
 }
 
-CGUIMenuGTK3::~CGUIMenuGTK3(){
-        
+CGUIMenuGTK3::~CGUIMenuGTK3() {}
+
+CGUIMenuBarGTK3::CGUIMenuBarGTK3(GtkWidget *widget, bool reference)
+        : CGUIMenuShellGTK3(widget, reference)
+{
 }
 
-CGUIMenuBarGTK3::CGUIMenuBarGTK3(GtkWidget *widget, bool reference) : CGUIMenuShellGTK3(widget, reference){
-    
+CGUIMenuBarGTK3::~CGUIMenuBarGTK3() {}
+
+CGUIMenuItemGTK3::CGUIMenuItemGTK3(GtkWidget *widget, bool reference)
+        : CGUIContainerGTK3(widget, reference)
+{
 }
 
-CGUIMenuBarGTK3::~CGUIMenuBarGTK3(){
-    
-}
+CGUIMenuItemGTK3::~CGUIMenuItemGTK3() {}
 
-CGUIMenuItemGTK3::CGUIMenuItemGTK3(GtkWidget *widget, bool reference) : CGUIContainerGTK3(widget, reference){
-    
-}
-
-CGUIMenuItemGTK3::~CGUIMenuItemGTK3(){
-    
-}
-
-std::shared_ptr<CGUILabel> CGUIMenuItemGTK3::GetLabel(){
+std::shared_ptr<CGUILabel> CGUIMenuItemGTK3::GetLabel()
+{
     GList *List = gtk_container_get_children(GTK_CONTAINER(DWidget));
-    
+
     return std::make_shared<CGUILabelGTK3>(GTK_WIDGET(List->data), true);
 }
 
-void CGUIMenuItemGTK3::SetSubMenu(std::shared_ptr<CGUIWidget> widget){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
-    
+void CGUIMenuItemGTK3::SetSubMenu(std::shared_ptr<CGUIWidget> widget)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToAdd =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(DWidget), WidgetToAdd->Widget());
 }
 
-CGUIWindowGTK3::CGUIWindowGTK3(GtkWidget *widget, bool reference) : CGUIContainerGTK3(widget, reference){
-
+CGUIWindowGTK3::CGUIWindowGTK3(GtkWidget *widget, bool reference)
+        : CGUIContainerGTK3(widget, reference)
+{
 }
 
-CGUIWindowGTK3::~CGUIWindowGTK3(){
-    
-}
+CGUIWindowGTK3::~CGUIWindowGTK3() {}
 
-void CGUIWindowGTK3::SetMinSize(int width, int height){
+void CGUIWindowGTK3::SetMinSize(int width, int height)
+{
     GdkGeometry Geometry;
     Geometry.min_width = width;
     Geometry.min_height = height;
-    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), NULL, &Geometry, GDK_HINT_MIN_SIZE);
+    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), NULL, &Geometry,
+                                  GDK_HINT_MIN_SIZE);
 }
 
-void CGUIWindowGTK3::SetMaxSize(int width, int height){
+void CGUIWindowGTK3::SetMaxSize(int width, int height)
+{
     GdkGeometry Geometry;
     Geometry.max_width = width;
     Geometry.max_height = height;
-    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), NULL, &Geometry, GDK_HINT_MAX_SIZE);    
+    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), NULL, &Geometry,
+                                  GDK_HINT_MAX_SIZE);
 }
 
-void CGUIWindowGTK3::SetMinSize(std::shared_ptr<CGUIWidget> widget, int width, int height){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToSize = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+void CGUIWindowGTK3::SetMinSize(std::shared_ptr<CGUIWidget> widget, int width,
+                                int height)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToSize =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
     GdkGeometry Geometry;
     Geometry.min_width = width;
     Geometry.min_height = height;
-    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), WidgetToSize->Widget(), &Geometry, GDK_HINT_MIN_SIZE);
+    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), WidgetToSize->Widget(),
+                                  &Geometry, GDK_HINT_MIN_SIZE);
 }
 
-void CGUIWindowGTK3::SetMaxSize(std::shared_ptr<CGUIWidget> widget, int width, int height){
-    std::shared_ptr<CGUIWidgetGTK3> WidgetToSize = std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
+void CGUIWindowGTK3::SetMaxSize(std::shared_ptr<CGUIWidget> widget, int width,
+                                int height)
+{
+    std::shared_ptr<CGUIWidgetGTK3> WidgetToSize =
+        std::dynamic_pointer_cast<CGUIWidgetGTK3>(widget);
     GdkGeometry Geometry;
     Geometry.max_width = width;
     Geometry.max_height = height;
-    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), WidgetToSize->Widget(), &Geometry, GDK_HINT_MAX_SIZE);    
+    gtk_window_set_geometry_hints(GTK_WINDOW(DWidget), WidgetToSize->Widget(),
+                                  &Geometry, GDK_HINT_MAX_SIZE);
 }
 
-void CGUIWindowGTK3::SetTitle(const std::string &title){
+void CGUIWindowGTK3::SetTitle(const std::string &title)
+{
     gtk_window_set_title(GTK_WINDOW(DWidget), title.c_str());
 }
 
-void CGUIWindowGTK3::Close(){
+void CGUIWindowGTK3::Close()
+{
     gtk_window_close(GTK_WINDOW(DWidget));
 }
 
-CGUIFileFilterGTK3::CGUIFileFilterGTK3(GtkFileFilter *filter, bool reference){
+CGUIFileFilterGTK3::CGUIFileFilterGTK3(GtkFileFilter *filter, bool reference)
+{
     DFilter = filter;
-    //if(reference){
-        g_object_ref(DFilter);   
+    // if(reference){
+    g_object_ref(DFilter);
     //}
 }
 
-CGUIFileFilterGTK3::~CGUIFileFilterGTK3(){
-    g_object_unref(DFilter);    
+CGUIFileFilterGTK3::~CGUIFileFilterGTK3()
+{
+    g_object_unref(DFilter);
 }
 
-void CGUIFileFilterGTK3::AddPattern(const std::string &pattern){
+void CGUIFileFilterGTK3::AddPattern(const std::string &pattern)
+{
     gtk_file_filter_add_pattern(DFilter, pattern.c_str());
 }
 
-CGUIFileChooserDialogGTK3::CGUIFileChooserDialogGTK3(GtkWidget *widget, bool reference) : CGUIWindowGTK3(widget, reference){
-    
+CGUIFileChooserDialogGTK3::CGUIFileChooserDialogGTK3(GtkWidget *widget,
+                                                     bool reference)
+        : CGUIWindowGTK3(widget, reference)
+{
 }
 
-CGUIFileChooserDialogGTK3::~CGUIFileChooserDialogGTK3(){
+CGUIFileChooserDialogGTK3::~CGUIFileChooserDialogGTK3() {}
 
+void CGUIFileChooserDialogGTK3::SetFilter(std::shared_ptr<CGUIFileFilter> filter)
+{
+    std::shared_ptr<CGUIFileFilterGTK3> FilterToAdd =
+        std::dynamic_pointer_cast<CGUIFileFilterGTK3>(filter);
+
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(DWidget),
+                                FilterToAdd->DFilter);
 }
 
-void CGUIFileChooserDialogGTK3::SetFilter(std::shared_ptr<CGUIFileFilter> filter){
-    std::shared_ptr<CGUIFileFilterGTK3> FilterToAdd = std::dynamic_pointer_cast<CGUIFileFilterGTK3>(filter);
-    
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(DWidget), FilterToAdd->DFilter);
+void CGUIFileChooserDialogGTK3::SetCurrentFolder(const std::string &folder)
+{
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(DWidget),
+                                        folder.c_str());
 }
 
-void CGUIFileChooserDialogGTK3::SetCurrentFolder(const std::string &folder){
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(DWidget), folder.c_str());    
-}
-
-std::string CGUIFileChooserDialogGTK3::GetFilename(){
+std::string CGUIFileChooserDialogGTK3::GetFilename()
+{
     gchar *Filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(DWidget));
-    std::string ReturnName((char *)Filename);
+    std::string ReturnName((char *) Filename);
     g_free(Filename);
     return ReturnName;
 }
 
-int CGUIFileChooserDialogGTK3::Run(){
+int CGUIFileChooserDialogGTK3::Run()
+{
     return GTK_RESPONSE_CANCEL == gtk_dialog_run(GTK_DIALOG(DWidget)) ? 0 : 1;
 }
-
