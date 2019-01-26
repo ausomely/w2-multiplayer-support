@@ -4,8 +4,7 @@
 #include <boost/algorithm/string/join.hpp>
 #include <set>
 #include <vector>
-
-class User;
+#include "User.h"
 
 class Lobby
 {

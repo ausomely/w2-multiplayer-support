@@ -6,7 +6,8 @@
 #include "LoginSession.h"
 #include "AcceptedSession.h"
 #include "InGameSession.h"
-#include "Lobby.h"
+
+class Lobby;
 
 using boost::asio::ip::tcp;
 #define MAX_BUFFER 1024
@@ -31,5 +32,7 @@ class User: public std::enable_shared_from_this<User>
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
 };
+
+typedef std::shared_ptr<User> User_Ptr;
 
 #endif
