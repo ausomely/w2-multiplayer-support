@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rm ./src/*.pb.cc ./include/*.pb.h 2>/dev/null
+protoc --cpp_out=. --proto_path=./protobuf/ ./protobuf/*.proto
+mv ./*.pb.cc ./src
+mv ./*.pb.h ./include
