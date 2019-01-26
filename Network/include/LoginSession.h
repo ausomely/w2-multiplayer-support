@@ -2,8 +2,8 @@
 #define LOGINSESSION_H
 
 #include "Session.h"
-#include "Lobby.h"
-#include "User.h"
+
+class User;
 
 using boost::asio::ip::tcp;
 
@@ -20,19 +20,19 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
-        void DoRead(User_ptr UserPtr);
+        void DoRead(std::shared_ptr<User>  UserPtr);
 
         //write data to server
-        void DoWrite(User_ptr UserPtr);
+        void DoWrite(std::shared_ptr<User>  UserPtr);
 
         //start reading from connection
-        void Start(User_ptr UserPtr);
+        void Start(std::shared_ptr<User>  UserPtr);
 
         //restart and read data from client again if fails GetAuthentication
-        void Restart(User_ptr UserPtr);
+        void Restart(std::shared_ptr<User>  UserPtr);
 
         //get authentication by sending http request to the web server
-        bool GetAuthentication(User_ptr UserPtr);
+        bool GetAuthentication(std::shared_ptr<User>  UserPtr);
 };
 
 #endif

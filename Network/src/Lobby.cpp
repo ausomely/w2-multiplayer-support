@@ -1,13 +1,14 @@
 #include "Lobby.h"
+#include "User.h"
 
 //a new client has joined
-void Lobby::join(User_ptr UserPtr) {
+void Lobby::join(std::shared_ptr<User>  UserPtr) {
     Users.insert(UserPtr);
     UserNames.push_back(UserPtr->name);
 }
 
 //a client has left
-void Lobby::leave(User_ptr UserPtr) {
+void Lobby::leave(std::shared_ptr<User>  UserPtr) {
     Users.erase(UserPtr);
     for (auto iter = UserNames.begin();
          iter != UserNames.end(); iter++) {

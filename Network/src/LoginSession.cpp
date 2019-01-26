@@ -1,6 +1,6 @@
 #include "LoginSession.h"
-#include "AcceptedSession.h"
 #include "LoginInfo.pb.h"
+#include "User.h"
 
 std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
 
@@ -12,7 +12,7 @@ std::shared_ptr< Session > LoginSession::Instance() {
 }
 
 
-void LoginSession::DoRead(User_ptr UserPtr) {
+void LoginSession::DoRead(std::shared_ptr<User>  UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
@@ -58,7 +58,7 @@ void LoginSession::DoRead(User_ptr UserPtr) {
     });
 }
 
-void LoginSession::DoWrite(User_ptr UserPtr) {
+void LoginSession::DoWrite(std::shared_ptr<User>  UserPtr) {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
@@ -74,12 +74,12 @@ void LoginSession::DoWrite(User_ptr UserPtr) {
  }
 
 //start reading from connection
-void LoginSession::Start(User_ptr UserPtr) {
+void LoginSession::Start(std::shared_ptr<User>  UserPtr) {
     DoRead(UserPtr);
 }
 
 //restart and read data again
-void LoginSession::Restart(User_ptr UserPtr) {
+void LoginSession::Restart(std::shared_ptr<User>  UserPtr) {
     auto self(shared_from_this());
     char message[100] = "Your login information is wrong. Please try again\n";
     std::cout << "Client " << UserPtr->name << " failed to authenticate!" << std::endl;
@@ -96,7 +96,7 @@ void LoginSession::Restart(User_ptr UserPtr) {
 
 
 //TO DO
-bool LoginSession::GetAuthentication(User_ptr UserPtr) {
+bool LoginSession::GetAuthentication(std::shared_ptr<User>  UserPtr) {
     // TO DO : get authentication / send http request
     return true;
 }

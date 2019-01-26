@@ -1,4 +1,6 @@
 #include "InGameSession.h"
+#include "User.h"
+
 std::shared_ptr< Session > InGameSession::DInGameSessionPointer;
 
 std::shared_ptr< Session > InGameSession::Instance() {
@@ -9,7 +11,7 @@ std::shared_ptr< Session > InGameSession::Instance() {
 }
 
 
-void InGameSession::DoRead(User_ptr UserPtr) {
+void InGameSession::DoRead(std::shared_ptr<User>  UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
@@ -28,7 +30,7 @@ void InGameSession::DoRead(User_ptr UserPtr) {
     });
 }
 
-void InGameSession::DoWrite(User_ptr UserPtr) {
+void InGameSession::DoWrite(std::shared_ptr<User>  UserPtr) {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
@@ -45,7 +47,7 @@ void InGameSession::DoWrite(User_ptr UserPtr) {
  }
 
 //start reading from connection
-void InGameSession::Start(User_ptr UserPtr) {
+void InGameSession::Start(std::shared_ptr<User>  UserPtr) {
     std::cout << UserPtr->name << " has joined in game session" << std::endl;
     DoRead(UserPtr);
 }

@@ -2,7 +2,6 @@
 #define SERVER_H
 
 #include "Lobby.h"
-#include "LoginSession.h"
 #include "User.h"
 
 // Server class to handle connection (asynchronous for now)

@@ -3,8 +3,9 @@
 
 #include <boost/algorithm/string/join.hpp>
 #include <set>
-#include "Session.h"
-#include "User.h"
+#include <vector>
+
+class User;
 
 class Lobby
 {
@@ -12,17 +13,17 @@ class Lobby
     //I'd see it being used to managing overall game communication
     //and data management
     private:
-        std::set<User_ptr> Users;
+        std::set<std::shared_ptr<User> > Users;
         std::vector<std::string> UserNames;
     public:
         //constructor, no need to initialize members yet
         Lobby() {}
 
         //a new client has joined
-        void join(User_ptr UserPtr);
+        void join(std::shared_ptr<User>  UserPtr);
 
         //a client has left
-        void leave(User_ptr UserPtr);
+        void leave(std::shared_ptr<User>  UserPtr);
 
         //print the current connected clients
         void PrintNames();

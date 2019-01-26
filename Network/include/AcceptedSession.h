@@ -2,8 +2,8 @@
 #define ACCEPTEDLOGINSESSION_H
 
 #include "Session.h"
-#include "Lobby.h"
-#include "User.h"
+
+class User;
 
 using boost::asio::ip::tcp;
 
@@ -23,13 +23,13 @@ class AcceptedSession : public Session, public std::enable_shared_from_this<Acce
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
-        void DoRead(User_ptr UserPtr);
+        void DoRead(std::shared_ptr<User>  UserPtr);
 
         //write data to server
-        void DoWrite(User_ptr UserPtr);
+        void DoWrite(std::shared_ptr<User>  UserPtr);
 
         //start reading from connection
-        void Start(User_ptr UserPtr);
+        void Start(std::shared_ptr<User>  UserPtr);
 };
 
 #endif
