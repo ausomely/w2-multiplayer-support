@@ -1,5 +1,6 @@
 #include "InGameSession.h"
 #include "User.h"
+#include "Lobby.h"
 
 std::shared_ptr< Session > InGameSession::DInGameSessionPointer;
 

@@ -33,6 +33,4 @@ class User: public std::enable_shared_from_this<User>
         void ChangeSession(std::shared_ptr<Session> session);
 };
 
-typedef std::shared_ptr<User> User_Ptr;
-
 #endif

@@ -1,5 +1,6 @@
 #include "LoginSession.h"
 #include "LoginInfo.pb.h"
+#include "Lobby.h"
 #include "User.h"
 
 std::shared_ptr< Session > LoginSession::DLoginSessionPointer;

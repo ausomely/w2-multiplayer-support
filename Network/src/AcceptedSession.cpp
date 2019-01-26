@@ -1,5 +1,8 @@
 #include "AcceptedSession.h"
 #include "User.h"
+#include "GameInfo.pb.h"
+#include "Lobby.h"
+#include <fstream>
 
 std::shared_ptr< Session > AcceptedSession::DAcceptedSessionPointer;
 
@@ -18,7 +21,32 @@ void AcceptedSession::DoRead(std::shared_ptr<User>  UserPtr) {
         [this, UserPtr](boost::system::error_code err, std::size_t length) {
         //TODO: determine how to handle just authenticated session
         if (!err) {
-            DoWrite(UserPtr);
+            GameInfo::PlayerCommandRequest playerCommandRequest;
+            playerCommandRequest.ParseFromString(UserPtr->data);
+
+            if(playerCommandRequest.has_daction()) {
+                std::cout << "Has daction" << std::endl;
+            }
+
+            if(playerCommandRequest.has_dtargetnumber()) {
+                std::cout << "Has dtargetnumber" << std::endl;
+            }
+
+            if(playerCommandRequest.has_dtargettype()) {
+                std::cout << "Has dtargettype" << std::endl;
+            }
+
+            if(playerCommandRequest.has_dtargetlocation()) {
+                std::cout << "Has dtargetlocation" << std::endl;
+            }
+
+
+
+            std::ofstream outfile;
+            outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
+            playerCommandRequest.SerializeToOstream(&outfile);
+            outfile.close();
+            DoRead(UserPtr);
         }
 
         //end of connection
