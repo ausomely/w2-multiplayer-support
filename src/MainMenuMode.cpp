@@ -21,7 +21,6 @@
 #include "MultiPlayerOptionsMenuMode.h"
 #include "OptionsMenuMode.h"
 #include "Client.h"
-#include <boost/asio.hpp>
 
 std::shared_ptr<CApplicationMode> CMainMenuMode::DMainMenuModePointer;
 
@@ -53,10 +52,10 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(
 void CMainMenuMode::MultiPlayerGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer = std::make_shared< Client >(context->DUsername, context->DPassword);
+    context->ClientPointer = std::make_shared< Client >();
 
-    if(context->ClientPointer->Connect(context->DRemoteHostname, context->DMultiplayerPort)) {
-        context->ClientPointer->SendLoginInfo();
+    if(context->ClientPointer->Connect(context)) {
+        context->ClientPointer->SendLoginInfo(context);
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
 }

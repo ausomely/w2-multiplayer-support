@@ -9,6 +9,7 @@ using boost::asio::ip::tcp;
 class Session;
 class LoginSession;
 class AcceptedSession;
+class InGameSession;
 class Lobby;
 
 class User: public std::enable_shared_from_this<User>
@@ -16,6 +17,7 @@ class User: public std::enable_shared_from_this<User>
     friend class Session;
     friend class LoginSession;
     friend class AcceptedSession;
+    friend class InGameSession;
     friend class Lobby;
     protected:
         tcp::socket socket;

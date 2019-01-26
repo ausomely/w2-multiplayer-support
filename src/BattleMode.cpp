@@ -20,6 +20,7 @@
 #include "GameOverMenuMode.h"
 #include "InGameMenuMode.h"
 #include "PixelType.h"
+#include "Client.h"
 
 #define PAN_SPEED_MAX 0x100
 #define PAN_SPEED_SHIFT 1
@@ -977,6 +978,9 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
             context->DPanningSpeed = 1 << PAN_SPEED_SHIFT;
         }
     }
+
+    // serialize packages and send it to server
+    context->ClientPointer->SendGameInfo(context);
 }
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)

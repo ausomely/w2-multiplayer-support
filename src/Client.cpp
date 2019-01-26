@@ -1,16 +1,20 @@
 #include "Client.h"
+#include "ApplicationData.h"
 #include "LoginInfo.pb.h"
+#include "GameInfo.pb.h"
 
 using boost::asio::ip::tcp;
 
-Client::Client(std::string username_, std::string password_)
-    : socket(io_service), resolver(io_service), username(username_), password(password_) {
+// create a client
+Client::Client()
+    : socket(io_service), resolver(io_service) {
 
 }
 
-bool Client::Connect(std::string hostName, int portNumber){
+// connect the client to the server
+bool Client::Connect(std::shared_ptr<CApplicationData> context){
     boost::system::error_code err;
-    boost::asio::connect(socket, resolver.resolve({hostName, std::to_string(portNumber)}), err);
+    boost::asio::connect(socket, resolver.resolve({context->DRemoteHostname, std::to_string(context->DMultiplayerPort)}), err);
     if(err) {
         std::cerr << "ERROR connecting. Check your hostname and port number." << std::endl;
         return false;
@@ -19,12 +23,13 @@ bool Client::Connect(std::string hostName, int portNumber){
     return true;
 }
 
-void Client::SendLoginInfo() {
+// send log in information: username, password
+void Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
     boost::system::error_code err;
     LoginInfo::Credential credential;
 
-    credential.set_username(username);
-    credential.set_password(password);
+    credential.set_username(context->DUsername);
+    credential.set_password(context->DPassword);
 
     boost::asio::streambuf stream_buffer;
     std::ostream output_stream(&stream_buffer);
@@ -48,6 +53,17 @@ void Client::SendLoginInfo() {
     return;
 }
 
+// send packages of game info: SPlayerCommandRequest
+void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
+    boost::system::error_code err;
+
+    GameInfo::PlayerCommandRequest playerCommandRequset;
+
+    
+}
+
+
+// Close the conenction fromm server
 void Client::CloseConnection(){
     socket.close();
 }

@@ -52,6 +52,9 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     friend class CMapSelectionMode;
     friend class CPlayerAIColorSelectMode;
     friend class CBattleMode;
+
+    //friend Client class
+    friend class Client;
     struct SPrivateApplicationType
     {
     };

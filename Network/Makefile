@@ -15,8 +15,10 @@ SERVER_OBJS = $(OBJ_DIR)/main.o \
 	      $(OBJ_DIR)/User.o \
 	      $(OBJ_DIR)/Lobby.o \
         $(OBJ_DIR)/LoginSession.o \
+				$(OBJ_DIR)/InGameSession.o \
         $(OBJ_DIR)/Server.o \
         $(OBJ_DIR)/LoginInfo.pb.o \
+        $(OBJ_DIR)/GameInfo.pb.o \
         $(OBJ_DIR)/AcceptedSession.o
 
 all: $(SERVER_NAME)
