@@ -1,4 +1,5 @@
 CXX=g++
+PROTOC=~/bin/protoc
 CFLAGS   +=  -Wall
 CPPFLAGS += -std=c++11
 BOOSTFLAGS += -lboost_system
@@ -32,10 +33,19 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(OBJ_DIR)/%.pb.o: $(SRC_DIR)/%.pb.cc
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDE) -c $< -o $@
 
-.PHONY: directories
+.PHONY: directories proto
 directories:
 	mkdir -p $(OBJ_DIR)
 
+proto:
+	-rm ./src/*.pb.cc ./include/*.pb.h ../src/*.pb.cc ../include/*.pb.h 2>/dev/null
+	$(PROTOC) --cpp_out=. --proto_path=./protobuf/ ./protobuf/*.proto
+	cp ./*.pb.cc ./src
+	cp ./*.pb.h ./include
+	cp ./*.pb.cc ../src
+	cp ./*.pb.h ../include
+	rm ./*.pb*
 clean::
-	-rm -f $(SERVER_OBJS) $(SERVER_NAME) 
+	-rm ./src/*.pb.cc ./include/*.pb.h ../src/*.pb.cc ../include/*.pb.h 2>/dev/null
+	-rm -f $(SERVER_OBJS) $(SERVER_NAME)
 .PHONY: clean
