@@ -37,6 +37,5 @@ directories:
 	mkdir -p $(OBJ_DIR)
 
 clean::
-	./protobuf/proto_script -rm -f $(SERVER_OBJS) $(SERVER_NAME)
-
+	-rm -f $(SERVER_OBJS) $(SERVER_NAME) 
 .PHONY: clean
