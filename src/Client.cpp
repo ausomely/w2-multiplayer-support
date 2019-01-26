@@ -57,30 +57,31 @@ void Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
 // send packages of game info: SPlayerCommandRequest
 void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
     // initialize package
-    GameInfo::PlayerCommandRequest playerCommandRequset;
+    GameInfo::PlayerCommandRequest playerCommandRequest;
 
     int DPlayerNumber = to_underlying(context->DPlayerNumber);
 
-    playerCommandRequset.set_daction(to_underlying(context->DPlayerCommands[DPlayerNumber].DAction));
-    playerCommandRequset.set_dtargetnumber(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetNumber));
-    playerCommandRequset.set_dtargettype(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetType));
+    playerCommandRequest.set_daction(to_underlying(context->DPlayerCommands[DPlayerNumber].DAction));
+    playerCommandRequest.set_dtargetnumber(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetNumber));
+    playerCommandRequest.set_dtargettype(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetType));
 
     for (auto &It: context->DPlayerCommands[DPlayerNumber].DActors) {
-        playerCommandRequset.add_dactors(It.lock()->Id());
+        playerCommandRequest.add_dactors(It.lock()->Id());
     }
 
     GameInfo::PlayerCommandRequest::CPixelPosition* pixelPosition = new GameInfo::PlayerCommandRequest::CPixelPosition();
     pixelPosition->set_dx(context->DPlayerCommands[DPlayerNumber].DTargetLocation.X());
     pixelPosition->set_dy(context->DPlayerCommands[DPlayerNumber].DTargetLocation.Y());
 
-    playerCommandRequset.set_allocated_dtargetlocation(pixelPosition);
+    playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
 
     // write package to ostream: a file
     std::ofstream outfile;
 
-    outfile.open("LocalStreamCommand.bin", std::ios_base::app);
+    outfile.open("LocalStreamCommand.bin", std::ios_base::app | std::ios::binary);
 
-    playerCommandRequset.SerializeToOstream(&outfile);
+    playerCommandRequest.SerializeToOstream(&outfile);
+    //outfile << playerCommandRequest.DebugString();
 
     outfile.close();
 
@@ -88,7 +89,7 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
     boost::system::error_code err;
     boost::asio::streambuf stream_buffer;
     std::ostream output_stream(&stream_buffer);
-    playerCommandRequset.SerializeToOstream(&output_stream);
+    playerCommandRequest.SerializeToOstream(&output_stream);
 
     boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
     if(err) {
