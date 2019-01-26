@@ -2,6 +2,7 @@
 #include "ApplicationData.h"
 #include "LoginInfo.pb.h"
 #include "GameInfo.pb.h"
+#include <fstream>
 
 using boost::asio::ip::tcp;
 
@@ -55,11 +56,47 @@ void Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
 
 // send packages of game info: SPlayerCommandRequest
 void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
-    boost::system::error_code err;
-
+    // initialize package
     GameInfo::PlayerCommandRequest playerCommandRequset;
 
-    
+    int DPlayerNumber = to_underlying(context->DPlayerNumber);
+
+    playerCommandRequset.set_daction(to_underlying(context->DPlayerCommands[DPlayerNumber].DAction));
+    playerCommandRequset.set_dtargetnumber(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetNumber));
+    playerCommandRequset.set_dtargettype(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetType));
+
+    for (auto &It: context->DPlayerCommands[DPlayerNumber].DActors) {
+        playerCommandRequset.add_dactors(It.lock()->Id());
+    }
+
+    GameInfo::PlayerCommandRequest::CPixelPosition* pixelPosition = new GameInfo::PlayerCommandRequest::CPixelPosition();
+    pixelPosition->set_dx(context->DPlayerCommands[DPlayerNumber].DTargetLocation.X());
+    pixelPosition->set_dy(context->DPlayerCommands[DPlayerNumber].DTargetLocation.Y());
+
+    playerCommandRequset.set_allocated_dtargetlocation(pixelPosition);
+
+    // write package to ostream: a file
+    std::ofstream outfile;
+
+    outfile.open("LocalStreamCommand.bin", std::ios_base::app);
+
+    playerCommandRequset.SerializeToOstream(&outfile);
+
+    outfile.close();
+
+    // send package to server
+    boost::system::error_code err;
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    playerCommandRequset.SerializeToOstream(&output_stream);
+
+    boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
+    if(err) {
+        std::cerr << "ERROR writing" << std::endl;
+        return;
+    }
+
+    return;
 }
 
 
