@@ -25,7 +25,7 @@ bool Client::Connect(std::shared_ptr<CApplicationData> context){
 }
 
 // send log in information: username, password
-void Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
+bool Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
     boost::system::error_code err;
     LoginInfo::Credential credential;
 
@@ -40,18 +40,22 @@ void Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
     boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
-        return;
+        return false;
     }
 
     char response[BUFFER_SIZE];
     boost::asio::read(socket, boost::asio::buffer(response, BUFFER_SIZE), err);
     if(err) {
         std::cerr << "ERROR reading" << std::endl;
-        return;
+        return false;
     }
 
+    if(strcmp(response, "Your login information is wrong. Please try again\n") == 0) {
+        std::cout << response << std::endl;
+        return false;
+    }
     std::cout << response << std::endl;
-    return;
+    return true;
 }
 
 // send packages of game info: SPlayerCommandRequest

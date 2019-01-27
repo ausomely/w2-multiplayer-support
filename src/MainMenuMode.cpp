@@ -55,8 +55,9 @@ void CMainMenuMode::MultiPlayerGameButtonCallback(
     context->ClientPointer = std::make_shared< Client >();
 
     if(context->ClientPointer->Connect(context)) {
-        context->ClientPointer->SendLoginInfo(context);
-        context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+        if(context->ClientPointer->SendLoginInfo(context)) {
+            context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+        }
     }
 }
 
