@@ -46,6 +46,5 @@ proto:
 	cp ./*.pb.h ../include
 	rm ./*.pb*
 clean::
-	-rm ./src/*.pb.cc ./include/*.pb.h ../src/*.pb.cc ../include/*.pb.h 2>/dev/null
 	-rm -f $(SERVER_OBJS) $(SERVER_NAME)
 .PHONY: clean
