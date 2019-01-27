@@ -3,7 +3,7 @@
 #include "GameInfo.pb.h"
 #include "Lobby.h"
 #include <fstream>
-#include <google/protobuf/text_format.h>
+
 using namespace google::protobuf;
 
 std::shared_ptr< Session > AcceptedSession::DAcceptedSessionPointer;

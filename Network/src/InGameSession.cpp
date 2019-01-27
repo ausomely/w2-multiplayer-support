@@ -1,6 +1,8 @@
 #include "InGameSession.h"
 #include "User.h"
+#include "GameInfo.pb.h"
 #include "Lobby.h"
+#include <fstream>
 
 std::shared_ptr< Session > InGameSession::DInGameSessionPointer;
 
@@ -19,7 +21,17 @@ void InGameSession::DoRead(std::shared_ptr<User>  UserPtr) {
         [this, UserPtr](boost::system::error_code err, std::size_t length) {
         //TODO: determine how to handle just authenticated session
         if (!err) {
-            DoWrite(UserPtr);
+            GameInfo::PlayerCommandRequest playerCommandRequest;
+            playerCommandRequest.ParseFromArray(UserPtr->data,length);
+
+            std::ofstream outfile;
+            outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
+
+            playerCommandRequest.SerializeToOstream(&outfile);
+
+            //outfile << playerCommandRequest.DebugString();
+            outfile.close();
+            DoRead(UserPtr);
         }
 
         //end of connection
