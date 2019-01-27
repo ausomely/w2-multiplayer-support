@@ -1,4 +1,5 @@
 #include "LoginSession.h"
+#include "InGameSession.h"
 #include "LoginInfo.pb.h"
 #include "Lobby.h"
 #include "User.h"
@@ -69,7 +70,7 @@ void LoginSession::DoWrite(std::shared_ptr<User>  UserPtr) {
         [UserPtr](boost::system::error_code err, std::size_t ) {
         //if no error, move to the next session
         if (!err) {
-            UserPtr->ChangeSession(AcceptedSession::Instance());
+            UserPtr->ChangeSession(InGameSession::Instance());
         }
     });
  }
