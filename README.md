@@ -9,30 +9,33 @@ This repository contains the code for multiplayer support for the game. For Linu
 
 ## Setup:
 
-The following setup must take place in order to compile and run the multiplayer games.
+The following setup must take place in order to compile the multiplayer games.
 
 ### Protobuf:
-In order to run a multiplayer game, you must install protobuf on your machine. A link to the protobuf repository, along with instructions, can be found below: 
+In order to compile the game and our server code, you must install protobuf on your machine. A link to the protobuf repository, along with instructions, can be found below: 
 
 https://github.com/protocolbuffers/protobuf.git
 
 After cloning this repository, navigate to the protobuf directory and run the following commands to install it to usr:
 
 ./configure —-prefix=/usr
+
 make
+
 make check
+
 make install
 
 If “make check” fails, skip this step and move on to “make install”. If you run into issues with disk space, you can use “fquota” to look at your space usage and possibly delete any unnecessary files or clear the cache. 
 
 Depending on where you install protobuf, it might not be part of LD_LIBRARY_PATH. If you installed it to your home directory, you can use the following command to solve this problem:
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~lib && export PKG_CONFIG_PATH=/home/usr/lib/pkgconfig && export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:~/include
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\~lib && export PKG_CONFIG_PATH=/home/usr/lib/pkgconfig && export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:\~/include
 
 This command must be run on each terminal window you use, so for this reason we recommend that you add it to your .bashrc file so that you do not have to do this manually every time.
 
 ### Installing boost asio:
-Boost asio is also necessary to run the multiplayer games. Information on boost Casio can be found here:
+Boost asio is also necessary to compile the game. Information on boost Casio can be found here:
 
 https://github.com/boostorg/asio.git
 
@@ -63,5 +66,8 @@ When the user clicks on the multiplayer menu, their username and password is tak
 
 Each individual game sends the actions that that user is doing to the server, which then forwards them to the other players in that game. All users then receive and process the actions from the other players and use this to update the game state.
 
-The main class that handles the multiplayer communication is Clientcpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
+The main class that handles the multiplayer communication is Client in Client.cpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
+
+### Network Interface design for other platforms: (subject to change)
+
 
