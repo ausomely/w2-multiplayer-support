@@ -59,12 +59,14 @@ For exchanging different information such as username, password and player comma
 
 ### Web Server Protocol:
 When a user connects to our game server, a login session is started to get authentication information from the user. Once our game server has the user’s credentials, we place them in a JSON format below.
+```
 {
 	"user": {
 		"email": "test2@ucdavis.edu",
 		"password": "password"
 	}
 }
+```
 Then we convert it into a string and put the string into the HTTP POST request and send it to the web server. Since we only care about if the authentication is a success or not, we only extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session).
 
 
