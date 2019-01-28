@@ -54,7 +54,7 @@ Our server implemented a TCP connection between the client (the game). Our serve
 
 For exchanging different information such as username, password and player commands, we used protobuf to package the informaton and serialize it to a stream buffer in the form of binary string. Then we used asynchronous operations to send the information on the client side and receive them on the server side.
 
-## Web Server Protocol:
+### Web Server Protocol:
 To communicate with the web server and authenticate the credentials of our users, we sent a Post request via JSON objects and received the response. Since we only cared about if the authentication is a success or not, we only extract the status code from the socket received.
 
 
