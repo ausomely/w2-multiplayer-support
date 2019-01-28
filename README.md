@@ -29,7 +29,7 @@ Depending on where you install protobuf, it might not be part of LD_LIBRARY_PATH
 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~lib && export PKG_CONFIG_PATH=/home/usr/lib/pkgconfig && export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:~/include
 
-This command must be run on each terminal window you use, so for this reason we recommend that you add it to your .bashrc file so that you do not have to do this manually ever time.
+This command must be run on each terminal window you use, so for this reason we recommend that you add it to your .bashrc file so that you do not have to do this manually every time.
 
 ### Installing boost asio:
 Boost asio is also necessary to run the multiplayer games. Information on boost Casio can be found here:
@@ -46,6 +46,16 @@ https://ecs160.herokuapp.com
 Once an account has been created, enter your information in the game settings menu. Once this is correct, you can start playing a multiplayer game.
 
 In order to play a multiplayer game, one of the players must choose to host the game. To host the game, click on the “host multiplayer game” button in the multiplayer menu. Then select the game  map and other options the same as when you create a single player game. Once you start the game, other players will be able to see and join your game. If you want to join a game, click on the “join multiplayer game” button on the multiplayer menu. A list of the games that are able to be joined along with their details will be listed. 
+
+## Server Protocols:
+
+### Multiplayer Protocol:
+Our server implemented a TCP connection between the client (the game). Our server divided the whole process of exchanging information into several session. For now, we have LoginSession, where we exchange the user information such as username and password and authenticate the information with web server, and InGameSession, where we exchange the player commands, and store them locally and remotely.
+
+For exchanging different information such as username, password and player commands, we used protobuf to package the informaton and serialize it to a stream buffer in the form of binary string. Then we used asynchronous operations to send the information on the client side and receive them on the server side.
+
+## Web Server Protocol:
+To communicate with the web server and authenticate the credentials of our users, we sent a Post request via JSON objects and received the response. Since we only cared about if the authentication is a success or not, we only extract the status code from the socket received.
 
 
 ## Interfaces:
