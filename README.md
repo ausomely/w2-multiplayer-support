@@ -8,7 +8,9 @@ This repository contains the code for multiplayer support for the game. For Linu
  
 
 ## Setup:
- 
+
+The following setup must take place in order to compile and run the multiplayer games.
+
 ### Protobuf:
 In order to run a multiplayer game, you must install protobuf on your machine. A link to the protobuf repository, along with instructions, can be found below: 
 
