@@ -58,7 +58,7 @@ Our server implemented a TCP connection between the client (the game). Our serve
 For exchanging different information such as username, password and player commands, we used protobuf to package the informaton and serialize it to a stream buffer in the form of binary string. Then we used asynchronous operations to send the information on the client side and receive them on the server side.
 
 ### Web Server Protocol:
-When a user connects to our game server, a login session is started to get authentication information from the user. Once our game server has the user’s credentials, we place them in a JSON object and send it through a HTTP POST request to the web server. If authenticated, the user is placed in a game lobby. Currently, both directions of communication are sent as strings.  Credentials are serialized using protobuf.
+When a user connects to our game server, a login session is started to get authentication information from the user. Once our game server has the user’s credentials, we place them in a JSON object and convert it into a string. Then we put the string into the HTTP POST request and send it to the web server. Since we only care about if the authentication is a success or not, we only extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session).
 
 
 ## Interfaces:
