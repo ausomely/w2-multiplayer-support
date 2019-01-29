@@ -72,10 +72,10 @@ CApplicationData::CApplicationData(const std::string &appname,
     DMapSelectListViewXOffset = 0;
     DMapSelectListViewYOffset = 0;
     DSelectedMapIndex = 0;
-    DUsername = "user";
+    DUsername = "mgcheng";
     DRemoteHostname = "localhost";
     DMultiplayerPort = 55107;  // Ascii WC = 0x5743 or'd with 0x8000
-    DPassword = "";
+    DPassword = "11051996";
     DBorderWidth = 32;
     DPanningSpeed = 0;
     for (int Index = 0; Index < to_underlying(EPlayerNumber::Max); Index++)
