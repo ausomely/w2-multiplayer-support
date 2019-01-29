@@ -9,8 +9,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-using boost::property_tree::ptree; using boost::property_tree::read_json; using boost::property_tree::write_json;
-
+using boost::property_tree::ptree;
+using boost::property_tree::read_json;
+using boost::property_tree::write_json;
 using boost::asio::ip::tcp;
 
 std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
