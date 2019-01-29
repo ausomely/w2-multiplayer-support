@@ -15,9 +15,15 @@ Client::Client()
 // connect the client to the server
 bool Client::Connect(std::shared_ptr<CApplicationData> context){
     boost::system::error_code err;
-    boost::asio::connect(socket, resolver.resolve({context->DRemoteHostname, std::to_string(context->DMultiplayerPort)}), err);
+    tcp::resolver::iterator endpoint_iterator;
+    endpoint_iterator = resolver.resolve({context->DRemoteHostname, std::to_string(context->DMultiplayerPort)}, err);
     if(err) {
-        std::cerr << "ERROR connecting. Check your hostname and port number." << std::endl;
+        std::cerr << "ERROR connecting. Check your hostname." << std::endl;
+        return false;
+    }
+    boost::asio::connect(socket, endpoint_iterator, err);
+    if(err) {
+        std::cerr << "ERROR connecting. Check your port number." << std::endl;
         return false;
     }
 
