@@ -52,6 +52,7 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
 void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
+    context->ClientPointer->JoinMultiPlayer();
 }
 
 //! @brief Returns to Main menu of the game

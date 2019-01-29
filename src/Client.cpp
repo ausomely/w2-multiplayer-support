@@ -110,6 +110,19 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
     return;
 }
 
+// send the server a message that the client wants to join the multiplayer game
+void Client::JoinMultiPlayer() {
+    boost::system::error_code err;
+    std::string message = "Join";
+
+    boost::asio::write(socket, boost::asio::buffer(message.c_str(), BUFFER_SIZE), err);
+    if(err) {
+        std::cerr << "ERROR writing" << std::endl;
+        return;
+    }
+    return;
+}
+
 
 // Close the conenction fromm server
 void Client::CloseConnection(){
