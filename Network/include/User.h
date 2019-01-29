@@ -6,6 +6,7 @@
 #include "LoginSession.h"
 #include "AcceptedSession.h"
 #include "InGameSession.h"
+#include "FindGameSession.h"
 
 class Lobby;
 
@@ -18,6 +19,7 @@ class User: public std::enable_shared_from_this<User>
     friend class LoginSession;
     friend class AcceptedSession;
     friend class InGameSession;
+    friend class FindGameSession;
     friend class Lobby;
     protected:
         tcp::socket socket;
