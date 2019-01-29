@@ -42,8 +42,8 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     // changed to single player for testing
-    context->DGameSessionType = CApplicationData::gstSinglePlayer;
-    //context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
+    //context->DGameSessionType = CApplicationData::gstSinglePlayer;
+    context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
 
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
