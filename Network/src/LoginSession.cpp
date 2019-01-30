@@ -25,7 +25,7 @@ std::shared_ptr< Session > LoginSession::Instance() {
 }
 
 
-void LoginSession::DoRead(std::shared_ptr<User>  UserPtr) {
+void LoginSession::DoRead(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
 
@@ -71,7 +71,7 @@ void LoginSession::DoRead(std::shared_ptr<User>  UserPtr) {
     });
 }
 
-void LoginSession::DoWrite(std::shared_ptr<User>  UserPtr) {
+void LoginSession::DoWrite(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
     std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
@@ -87,12 +87,12 @@ void LoginSession::DoWrite(std::shared_ptr<User>  UserPtr) {
  }
 
 //start reading from connection
-void LoginSession::Start(std::shared_ptr<User>  UserPtr) {
+void LoginSession::Start(std::shared_ptr<User> UserPtr) {
     DoRead(UserPtr);
 }
 
 //restart and read data again
-void LoginSession::Restart(std::shared_ptr<User>  UserPtr) {
+void LoginSession::Restart(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
     std::string message = "Your login information is wrong. Please try again\n";
     std::cout << "Client " << UserPtr->name << " failed to authenticate!" << std::endl;
@@ -107,7 +107,7 @@ void LoginSession::Restart(std::shared_ptr<User>  UserPtr) {
     });
 }
 
-bool LoginSession::GetAuthentication(std::shared_ptr<User>  UserPtr) {
+bool LoginSession::GetAuthentication(std::shared_ptr<User> UserPtr) {
 
     boost::asio::io_service io_service;
       // Get a list of endpoints corresponding to the server name.

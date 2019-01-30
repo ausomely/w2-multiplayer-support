@@ -26,7 +26,7 @@ class Client
         bool Connect(std::shared_ptr<CApplicationData> context);
         bool SendLoginInfo(std::shared_ptr<CApplicationData> context);
         void SendGameInfo(std::shared_ptr<CApplicationData> context);
-        void JoinMultiPlayer();
+        void SendMessage(std::string message);
         void CloseConnection();
 };
 #endif

@@ -1,5 +1,5 @@
-#ifndef ACCEPTEDLOGINSESSION_H
-#define ACCEPTEDLOGINSESSION_H
+#ifndef HOSTGAMESESSION_H
+#define HOSTGAMESESSION_H
 
 #include "Session.h"
 
@@ -7,17 +7,16 @@ class User;
 
 using boost::asio::ip::tcp;
 
-class AcceptedSession : public Session, public std::enable_shared_from_this<AcceptedSession>
+class HostGameSession : public Session, public std::enable_shared_from_this<HostGameSession>
 {
-    // Class for forwarding client to FindGameSession or HostGameSession
-    // Goes to FindGameSession if receives "Join"
-    // Goes to HostGameSession if receives "Host"
+    // Class for managing information exchange between client and server when the client creates a game room
+    // information to exchange: map name, maximum allowed number of player, name of the host client
     private:
         struct SPrivateSessionType{};
     protected:
-        static std::shared_ptr< Session > DAcceptedSessionPointer;
+        static std::shared_ptr< Session > DHostGameSessionPointer;
     public:
-        explicit AcceptedSession(const SPrivateSessionType &key) {}
+        explicit HostGameSession(const SPrivateSessionType &key) {}
 
         static std::shared_ptr< Session > Instance();
 

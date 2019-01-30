@@ -1,18 +1,18 @@
-#include "FindGameSession.h"
+#include "HostGameSession.h"
 #include "User.h"
 #include "Lobby.h"
 
-std::shared_ptr< Session > FindGameSession::DFindGameSessionPointer;
+std::shared_ptr< Session > HostGameSession::DHostGameSessionPointer;
 
-std::shared_ptr< Session > FindGameSession::Instance() {
-    if(DFindGameSessionPointer == nullptr) {
-        DFindGameSessionPointer = std::make_shared< FindGameSession >(SPrivateSessionType());
+std::shared_ptr< Session > HostGameSession::Instance() {
+    if(DHostGameSessionPointer == nullptr) {
+        DHostGameSessionPointer = std::make_shared< HostGameSession >(SPrivateSessionType());
     }
-    return DFindGameSessionPointer;
+    return DHostGameSessionPointer;
 }
 
 
-void FindGameSession::DoRead(std::shared_ptr<User> UserPtr) {
+void HostGameSession::DoRead(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
@@ -31,7 +31,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> UserPtr) {
     });
 }
 
-void FindGameSession::DoWrite(std::shared_ptr<User> UserPtr) {
+void HostGameSession::DoWrite(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
 
     boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, MAX_BUFFER),
@@ -44,7 +44,7 @@ void FindGameSession::DoWrite(std::shared_ptr<User> UserPtr) {
  }
 
 //start reading from connection
-void FindGameSession::Start(std::shared_ptr<User> UserPtr) {
-    std::cout << UserPtr->name << " has joined Find Game session" << std::endl;
+void HostGameSession::Start(std::shared_ptr<User> UserPtr) {
+    std::cout << UserPtr->name << " has joined Host Game session" << std::endl;
     DoRead(UserPtr);
 }

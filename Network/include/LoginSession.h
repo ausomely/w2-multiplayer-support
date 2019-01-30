@@ -9,7 +9,8 @@ using boost::asio::ip::tcp;
 
 class LoginSession : public Session, public std::enable_shared_from_this<LoginSession>
 {
-    //Class for managing a single connection with a client
+    // Class for managing a single connection with a client
+    // Information to exchange: Login information, username and password
     private:
         struct SPrivateSessionType{};
     protected:

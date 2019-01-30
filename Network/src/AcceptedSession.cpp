@@ -12,17 +12,22 @@ std::shared_ptr< Session > AcceptedSession::Instance() {
 }
 
 
-void AcceptedSession::DoRead(std::shared_ptr<User>  UserPtr) {
+void AcceptedSession::DoRead(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
     bzero(UserPtr->data, MAX_BUFFER);
     UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [this, UserPtr](boost::system::error_code err, std::size_t length) {
+        [UserPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
 
-            // goes to FindGameSession if receives "join"
+            // goes to FindGameSession if receives "Join"
             if(strcmp(UserPtr->data, "Join") == 0) {
                 UserPtr->ChangeSession(FindGameSession::Instance());
+            }
+
+            // goes to HostGameSession if receives "Host"
+            else if(strcmp(UserPtr->data, "Host") == 0) {
+                UserPtr->ChangeSession(HostGameSession::Instance());
             }
         }
 
@@ -35,13 +40,11 @@ void AcceptedSession::DoRead(std::shared_ptr<User>  UserPtr) {
     });
 }
 
-void AcceptedSession::DoWrite(std::shared_ptr<User>  UserPtr) {
+void AcceptedSession::DoWrite(std::shared_ptr<User> UserPtr) {
     auto self(shared_from_this());
-
-
     boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [this, UserPtr](boost::system::error_code err, std::size_t ) {
-        //if no error, continue trying to read from socket
+        [UserPtr](boost::system::error_code err, std::size_t ) {
+
         if (!err) {
 
         }
@@ -49,7 +52,7 @@ void AcceptedSession::DoWrite(std::shared_ptr<User>  UserPtr) {
  }
 
 //start reading from connection
-void AcceptedSession::Start(std::shared_ptr<User>  UserPtr) {
+void AcceptedSession::Start(std::shared_ptr<User> UserPtr) {
     std::cout << UserPtr->name << " has joined accepted session" << std::endl;
     DoRead(UserPtr);
 }

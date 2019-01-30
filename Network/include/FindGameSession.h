@@ -9,10 +9,9 @@ using boost::asio::ip::tcp;
 
 class FindGameSession : public Session, public std::enable_shared_from_this<FindGameSession>
 {
-    //Class for managing a single connection a logged in client not yet
-    //in a game
-    //TODO: may more adequately/specifically named as LobbySession or WaitingSession
-    //but this depends on more specific information on protocol implementation
+    // Class for managing information exchange between client and server when the client wants to find a game room
+    // information to exchange: list of game room info
+    // game room info includes: host client's name, current number of player, maximum number of allowed player, map name
     private:
         struct SPrivateSessionType{};
     protected:

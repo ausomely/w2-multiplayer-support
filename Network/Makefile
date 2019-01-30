@@ -18,6 +18,7 @@ SERVER_OBJS = $(OBJ_DIR)/main.o \
         $(OBJ_DIR)/LoginSession.o \
 				$(OBJ_DIR)/InGameSession.o \
 				$(OBJ_DIR)/FindGameSession.o \
+				$(OBJ_DIR)/HostGameSession.o \
         $(OBJ_DIR)/Server.o \
         $(OBJ_DIR)/LoginInfo.pb.o \
         $(OBJ_DIR)/GameInfo.pb.o \
