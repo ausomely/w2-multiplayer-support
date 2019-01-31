@@ -19,6 +19,14 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
+            // TODO : reading the game room information from client
+
+            // Create the room object and add it to lobby
+            std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, 8, "dummy_map");
+            userPtr->currentRoom = DRoom;
+            userPtr->lobby.AddRoom(DRoom);
+
+            // incase we want to write something back
             DoWrite(userPtr);
         }
 

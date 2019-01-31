@@ -14,6 +14,7 @@ class Lobby
     private:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;
+        std::set<std::shared_ptr<GameRoom>> GameRooms;
     public:
         //constructor, no need to initialize members yet
         Lobby() {}
@@ -29,6 +30,13 @@ class Lobby
 
         //print names and place in buffer
         size_t PrepareUsersInfo(char* buff);
+
+        //add a game room
+        void AddRoom(std::shared_ptr<GameRoom> room);
+
+        //remove a game room
+        void RemoveRoom(std::shared_ptr<GameRoom> room);
+
 };
 
 #endif

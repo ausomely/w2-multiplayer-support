@@ -1,5 +1,4 @@
 #include "Lobby.h"
-#include "User.h"
 
 //a new client has joined
 void Lobby::join(std::shared_ptr<User>  userPtr) {
@@ -41,4 +40,14 @@ size_t Lobby::PrepareUsersInfo(char* buff) {
 
     //return the length of string plus null byte
     return Tmp.length() + 1;
+}
+
+//add a game room to the list
+void Lobby::AddRoom(std::shared_ptr<GameRoom> room) {
+    GameRooms.insert(room);
+}
+
+//remove a game room from the list
+void Lobby::RemoveRoom(std::shared_ptr<GameRoom> room) {
+    GameRooms.erase(room);
 }
