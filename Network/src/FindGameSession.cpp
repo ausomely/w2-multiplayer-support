@@ -12,39 +12,39 @@ std::shared_ptr< Session > FindGameSession::Instance() {
 }
 
 
-void FindGameSession::DoRead(std::shared_ptr<User> UserPtr) {
+void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(UserPtr->data, MAX_BUFFER);
-    UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [this, UserPtr](boost::system::error_code err, std::size_t length) {
+    bzero(userPtr->data, MAX_BUFFER);
+    userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-            DoWrite(UserPtr);
+            DoWrite(userPtr);
         }
 
         //end of connection
         else if ((boost::asio::error::eof == err) ||
                 (boost::asio::error::connection_reset == err)) {
             //find username in Lobby clients and remove data
-            UserPtr->lobby.leave(UserPtr);
+            userPtr->lobby.leave(userPtr);
         }
     });
 }
 
-void FindGameSession::DoWrite(std::shared_ptr<User> UserPtr) {
+void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
 
-    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [this, UserPtr](boost::system::error_code err, std::size_t ) {
+    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+        [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket
         if (!err) {
-            DoRead(UserPtr);
+            DoRead(userPtr);
         }
     });
  }
 
 //start reading from connection
-void FindGameSession::Start(std::shared_ptr<User> UserPtr) {
-    std::cout << UserPtr->name << " has joined Find Game session" << std::endl;
-    DoRead(UserPtr);
+void FindGameSession::Start(std::shared_ptr<User> userPtr) {
+    std::cout << userPtr->name << " has joined Find Game session" << std::endl;
+    DoRead(userPtr);
 }

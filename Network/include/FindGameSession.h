@@ -9,9 +9,15 @@ using boost::asio::ip::tcp;
 
 class FindGameSession : public Session, public std::enable_shared_from_this<FindGameSession>
 {
-    // Class for managing information exchange between client and server when the client wants to find a game room
-    // information to exchange: list of game room info
-    // game room info includes: host client's name, current number of player, maximum number of allowed player, map name
+    /* Class for managing information exchange between client and server when the client wants to find a game room
+       information to exchange:
+           list of game room info
+       game room info includes:
+           host client's name,
+           current number of player,
+           maximum number of allowed player,
+           map name
+    */
     private:
         struct SPrivateSessionType{};
     protected:
@@ -22,13 +28,13 @@ class FindGameSession : public Session, public std::enable_shared_from_this<Find
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
-        void DoRead(std::shared_ptr<User>  UserPtr);
+        void DoRead(std::shared_ptr<User> userPtr);
 
         //write data to server
-        void DoWrite(std::shared_ptr<User>  UserPtr);
+        void DoWrite(std::shared_ptr<User> userPtr);
 
         //start reading from connection
-        void Start(std::shared_ptr<User>  UserPtr);
+        void Start(std::shared_ptr<User> userPtr);
 };
 
 #endif

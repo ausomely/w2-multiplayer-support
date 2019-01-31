@@ -2,6 +2,7 @@
 #define INGAMESESSION_H
 
 #include "Session.h"
+#include "GameInfo.pb.h"
 
 class User;
 
@@ -9,10 +10,11 @@ using boost::asio::ip::tcp;
 
 class InGameSession : public Session, public std::enable_shared_from_this<InGameSession>
 {
-    //Class for managing a single connection a logged in client not yet
-    //in a game
-    //TODO: may more adequately/specifically named as LobbySession or WaitingSession
-    //but this depends on more specific information on protocol implementation
+    /* Class to exchange information when players are in a game
+       Information to exchange:
+           Other player commands
+    */
+
     private:
         struct SPrivateSessionType{};
     protected:
@@ -23,13 +25,13 @@ class InGameSession : public Session, public std::enable_shared_from_this<InGame
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
-        void DoRead(std::shared_ptr<User>  UserPtr);
+        void DoRead(std::shared_ptr<User> userPtr);
 
         //write data to server
-        void DoWrite(std::shared_ptr<User>  UserPtr);
+        void DoWrite(std::shared_ptr<User> userPtr);
 
         //start reading from connection
-        void Start(std::shared_ptr<User>  UserPtr);
+        void Start(std::shared_ptr<User> userPtr);
 };
 
 

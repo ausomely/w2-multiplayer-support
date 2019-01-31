@@ -25,40 +25,40 @@ std::shared_ptr< Session > LoginSession::Instance() {
 }
 
 
-void LoginSession::DoRead(std::shared_ptr<User> UserPtr) {
+void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(UserPtr->data, MAX_BUFFER);
+    bzero(userPtr->data, MAX_BUFFER);
 
-    UserPtr->socket.async_read_some(boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [this, UserPtr](boost::system::error_code err, std::size_t length) {
+    userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
         //data to be processed
         if (!err) {
 
             //set session's username
             LoginInfo::Credential credential;
 
-            credential.ParseFromString(UserPtr->data);
-            UserPtr->name = credential.username();
-            UserPtr->password = credential.password();
+            credential.ParseFromString(userPtr->data);
+            userPtr->name = credential.username();
+            userPtr->password = credential.password();
 
             //testing if we got the password!
-            std::cout << "Password for " << UserPtr->name << " is " << UserPtr->password << std::endl;
+            std::cout << "Password for " << userPtr->name << " is " << userPtr->password << std::endl;
 
             //TODO: send authentication request to web server
 
             //if authenticated
-            if(GetAuthentication(UserPtr)) {
+            if(GetAuthentication(userPtr)) {
                 //add name to list of users
-                UserPtr->lobby.join(UserPtr);
+                userPtr->lobby.join(userPtr);
                 //write message to connected client and move to the next session
-                DoWrite(UserPtr);
+                DoWrite(userPtr);
             }
 
             //else
             //send fail and continue reading as login session
             else {
                 // just call restart to read data again from client
-                Restart(UserPtr);
+                Restart(userPtr);
             }
         }
 
@@ -66,40 +66,40 @@ void LoginSession::DoRead(std::shared_ptr<User> UserPtr) {
         else if ((boost::asio::error::eof == err) ||
                 (boost::asio::error::connection_reset == err)) {
             //find username in Lobby clients and remove data
-            UserPtr->lobby.leave(UserPtr);
+            userPtr->lobby.leave(userPtr);
         }
     });
 }
 
-void LoginSession::DoWrite(std::shared_ptr<User> UserPtr) {
+void LoginSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    std::cout << "Client " << UserPtr->name << " has joined!" << std::endl;
+    std::cout << "Client " << userPtr->name << " has joined!" << std::endl;
     //print names of current connections and put in buffer
-    UserPtr->lobby.PrepareUsersInfo(UserPtr->data);
+    userPtr->lobby.PrepareUsersInfo(userPtr->data);
     //write list of clients to socket
-    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(UserPtr->data, MAX_BUFFER),
-        [UserPtr](boost::system::error_code err, std::size_t ) {
+    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+        [userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, move to the next session
         if (!err) {
-            UserPtr->ChangeSession(AcceptedSession::Instance());
+            userPtr->ChangeSession(AcceptedSession::Instance());
         }
     });
  }
 
 //start reading from connection
-void LoginSession::Start(std::shared_ptr<User> UserPtr) {
-    DoRead(UserPtr);
+void LoginSession::Start(std::shared_ptr<User> userPtr) {
+    DoRead(userPtr);
 }
 
 //restart and read data again
-void LoginSession::Restart(std::shared_ptr<User> UserPtr) {
+void LoginSession::Restart(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     std::string message = "Your login information is wrong. Please try again\n";
-    std::cout << "Client " << UserPtr->name << " failed to authenticate!" << std::endl;
+    std::cout << "Client " << userPtr->name << " failed to authenticate!" << std::endl;
 
     //write list of clients to socket
-    boost::asio::async_write(UserPtr->socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
-        [UserPtr](boost::system::error_code err, std::size_t ) {
+    boost::asio::async_write(userPtr->socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
+        [userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket to get log in info
         if (!err) {
 
@@ -107,7 +107,7 @@ void LoginSession::Restart(std::shared_ptr<User> UserPtr) {
     });
 }
 
-bool LoginSession::GetAuthentication(std::shared_ptr<User> UserPtr) {
+bool LoginSession::GetAuthentication(std::shared_ptr<User> userPtr) {
 
     boost::asio::io_service io_service;
       // Get a list of endpoints corresponding to the server name.
@@ -127,8 +127,8 @@ bool LoginSession::GetAuthentication(std::shared_ptr<User> UserPtr) {
 
     ptree root, info;
 
-    info.put("email", UserPtr->name + "@ucdavis.edu");
-    info.put("password", UserPtr->password);
+    info.put("email", userPtr->name + "@ucdavis.edu");
+    info.put("password", userPtr->password);
     root.put_child("user", info);
 
 

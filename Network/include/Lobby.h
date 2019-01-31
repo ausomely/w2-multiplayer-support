@@ -8,21 +8,21 @@
 
 class Lobby
 {
-    //class to manage the shared state between clients
-    //I'd see it being used to managing overall game communication
-    //and data management
+    /* class to manage the shared state between clients
+       Used to managing overall game communication and data management
+    */
     private:
-        std::set<std::shared_ptr<User> > Users;
-        std::vector<std::string> UserNames;
+        std::set<std::shared_ptr<User> > users;
+        std::vector<std::string> userNames;
     public:
         //constructor, no need to initialize members yet
         Lobby() {}
 
         //a new client has joined
-        void join(std::shared_ptr<User>  UserPtr);
+        void join(std::shared_ptr<User>  userPtr);
 
         //a client has left
-        void leave(std::shared_ptr<User>  UserPtr);
+        void leave(std::shared_ptr<User>  userPtr);
 
         //print the current connected clients
         void PrintNames();

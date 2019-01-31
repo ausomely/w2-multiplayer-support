@@ -11,12 +11,12 @@ class User;
 
 class Session
 {
+    // pure virtual class for differnet session/states
     public:
         virtual ~Session() {}
-        //virtual std::string GetName() = 0;
-        virtual void DoRead(std::shared_ptr<User>  UserPtr) = 0;
-        virtual void DoWrite(std::shared_ptr<User>  UserPtr) = 0;
-        virtual void Start(std::shared_ptr<User>  UserPtr) = 0;
+        virtual void DoRead(std::shared_ptr<User>  userPtr) = 0;
+        virtual void DoWrite(std::shared_ptr<User>  userPtr) = 0;
+        virtual void Start(std::shared_ptr<User>  userPtr) = 0;
 };
 
 #endif

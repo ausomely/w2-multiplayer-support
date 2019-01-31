@@ -9,8 +9,12 @@ using boost::asio::ip::tcp;
 
 class HostGameSession : public Session, public std::enable_shared_from_this<HostGameSession>
 {
-    // Class for managing information exchange between client and server when the client creates a game room
-    // information to exchange: map name, maximum allowed number of player, name of the host client
+    /* Class for managing information exchange between client and server when the client creates a game room
+       information to exchange:
+           map name,
+           maximum allowed number of player,
+           name of the host client
+    */
     private:
         struct SPrivateSessionType{};
     protected:
@@ -21,13 +25,13 @@ class HostGameSession : public Session, public std::enable_shared_from_this<Host
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
-        void DoRead(std::shared_ptr<User>  UserPtr);
+        void DoRead(std::shared_ptr<User> userPtr);
 
         //write data to server
-        void DoWrite(std::shared_ptr<User>  UserPtr);
+        void DoWrite(std::shared_ptr<User> userPtr);
 
         //start reading from connection
-        void Start(std::shared_ptr<User>  UserPtr);
+        void Start(std::shared_ptr<User> userPtr);
 };
 
 #endif
