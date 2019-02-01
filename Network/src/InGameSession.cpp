@@ -21,7 +21,7 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
         if (!err) {
             GameInfo::PlayerCommandRequest playerCommandRequest;
-            playerCommandRequest.ParseFromArray(userPtr->data,length);
+            playerCommandRequest.ParseFromArray(userPtr->data, length);
 
             std::ofstream outfile;
             outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);

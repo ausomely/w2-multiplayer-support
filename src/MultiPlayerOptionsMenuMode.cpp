@@ -46,6 +46,8 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
     context->ClientPointer->SendMessage("Host");
     context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
 
+    context->ClientPointer->SendRoomInfo(context);
+
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 
@@ -54,6 +56,7 @@ void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage("Join");
+    context->ClientPointer->GetRoomList(context);
 }
 
 //! @brief Returns to Main menu of the game

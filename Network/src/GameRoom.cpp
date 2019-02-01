@@ -5,7 +5,6 @@
 GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &roomInformation)
     : capacity(roomInformation.capacity()), size(1), map(roomInformation.map()) {
     owner = host;
-    host->currentRoom = shared_from_this();
     roomInfo.CopyFrom(roomInformation);
     players.insert(owner);
     for (int i = 0; i < capacity; i++) {
@@ -14,7 +13,6 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
 }
 
 void GameRoom::join(std::shared_ptr<User> user) {
-    user->currentRoom = shared_from_this();
     user->id = size;
     size++;
     players.insert(user);

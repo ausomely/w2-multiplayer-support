@@ -2,6 +2,7 @@
 #include "ApplicationData.h"
 #include "LoginInfo.pb.h"
 #include "GameInfo.pb.h"
+#include "RoomInfo.pb.h"
 #include <fstream>
 
 using boost::asio::ip::tcp;
@@ -18,12 +19,12 @@ bool Client::Connect(std::shared_ptr<CApplicationData> context){
     tcp::resolver::iterator endpoint_iterator;
     endpoint_iterator = resolver.resolve({context->DRemoteHostname, std::to_string(context->DMultiplayerPort)}, err);
     if(err) {
-        std::cerr << "ERROR connecting. Check your hostname." << std::endl;
+        std::cerr << "ERROR connecting. Check your hostname and port number." << std::endl;
         return false;
     }
     boost::asio::connect(socket, endpoint_iterator, err);
     if(err) {
-        std::cerr << "ERROR connecting. Check your port number." << std::endl;
+        std::cerr << "ERROR connecting. Check your hostname and port number." << std::endl;
         return false;
     }
 
@@ -43,7 +44,7 @@ bool Client::SendLoginInfo(std::shared_ptr<CApplicationData> context) {
 
     credential.SerializeToOstream(&output_stream);
 
-    boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
+    boost::asio::write(socket, stream_buffer, err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
         return false;
@@ -101,12 +102,53 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
     std::ostream output_stream(&stream_buffer);
     playerCommandRequest.SerializeToOstream(&output_stream);
 
-    boost::asio::write(socket, stream_buffer, err);//boost::asio::buffer(buffer, buffer.size()), err);
+    boost::asio::write(socket, stream_buffer, err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
         return;
     }
 
+    return;
+}
+
+// send the server the information of the room hosted
+void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
+
+    RoomInfo::RoomInformation roomInfo;
+    roomInfo.set_host(context->DUsername);
+    roomInfo.set_map("Dummy map1");
+    roomInfo.set_size(1);
+    roomInfo.set_capacity(8);
+
+    // send package to server
+    boost::system::error_code err;
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomInfo.SerializeToOstream(&output_stream);
+
+    boost::asio::write(socket, stream_buffer, err);
+    if(err) {
+        std::cerr << "ERROR writing" << std::endl;
+        return;
+    }
+
+    return;
+}
+
+// get the room list information from client
+void Client::GetRoomList(std::shared_ptr<CApplicationData> context) {
+    RoomInfo::RoomInfoPackage roomList;
+    boost::system::error_code err;
+
+    char data[BUFFER_SIZE];
+    std::size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
+    if(err) {
+        std::cerr << "ERROR reading" << std::endl;
+        return;
+    }
+    roomList.ParseFromArray(data, length);
+
+    std::cout << roomList.DebugString() << std::endl;
     return;
 }
 
