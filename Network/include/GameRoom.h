@@ -4,7 +4,8 @@
 #include <set>
 #include <string>
 #include <memory>
-#include "InGameSession.h"
+#include "GameInfo.pb.h"
+#include "RoomInfo.pb.h"
 
 class User;
 
@@ -26,13 +27,15 @@ class GameRoom
         int size;
         std::string map;
         GameInfo::PlayerCommandPackage playerCommandPackage;
+        RoomInfo::RoomInformation roomInfo;
     public:
         GameRoom(std::shared_ptr<User> host, int maximumPlayers, std::string mapName);
-        void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
-        void SetData(char* data);
         void join(std::shared_ptr<User> user);
         void leave(std::shared_ptr<User> user);
-
+        void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
+        void SetRoomInfo(const RoomInfo::RoomInformation &roomInformation);
+        const RoomInfo::RoomInformation& GetRoomInfo() const;
+        void SetData(char* data);
 };
 
 #endif

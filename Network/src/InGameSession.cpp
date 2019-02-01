@@ -1,4 +1,5 @@
 #include "InGameSession.h"
+#include "GameInfo.pb.h"
 #include "User.h"
 #include "Lobby.h"
 #include <fstream>

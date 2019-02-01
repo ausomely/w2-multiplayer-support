@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package RoomInfo;
+
+message RoomInformation {
+    required string host = 1;
+    required string map = 2;
+    required int32 capacity = 3;
+    required int32 size = 4;
+}
+
+message RoomInfoPackage {
+    repeated RoomInformation roominfo = 1;
+}

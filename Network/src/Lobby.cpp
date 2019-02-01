@@ -44,10 +44,20 @@ size_t Lobby::PrepareUsersInfo(char* buff) {
 
 //add a game room to the list
 void Lobby::AddRoom(std::shared_ptr<GameRoom> room) {
-    GameRooms.insert(room);
+    gameRooms.insert(room);
 }
 
 //remove a game room from the list
 void Lobby::RemoveRoom(std::shared_ptr<GameRoom> room) {
-    GameRooms.erase(room);
+    gameRooms.erase(room);
+}
+
+//get a protobuf package list of rooms info from the set of gameRooms
+RoomInfo::RoomInfoPackage Lobby::GetRoomList() {
+    RoomInfo::RoomInfoPackage roomList;
+    for (auto& room: gameRooms) {
+        roomList.add_roominfo()->CopyFrom(room->GetRoomInfo());
+    }
+
+    return roomList;
 }

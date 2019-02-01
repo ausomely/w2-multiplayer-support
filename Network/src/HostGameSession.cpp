@@ -1,4 +1,5 @@
 #include "HostGameSession.h"
+#include "RoomInfo.pb.h"
 #include "User.h"
 #include "Lobby.h"
 
@@ -19,12 +20,15 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-            // TODO : reading the game room information from client
+
+            RoomInfo::RoomInformation roomInfo;
+            roomInfo.ParseFromArray(userPtr->data,length);
 
             // Create the room object and add it to lobby
             std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, 8, "dummy_map");
             userPtr->currentRoom = DRoom;
             userPtr->lobby.AddRoom(DRoom);
+            userPtr->currentRoom.lock()->SetRoomInfo(roomInfo);
 
             // incase we want to write something back
             DoWrite(userPtr);

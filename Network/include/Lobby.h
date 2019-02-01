@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include "User.h"
+#include "RoomInfo.pb.h"
 
 class Lobby
 {
@@ -14,7 +15,8 @@ class Lobby
     private:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;
-        std::set<std::shared_ptr<GameRoom>> GameRooms;
+        std::set<std::shared_ptr<GameRoom>> gameRooms;
+
     public:
         //constructor, no need to initialize members yet
         Lobby() {}
@@ -36,6 +38,9 @@ class Lobby
 
         //remove a game room
         void RemoveRoom(std::shared_ptr<GameRoom> room);
+
+        //convert to a protobuf package for all the rooms
+        RoomInfo::RoomInfoPackage GetRoomList();
 
 };
 

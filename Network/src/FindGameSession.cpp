@@ -1,4 +1,5 @@
 #include "FindGameSession.h"
+#include "RoomInfo.pb.h"
 #include "User.h"
 #include "Lobby.h"
 
@@ -10,7 +11,6 @@ std::shared_ptr< Session > FindGameSession::Instance() {
     }
     return DFindGameSessionPointer;
 }
-
 
 void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
@@ -33,10 +33,13 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-
+    bzero(userPtr->data, MAX_BUFFER);
+    RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
+    size_t size = roomList.ByteSizeLong();
+    roomList.SerializeToArray(userPtr->data, size);
     boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
         [this, userPtr](boost::system::error_code err, std::size_t ) {
-        //if no error, continue trying to read from socket
+        //if no error, continue trying to read input from client
         if (!err) {
             DoRead(userPtr);
         }
@@ -46,5 +49,7 @@ void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void FindGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined Find Game session" << std::endl;
-    DoRead(userPtr);
+
+    // send game list information
+    DoWrite(userPtr);
 }

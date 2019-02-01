@@ -2,7 +2,6 @@
 #define INGAMESESSION_H
 
 #include "Session.h"
-#include "GameInfo.pb.h"
 
 class User;
 
