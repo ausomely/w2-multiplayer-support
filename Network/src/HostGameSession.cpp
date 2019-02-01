@@ -25,13 +25,12 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
             roomInfo.ParseFromArray(userPtr->data,length);
 
             // Create the room object and add it to lobby
-            std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, 8, "dummy_map");
-            userPtr->currentRoom = DRoom;
+            std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, roomInfo);
             userPtr->lobby.AddRoom(DRoom);
-            userPtr->currentRoom.lock()->SetRoomInfo(roomInfo);
 
+            userPtr->ChangeSession(InRoomSession::Instance());
             // incase we want to write something back
-            DoWrite(userPtr);
+            //DoWrite(userPtr);
         }
 
         //end of connection

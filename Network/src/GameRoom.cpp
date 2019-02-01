@@ -2,9 +2,11 @@
 #include "User.h"
 #include <boost/bind.hpp>
 
-GameRoom::GameRoom(std::shared_ptr<User> host, int maximumPlayers, std::string mapName)
-    : capacity(maximumPlayers), size(1), map(mapName) {
+GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &roomInformation)
+    : capacity(roomInformation.capacity()), size(1), map(roomInformation.map()) {
     owner = host;
+    host->currentRoom = shared_from_this();
+    roomInfo.CopyFrom(roomInformation);
     players.insert(owner);
     for (int i = 0; i < capacity; i++) {
         playerCommandPackage.add_dplayercommand();
@@ -12,6 +14,7 @@ GameRoom::GameRoom(std::shared_ptr<User> host, int maximumPlayers, std::string m
 }
 
 void GameRoom::join(std::shared_ptr<User> user) {
+    user->currentRoom = shared_from_this();
     user->id = size;
     size++;
     players.insert(user);
@@ -31,10 +34,6 @@ void GameRoom::leave(std::shared_ptr<User> user) {
 
 void GameRoom::SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index) {
     playerCommandPackage.mutable_dplayercommand(index)->CopyFrom(playerCommandRequest);
-}
-
-void GameRoom::SetRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
-    roomInfo.CopyFrom(roomInformation);
 }
 
 const RoomInfo::RoomInformation& GameRoom::GetRoomInfo() const {

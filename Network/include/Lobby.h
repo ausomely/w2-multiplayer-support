@@ -15,7 +15,7 @@ class Lobby
     private:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;
-        std::set<std::shared_ptr<GameRoom>> gameRooms;
+        std::vector<std::shared_ptr<GameRoom>> gameRooms;
 
     public:
         //constructor, no need to initialize members yet
@@ -38,6 +38,9 @@ class Lobby
 
         //remove a game room
         void RemoveRoom(std::shared_ptr<GameRoom> room);
+
+        //join a user to specific room
+        void JoinRoom(std::shared_ptr<User> userPtr, int index);
 
         //convert to a protobuf package for all the rooms
         RoomInfo::RoomInfoPackage GetRoomList();

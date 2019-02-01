@@ -11,7 +11,7 @@ class User;
 
 using namespace GameInfo;
 
-class GameRoom
+class GameRoom: public std::enable_shared_from_this<GameRoom>
 {
     /* class to store the info about the game room
        infomration to keep track of:
@@ -29,11 +29,10 @@ class GameRoom
         GameInfo::PlayerCommandPackage playerCommandPackage;
         RoomInfo::RoomInformation roomInfo;
     public:
-        GameRoom(std::shared_ptr<User> host, int maximumPlayers, std::string mapName);
+        GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &roomInformation);
         void join(std::shared_ptr<User> user);
         void leave(std::shared_ptr<User> user);
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
-        void SetRoomInfo(const RoomInfo::RoomInformation &roomInformation);
         const RoomInfo::RoomInformation& GetRoomInfo() const;
         void SetData(char* data);
 };
