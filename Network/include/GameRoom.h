@@ -25,9 +25,11 @@ class GameRoom
         int capacity;
         int size;
         std::string map;
+        GameInfo::PlayerCommandPackage playerCommandPackage;
     public:
         GameRoom(std::shared_ptr<User> host, int maximumPlayers, std::string mapName);
-        void Deliver(const GameInfo::PlayerCommandRequest &playerCommandRequest);
+        void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
+        void SetData(char* data);
         void join(std::shared_ptr<User> user);
         void leave(std::shared_ptr<User> user);
 

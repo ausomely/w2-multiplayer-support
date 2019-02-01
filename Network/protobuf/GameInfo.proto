@@ -65,3 +65,7 @@ message PlayerCommandRequest {
     repeated int32 DActors = 4; //CPlayerAsset IDs
     required CPixelPosition DTargetLocation= 5; //CPixelPosition
 }
+
+message PlayerCommandPackage {
+    repeated PlayerCommandRequest DPlayerCommand = 1;
+}

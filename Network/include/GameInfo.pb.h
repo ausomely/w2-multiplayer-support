@@ -38,7 +38,7 @@ namespace protobuf_GameInfo_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[2];
+  static const ::google::protobuf::internal::ParseTable schema[3];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -46,6 +46,9 @@ struct TableStruct {
 void AddDescriptors();
 }  // namespace protobuf_GameInfo_2eproto
 namespace GameInfo {
+class PlayerCommandPackage;
+class PlayerCommandPackageDefaultTypeInternal;
+extern PlayerCommandPackageDefaultTypeInternal _PlayerCommandPackage_default_instance_;
 class PlayerCommandRequest;
 class PlayerCommandRequestDefaultTypeInternal;
 extern PlayerCommandRequestDefaultTypeInternal _PlayerCommandRequest_default_instance_;
@@ -55,6 +58,7 @@ extern PlayerCommandRequest_CPixelPositionDefaultTypeInternal _PlayerCommandRequ
 }  // namespace GameInfo
 namespace google {
 namespace protobuf {
+template<> ::GameInfo::PlayerCommandPackage* Arena::CreateMaybeMessage<::GameInfo::PlayerCommandPackage>(Arena*);
 template<> ::GameInfo::PlayerCommandRequest* Arena::CreateMaybeMessage<::GameInfo::PlayerCommandRequest>(Arena*);
 template<> ::GameInfo::PlayerCommandRequest_CPixelPosition* Arena::CreateMaybeMessage<::GameInfo::PlayerCommandRequest_CPixelPosition>(Arena*);
 }  // namespace protobuf
@@ -355,6 +359,123 @@ class PlayerCommandRequest : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::int32 dtargettype_;
   friend struct ::protobuf_GameInfo_2eproto::TableStruct;
 };
+// -------------------------------------------------------------------
+
+class PlayerCommandPackage : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:GameInfo.PlayerCommandPackage) */ {
+ public:
+  PlayerCommandPackage();
+  virtual ~PlayerCommandPackage();
+
+  PlayerCommandPackage(const PlayerCommandPackage& from);
+
+  inline PlayerCommandPackage& operator=(const PlayerCommandPackage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  PlayerCommandPackage(PlayerCommandPackage&& from) noexcept
+    : PlayerCommandPackage() {
+    *this = ::std::move(from);
+  }
+
+  inline PlayerCommandPackage& operator=(PlayerCommandPackage&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PlayerCommandPackage& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const PlayerCommandPackage* internal_default_instance() {
+    return reinterpret_cast<const PlayerCommandPackage*>(
+               &_PlayerCommandPackage_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  void Swap(PlayerCommandPackage* other);
+  friend void swap(PlayerCommandPackage& a, PlayerCommandPackage& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline PlayerCommandPackage* New() const final {
+    return CreateMaybeMessage<PlayerCommandPackage>(NULL);
+  }
+
+  PlayerCommandPackage* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<PlayerCommandPackage>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const PlayerCommandPackage& from);
+  void MergeFrom(const PlayerCommandPackage& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PlayerCommandPackage* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .GameInfo.PlayerCommandRequest DPlayerCommand = 1;
+  int dplayercommand_size() const;
+  void clear_dplayercommand();
+  static const int kDPlayerCommandFieldNumber = 1;
+  ::GameInfo::PlayerCommandRequest* mutable_dplayercommand(int index);
+  ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest >*
+      mutable_dplayercommand();
+  const ::GameInfo::PlayerCommandRequest& dplayercommand(int index) const;
+  ::GameInfo::PlayerCommandRequest* add_dplayercommand();
+  const ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest >&
+      dplayercommand() const;
+
+  // @@protoc_insertion_point(class_scope:GameInfo.PlayerCommandPackage)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest > dplayercommand_;
+  friend struct ::protobuf_GameInfo_2eproto::TableStruct;
+};
 // ===================================================================
 
 
@@ -578,9 +699,45 @@ inline void PlayerCommandRequest::set_allocated_dtargetlocation(::GameInfo::Play
   // @@protoc_insertion_point(field_set_allocated:GameInfo.PlayerCommandRequest.DTargetLocation)
 }
 
+// -------------------------------------------------------------------
+
+// PlayerCommandPackage
+
+// repeated .GameInfo.PlayerCommandRequest DPlayerCommand = 1;
+inline int PlayerCommandPackage::dplayercommand_size() const {
+  return dplayercommand_.size();
+}
+inline void PlayerCommandPackage::clear_dplayercommand() {
+  dplayercommand_.Clear();
+}
+inline ::GameInfo::PlayerCommandRequest* PlayerCommandPackage::mutable_dplayercommand(int index) {
+  // @@protoc_insertion_point(field_mutable:GameInfo.PlayerCommandPackage.DPlayerCommand)
+  return dplayercommand_.Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest >*
+PlayerCommandPackage::mutable_dplayercommand() {
+  // @@protoc_insertion_point(field_mutable_list:GameInfo.PlayerCommandPackage.DPlayerCommand)
+  return &dplayercommand_;
+}
+inline const ::GameInfo::PlayerCommandRequest& PlayerCommandPackage::dplayercommand(int index) const {
+  // @@protoc_insertion_point(field_get:GameInfo.PlayerCommandPackage.DPlayerCommand)
+  return dplayercommand_.Get(index);
+}
+inline ::GameInfo::PlayerCommandRequest* PlayerCommandPackage::add_dplayercommand() {
+  // @@protoc_insertion_point(field_add:GameInfo.PlayerCommandPackage.DPlayerCommand)
+  return dplayercommand_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest >&
+PlayerCommandPackage::dplayercommand() const {
+  // @@protoc_insertion_point(field_list:GameInfo.PlayerCommandPackage.DPlayerCommand)
+  return dplayercommand_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

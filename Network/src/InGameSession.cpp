@@ -12,7 +12,6 @@ std::shared_ptr< Session > InGameSession::Instance() {
     return DInGameSessionPointer;
 }
 
-
 void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
@@ -30,8 +29,8 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
             //outfile << playerCommandRequest.DebugString();
             outfile.close();
-            userPtr->currentRoom.lock()->Deliver(playerCommandRequest);
-            DoRead(userPtr);
+            userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, userPtr->id);
+            DoWrite(userPtr);
         }
 
         //end of connection
@@ -45,26 +44,21 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    if(!userPtr->playerCommands.empty()) {
-        bzero(userPtr->data, MAX_BUFFER);
-        GameInfo::PlayerCommandRequest playerCommand = userPtr->playerCommands.front();
-        size_t size = playerCommand.ByteSizeLong();
-        playerCommand.SerializeToArray(userPtr->data, size);
-        //write list of clients to socket
-        boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
-            [this, userPtr](boost::system::error_code err, std::size_t ) {
-            //if no error, continue trying to read from socket
-            if (!err) {
-                userPtr->playerCommands.pop_front();
-                DoWrite(userPtr);
-            }
+    bzero(userPtr->data, MAX_BUFFER);
+    userPtr->currentRoom.lock()->SetData(userPtr->data);
+    //write game package to socket
+    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+        [this, userPtr](boost::system::error_code err, std::size_t ) {
+        //if no error, continue trying to read from socket
+        if (!err) {
+            DoRead(userPtr);
+        }
 
-            //leave the room if disconnected or error comes up
-            else {
-                userPtr->currentRoom.lock()->leave(userPtr);
-            }
-        });
-    }
+        //leave the room if disconnected or error comes up
+        else {
+            userPtr->currentRoom.lock()->leave(userPtr);
+        }
+    });
  }
 
 //start reading from connection
