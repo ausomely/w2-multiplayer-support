@@ -99,6 +99,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/VisibilityMap.o									\
 		$(OBJ_DIR)/LoginInfo.pb.o                   \
 		$(OBJ_DIR)/GameInfo.pb.o                    \
+		$(OBJ_DIR)/RoomInfo.pb.o                    \
 		$(OBJ_DIR)/Client.o
 
 all: directories $(BIN_DIR)/$(GAME_NAME)
