@@ -1,5 +1,5 @@
 CXX=g++
-PROTOC=~/bin/protoc
+PROTOC=~\bin\protoc
 CFLAGS   +=  -Wall
 CPPFLAGS += -std=c++11
 BOOSTFLAGS += -lboost_system
@@ -19,6 +19,7 @@ SERVER_OBJS = $(OBJ_DIR)/main.o \
 				$(OBJ_DIR)/InGameSession.o \
 				$(OBJ_DIR)/FindGameSession.o \
 				$(OBJ_DIR)/HostGameSession.o \
+				$(OBJ_DIR)/InRoomSession.o \
 				$(OBJ_DIR)/GameRoom.o \
         $(OBJ_DIR)/Server.o \
         $(OBJ_DIR)/LoginInfo.pb.o \

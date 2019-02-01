@@ -9,6 +9,7 @@
 #include "InGameSession.h"
 #include "FindGameSession.h"
 #include "HostGameSession.h"
+#include "InRoomSession.h"
 #include "GameRoom.h"
 
 class Lobby;
@@ -24,6 +25,7 @@ class User: public std::enable_shared_from_this<User>
     friend class InGameSession;
     friend class FindGameSession;
     friend class HostGameSession;
+    friend class InRoomSession;
     friend class Lobby;
     friend class GameRoom;
     protected:
@@ -34,13 +36,12 @@ class User: public std::enable_shared_from_this<User>
         Lobby& lobby; //shared lobby object
         std::weak_ptr<GameRoom> currentRoom;
         std::shared_ptr<Session> currentSession;
-        std::deque<GameInfo::PlayerCommandRequest> playerCommands; //deque of player comannds to send to client
+        int id; // -1 if not in a room
     public:
         User(tcp::socket socket_, Lobby& lobby_)
-            : socket(std::move(socket_)), lobby(lobby_) {}
+            : socket(std::move(socket_)), lobby(lobby_), id(-1) {}
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
-        void Deliver(const GameInfo::PlayerCommandRequest &playerCommandRequest);
 };
 
 #endif
