@@ -20,9 +20,9 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-            // goes to FindGameSession if receives "Join"
-            if(strcmp(userPtr->data, "Join") == 0) {
-                userPtr->ChangeSession(FindGameSession::Instance());
+            // goes back to AcceptedSession if receives "Back"
+            if(strcmp(userPtr->data, "Back") == 0) {
+                userPtr->ChangeSession(AcceptedGameSession::Instance());
             }
 
             else {
