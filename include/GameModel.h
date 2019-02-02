@@ -17,6 +17,7 @@
 #ifndef GAMEMODEL_H
 #define GAMEMODEL_H
 
+#include <unordered_map>
 #include "AssetDecoratedMap.h"
 #include "FileDataSource.h"
 #include "RandomNumberGenerator.h"
@@ -206,16 +207,26 @@ class CPlayerData
     };
 };
 
+/*! Class to implement game play
+ *
+ */
 class CGameModel
 {
   protected:
-    CRandomNumberGenerator DRandomNumberGenerator;
-    std::shared_ptr<CAssetDecoratedMap> DActualMap;
-    std::vector<std::vector<std::shared_ptr<CPlayerAsset> > > DAssetOccupancyMap;
-    std::vector<std::vector<bool> > DDiagonalOccupancyMap;
+    CRandomNumberGenerator DRandomNumberGenerator;  //!< Used in Timestep()
+    CRandomNumberGenerator
+        DAssetsRandomNumberGenerator;  //!< Used to randomize asset ordering
+    std::vector<std::shared_ptr<CPlayerAsset> >
+        DSortedAssets;  //!< Deterministically sorted player assets
+    std::shared_ptr<CAssetDecoratedMap>
+        DActualMap;  //!< Map of all player assets
+    std::vector<std::vector<std::shared_ptr<CPlayerAsset> > >
+        DAssetOccupancyMap;  //!< Each index represents a game map tile
+    std::vector<std::vector<bool> >
+        DDiagonalOccupancyMap;  //!< Each index represents a game map tile
     CRouterMap DRouterMap;
     std::array<std::shared_ptr<CPlayerData>, to_underlying(EPlayerNumber::Max)>
-        DPlayers;
+        DPlayers;  //!< Array of all player data objects
     int DGameCycle;
     int DHarvestTime;
     int DHarvestSteps;
@@ -235,11 +246,22 @@ class CGameModel
                const std::array<EPlayerColor, to_underlying(EPlayerNumber::Max)>
                    &newcolors);
 
+
+
     int GameCycle() const
     {
         return DGameCycle;
     };
 
+    void ClearAssetsEvalList();  //!< Empty asset evaluation list for next round
+    void CreateAssetsEvalList();  //!< Copy all player assets to a container
+    std::vector<std::shared_ptr<CPlayerAsset> >
+        AssetsEvalList()  //!< Return randomized assets evalulation list
+    {
+        return DSortedAssets;
+    };
+    static bool SortAssets(const std::shared_ptr<CPlayerAsset> &a,
+                    const std::shared_ptr<CPlayerAsset> &b);  //!< Comparison function
     bool ValidAsset(std::shared_ptr<CPlayerAsset> asset);
     std::shared_ptr<CAssetDecoratedMap> Map() const
     {

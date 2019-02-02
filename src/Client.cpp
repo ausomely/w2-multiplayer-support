@@ -2,7 +2,6 @@
 #include "ApplicationData.h"
 #include "LoginInfo.pb.h"
 #include "GameInfo.pb.h"
-#include "RoomInfo.pb.h"
 #include <fstream>
 
 using boost::asio::ip::tcp;
@@ -139,7 +138,7 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
 }
 
 // get the room list information from client
-void Client::GetRoomList(std::shared_ptr<CApplicationData> context) {
+RoomInfo::RoomInfoPackage Client::GetRoomList(std::shared_ptr<CApplicationData> context) {
     RoomInfo::RoomInfoPackage roomList;
     boost::system::error_code err;
 
@@ -147,12 +146,12 @@ void Client::GetRoomList(std::shared_ptr<CApplicationData> context) {
     std::size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
     if(err) {
         std::cerr << "ERROR reading" << std::endl;
-        return;
+        return roomList;
     }
     roomList.ParseFromArray(data, length);
 
-    std::cout << roomList.DebugString() << std::endl;
-    return;
+    //std::cout << roomList.DebugString() << std::endl;
+    return roomList;
 }
 
 // send the server a message

@@ -522,7 +522,7 @@ void CSoundLibraryMixer::PlaySong(int index, float volume)
     {
         if (!DMusicClips[index].Load(
                 DSoundDataContainer->DataSource(DMusicFilenames[index]), true,
-                false)) // load music asynchronously to work around a bug
+                false))  // load music asynchronously to work around a bug
         {
             PrintError("Failed to load song clip %d.\n", index);
             return;

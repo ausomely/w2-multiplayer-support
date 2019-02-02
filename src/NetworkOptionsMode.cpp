@@ -36,7 +36,7 @@ CNetworkOptionsMode::CNetworkOptionsMode(const SPrivateConstructorType &key)
     DEditValidationFunctions.push_back(ValidHostnameCallback);
     DEditTitles.push_back("Remote Hostname:");
     DEditValidationFunctions.push_back(ValidHostnameCallback);
-    DEditTitles.push_back("Remote port number:");
+    DEditTitles.push_back("Remote Port Number:");
     DEditValidationFunctions.push_back(ValidPortNumberCallback);
     DEditTitles.push_back("Password: ");
     DEditValidationFunctions.push_back(ValidPasswordCallback);
@@ -48,24 +48,34 @@ bool CNetworkOptionsMode::ValidPasswordCallback(const std::string &str)
     const int maxLen = 12;
 
     //Handles syncing input with what is stored
-    if(str.empty()){ //input is empty
+    if (str.empty())
+    {  //input is empty
         DNetworkOptionsModePointer->DCurrPassword.clear();
-    }else if(str.size() > DNetworkOptionsModePointer->DCurrPassword.size() ){
-        DNetworkOptionsModePointer->DCurrPassword.append(str.substr(DNetworkOptionsModePointer->DCurrPassword.size(),str.size()));//Added input
-    }else if(str.size() < DNetworkOptionsModePointer->DCurrPassword.size()){ //deleted input
-        DNetworkOptionsModePointer->DCurrPassword.erase(str.size(),DNetworkOptionsModePointer->DCurrPassword.size());
+    }
+    else if (str.size() > DNetworkOptionsModePointer->DCurrPassword.size())
+    {
+        DNetworkOptionsModePointer->DCurrPassword.append(
+            str.substr(DNetworkOptionsModePointer->DCurrPassword.size(),
+                       str.size()));  //Added input
+    }
+    else if (str.size() < DNetworkOptionsModePointer->DCurrPassword.size())
+    {  //deleted input
+        DNetworkOptionsModePointer->DCurrPassword.erase(
+            str.size(), DNetworkOptionsModePointer->DCurrPassword.size());
     }
 
     //Replaces input with *
-    for(auto i = DNetworkOptionsModePointer->DEditText[3].begin(); i != DNetworkOptionsModePointer->DEditText[3].end(); i++){
+    for (auto i = DNetworkOptionsModePointer->DEditText[3].begin();
+         i != DNetworkOptionsModePointer->DEditText[3].end(); i++)
+    {
         *i = '*';
     }
 
     //Input checking
-    if(DNetworkOptionsModePointer->DCurrPassword.size() > maxLen){
+    if (DNetworkOptionsModePointer->DCurrPassword.size() > maxLen)
+    {
         return false;
     }
-
 
     return true;
 }

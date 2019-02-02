@@ -16,14 +16,17 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [this, userPtr](boost::system::error_code err, std::size_t length) {
+        [userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
           // goes to InGameSession if receives "Test"
             if(strcmp(userPtr->data, "Test") == 0) {
                 userPtr->ChangeSession(InGameSession::Instance());
             }
-            //DoWrite(userPtr);
+            
+            else if(strcmp(userPtr->data, "Leave") == 0) {
+                userPtr->ChangeSession(AcceptedSession::Instance());
+            }
         }
 
         //end of connection

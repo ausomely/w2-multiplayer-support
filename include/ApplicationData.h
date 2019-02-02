@@ -40,6 +40,8 @@ typedef bool (*TEditTextValidationCallbackFunction)(const std::string &text);
 
 class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 {
+    friend class CJoinMultiPlayerOptions;
+    friend class CServerConnectMenuMode;
     friend class CInGameMenuMode;
     friend class CGameOverMenuMode;
     friend class CButtonMenuMode;

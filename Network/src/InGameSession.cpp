@@ -17,7 +17,7 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [userPtr](boost::system::error_code err, std::size_t length) {
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
             GameInfo::PlayerCommandRequest playerCommandRequest;
