@@ -13,8 +13,9 @@
     ownership of this material.
 */
 #include "ServerConnectMenuMode.h"
-#include "JoinMultiPlayerOptions.h"
 #include "ApplicationData.h"
+#include "ButtonRenderer.h"
+#include "JoinMultiPlayerOptions.h"
 #include "MainMenuMode.h"
 #include "MemoryDataSource.h"
 #include "Rectangle.h"
@@ -49,6 +50,13 @@ void CServerConnectMenuMode::BackButtonCallback(
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
+// join button call back
+void CServerConnectMenuMode::JoinButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
+    context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
+}
+
 // TODO: Complete this later
 void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
     CurrentX = context->DCurrentX;
@@ -66,7 +74,9 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
             if (DJoinButtonLocations[Index].PointInside(CurrentX, CurrentY))
             {
                 // MLH: Need to wire up join buttons to a callback function
-                //DJoinButtonFunctions[Index](context);
+                context->DSelectedRoomNumber = Index;
+
+                DJoinButtonFunctions[Index](context);
             }
         }
 
@@ -80,6 +90,7 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
 
 void CServerConnectMenuMode::Calculate(std::shared_ptr<CApplicationData> context)
 {
+    context->ClientPointer->UpdateRoomList(&roomList);
 }
 
 void CServerConnectMenuMode::InitializeChange(
@@ -95,17 +106,20 @@ void CServerConnectMenuMode::InitializeChange(
 // Handle rendering of the game server information and join buttons
 void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 {
-    std::string TempString;
+    // clear vector first !
+    DJoinButtonLocations.clear();
+    DJoinButtonFunctions.clear();
 
     CButtonRenderer::EButtonState ButtonState;
+    std::string TempString;
 
     LargeFontSize = to_underlying(CUnitDescriptionRenderer::EFontSize::Large);
 
-    int XPosCol1 = 50;
-    int XPosCol2 = XPosCol1 + 150;
+    int XPosCol1 = context->DBorderWidth;
+    int XPosCol2 = XPosCol1 + 125;
     int XPosCol3 = XPosCol2 + 150;
-    int XPosCol4 = XPosCol3 + 200;
-    int XPosCol5 = XPosCol4 + 100;
+    int XPosCol4 = XPosCol3 + 275;
+    int XPosCol5 = XPosCol4 + 75;
 
     int JoinButtonWidth = 50;
     int JoinButtonHeight = 30;
@@ -119,19 +133,14 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
     CurrentX = context->DCurrentX;
     CurrentY = context->DCurrentY;
 
-    // Render title on top
+    // Renders title on top
     context->RenderMenuTitle(DTitle, TitleHeight, BufferWidth, BufferHeight);
 
     GoldColor = context->DFonts[LargeFontSize]->FindColor("gold");
     WhiteColor = context->DFonts[LargeFontSize]->FindColor("white");
     ShadowColor = context->DFonts[LargeFontSize]->FindColor("black");
 
-    // Set height of buttons
-    context->DButtonRenderer->Height(context->DButtonRenderer->Height() * 3/2);
-    // Set width of buttons
-    context->DButtonRenderer->Width(XPosCol1 + 50);
-
-
+    // Hard coded Heading column
     TempString = "Game";
     DrawText(context, TempString, XPosCol1, YPosColumnHeader, WhiteColor);
 
@@ -143,12 +152,6 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     TempString = "Players";
     DrawText(context, TempString, XPosCol4, YPosColumnHeader, WhiteColor);
-
-    // Check if X position of pointer is within X coordinate range of join button
-    if ((XPosCol5 <= CurrentX) && (XPosCol5 + JoinButtonWidth > CurrentX))
-    {
-        ButtonXAlign = true;
-    }
 
     // Each game server gets a row of info and a join button
     // Need some way to get the total number of game servers
@@ -170,27 +173,23 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
         DrawText(context, player_count, XPosCol4, YPosDataRow,
                  GoldColor);
 
-        // Set initial button state
-        ButtonState = CButtonRenderer::EButtonState::None;
-
-        context->DButtonRenderer->Text("Join");
+        context->DButtonRenderer->Text("Join", true);
         context->DButtonRenderer->Height(JoinButtonHeight);
         context->DButtonRenderer->Width(JoinButtonWidth);
 
-        // If pointer is within X coordinate range of button
-        if (ButtonXAlign)
+        // If pointer is within X and Y coordinate range of button
+        ButtonState = CButtonRenderer::EButtonState::None;
+        if ((YPosDataRow <= CurrentY) &&
+            (YPosDataRow + JoinButtonHeight > CurrentY) &&
+            (XPosCol5 <= CurrentX) &&
+            (XPosCol5 + JoinButtonWidth > CurrentX))
         {
-            // If pointer is within Y coordinate range of button
-            if ((YPosDataRow <= CurrentY) &&
-                (YPosDataRow + JoinButtonHeight > CurrentY))
-            {
-                // Set to pressed if left mouse button down
-                // Otherwise the pointer is hovering
-                ButtonState = context->DLeftDown
-                                  ? CButtonRenderer::EButtonState::Pressed
-                                  : CButtonRenderer::EButtonState::Hover;
-                ButtonHovered = true;
-            }
+            // Set to pressed if left mouse button down
+            // Otherwise the pointer is hovering
+            ButtonState = context->DLeftDown
+                                ? CButtonRenderer::EButtonState::Pressed
+                                : CButtonRenderer::EButtonState::Hover;
+            ButtonHovered = true;
         }
 
         // Draw the button on the screen
@@ -203,6 +202,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
         // Push button dimensions onto vector of button locations
         DJoinButtonLocations.push_back(
             SRectangle({XPosCol5, YPosDataRow, JoinButtonWidth, JoinButtonHeight}));
+        DJoinButtonFunctions.push_back(JoinButtonCallback);
 
         // Set Y coordinate of next row of data
         YPosDataRow += YOffsetDataRows;
@@ -211,58 +211,8 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     DButtonLocations.clear();
 
-    context->DButtonRenderer->ButtonColor(EPlayerColor::None);
-    // Read in button text for Play Game button
-    context->DButtonRenderer->Text(DButtonTexts[0], true);
-
-    // Set initial button state
-    ButtonState = CButtonRenderer::EButtonState::None;
-
-    BackButtonLeft =
-        BufferWidth - context->DButtonRenderer->Width() - context->DBorderWidth;
-
-    BackButtonTop =
-        BufferHeight - context->DButtonRenderer->Height() - context->DBorderWidth;
-
-    // Check if X position of pointer is within X coordinate range of button
-    if ((BackButtonLeft <= CurrentX) &&
-        (BackButtonLeft + context->DButtonRenderer->Width() > CurrentX))
-    {
-        ButtonXAlign = true;
-    }
-    else
-    {
-        ButtonHovered = false;
-    }
-
-
-    // If pointer is within X coordinate range of button
-    if (ButtonXAlign)
-    {
-        // Check if Y position of pointer is within Y coordinate range of button
-        if ((BackButtonTop <= CurrentY) &&
-            ((BackButtonTop + context->DButtonRenderer->Height() > CurrentY)))
-        {
-            // Set to pressed if left mouse button down
-            // Otherwise the pointer is hovering, so set to hover
-            ButtonState = context->DLeftDown
-                          ? CButtonRenderer::EButtonState::Pressed
-                          : CButtonRenderer::EButtonState::Hover;
-            ButtonHovered = true;
-        }
-    }
-
-    // Draw the button with colors correlating to the button state
-    // Point of origin for the button is (ButtonLeft, ButtonTop)
-    context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
-                                         BackButtonLeft, BackButtonTop, ButtonState);
-    // SRectangle contains all the coordinates to make the shape
-    // of the button.
-    // Push button dimensions onto vector of button locations
-    DButtonLocations.push_back(
-    SRectangle({BackButtonLeft, BackButtonTop, context->DButtonRenderer->Width(),
-                context->DButtonRenderer->Height()}));
-
+    // Renders the Back button on the screen
+    RenderBackButton(context, ButtonState);
 
     // If the button has not been previously hovered and it's currently hovered
     if (!DButtonHovered && ButtonHovered)
@@ -294,4 +244,46 @@ void CServerConnectMenuMode::DrawText(std::shared_ptr<CApplicationData> context,
     context->DFonts[LargeFontSize]->DrawTextWithShadow(
         context->DWorkingBufferSurface, xpos, ypos, color, ShadowColor, 1,
         text);
+}
+
+void CServerConnectMenuMode::RenderBackButton(std::shared_ptr<CApplicationData> context,
+                                            CButtonRenderer::EButtonState ButtonState)
+{
+    // USEFULL NOTE: Always put the hover button code then Draw the button
+
+    context->DButtonRenderer->ButtonColor(EPlayerColor::None);
+    context->DButtonRenderer->Text(DButtonTexts[0], false);
+    context->DButtonRenderer->Width(80);
+    context->DButtonRenderer->Height(35);
+
+    BackButtonLeft =
+        BufferWidth - context->DButtonRenderer->Width() - context->DBorderWidth;
+
+    BackButtonTop =
+        BufferHeight - context->DButtonRenderer->Height() - context->DBorderWidth;
+
+    // If pointer is within X and Y coordinate range of button
+    ButtonState = CButtonRenderer::EButtonState::None;
+    if ((BackButtonLeft <= CurrentX) &&
+        (BackButtonLeft + context->DButtonRenderer->Width() > CurrentX)
+        && (BackButtonTop <= CurrentY)
+        && ((BackButtonTop + context->DButtonRenderer->Height() > CurrentY)))
+    {
+        // Set to pressed if left mouse button down
+        // Otherwise the pointer is hovering, so set to hover
+        ButtonState =
+                context->DLeftDown ? CButtonRenderer::EButtonState::Pressed : CButtonRenderer::EButtonState::Hover;
+            ButtonHovered = true;
+    }
+
+    // Draw the button with colors correlating to the button state
+    // Point of origin for the button is (ButtonLeft, ButtonTop)
+    context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
+                                         BackButtonLeft, BackButtonTop, ButtonState);
+    // SRectangle contains all the coordinates to make the shape
+    // of the button.
+    // Push button dimensions onto vector of button locations
+    DButtonLocations.push_back(
+    SRectangle({BackButtonLeft, BackButtonTop, context->DButtonRenderer->Width(),
+                context->DButtonRenderer->Height()}));
 }

@@ -16,7 +16,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [userPtr](boost::system::error_code err, std::size_t length) {
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
@@ -24,11 +24,19 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
 
+          /*  else if(strcmp(userPtr->data, "Continue") == 0) {
+                DoWrite(userPtr);
+            }*/
+
             // joins the room
             else {
                 int index = std::stoi(std::string(userPtr->data));
-                userPtr->lobby.JoinRoom(userPtr, index);
-                userPtr->ChangeSession(InRoomSession::Instance());
+                std::cout << userPtr->name << " has joined room " << index + 1 << std::endl;
+
+                DoRead(userPtr);
+
+                //userPtr->lobby.JoinRoom(userPtr, index);
+                //userPtr->ChangeSession(InRoomSession::Instance());
             }
         }
 

@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 #include <boost/asio.hpp>
+
 #include "RoomInfo.pb.h"
 
 using boost::asio::ip::tcp;
@@ -14,7 +15,7 @@ using boost::asio::ip::tcp;
 
 class CApplicationData;
 
-class Client
+class Client: public std::enable_shared_from_this<Client>
 {
     public:
     // members
@@ -28,7 +29,12 @@ class Client
         bool SendLoginInfo(std::shared_ptr<CApplicationData> context);
         void SendGameInfo(std::shared_ptr<CApplicationData> context);
         void SendRoomInfo(std::shared_ptr<CApplicationData> context);
+        //void GetRoomList(std::shared_ptr<CApplicationData> context,
+          //  RoomInfo::RoomInfoPackage *roomList);
         RoomInfo::RoomInfoPackage GetRoomList(std::shared_ptr<CApplicationData> context);
+        void UpdateRoomList(RoomInfo::RoomInfoPackage* roomList);
+        void HandleUpdateRoomList(char* data, RoomInfo::RoomInfoPackage* roomList,
+            const boost::system::error_code& err);
         void SendMessage(std::string message);
         void GetGameInfo(std::shared_ptr<CApplicationData> context);
         void CloseConnection();

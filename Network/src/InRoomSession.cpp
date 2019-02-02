@@ -23,7 +23,7 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
             if(strcmp(userPtr->data, "Test") == 0) {
                 userPtr->ChangeSession(InGameSession::Instance());
             }
-            
+
             else if(strcmp(userPtr->data, "Leave") == 0) {
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
@@ -52,6 +52,7 @@ void InRoomSession::DoWrite(std::shared_ptr<User> userPtr) {
 
         //leave the room if disconnected or error comes up
         else {
+
         }
     });
  }

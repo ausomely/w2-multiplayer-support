@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include "ApplicationMode.h"
+#include "ButtonRenderer.h"
 #include "Rectangle.h"
 #include "RoomInfo.pb.h"
 
@@ -31,7 +32,6 @@ class CServerConnectMenuMode : public CApplicationMode
     {
     };
 
-    //RoomList info
     RoomInfo::RoomInfoPackage roomList;
 
     static std::shared_ptr<CServerConnectMenuMode> DServerConnectMenuModePointer;
@@ -59,13 +59,11 @@ class CServerConnectMenuMode : public CApplicationMode
 
     void DrawText(std::shared_ptr<CApplicationData> context,
         std::string text, int xpos, int ypos, int color);
+    void RenderBackButton(std::shared_ptr<CApplicationData> context,
+			CButtonRenderer::EButtonState ButtonState);
+
     static void BackButtonCallback(std::shared_ptr<CApplicationData> context);
-    // static void SoundOptionsButtonCallback(
-    //     std::shared_ptr<CApplicationData> context);
-    // static void NetworkOptionsButtonCallback(
-    //     std::shared_ptr<CApplicationData> context);
-    // static void MainMenuButtonCallback(
-    //     std::shared_ptr<CApplicationData> context);
+    static void JoinButtonCallback(std::shared_ptr<CApplicationData> context);
 
     CServerConnectMenuMode(const CServerConnectMenuMode &) = delete;
     const CServerConnectMenuMode &operator=(const CServerConnectMenuMode &) = delete;
