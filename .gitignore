@@ -1,0 +1,9 @@
+obj/
+
+boostServer
+
+theGame
+
+Network/obj/
+
+.DS_Store
