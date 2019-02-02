@@ -21,6 +21,7 @@
 #include "MapSelectionMode.h"
 #include "MemoryDataSource.h"
 #include "MultiPlayerOptionsMenuMode.h"
+#include "Client.h"
 
 std::shared_ptr<CPlayerAIColorSelectMode>
     CPlayerAIColorSelectMode::DPlayerAIColorSelectModePointer;
@@ -39,6 +40,9 @@ CPlayerAIColorSelectMode::CPlayerAIColorSelectMode(
 void CPlayerAIColorSelectMode::PlayGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
+
+    // Testing exchanging commands
+    context->ClientPointer->SendMessage("Test");
     context->ChangeApplicationMode(CBattleMode::Instance());
 }
 

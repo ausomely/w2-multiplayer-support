@@ -12,7 +12,8 @@ class Lobby
     /* class to manage the shared state between clients
        Used to managing overall game communication and data management
     */
-    private:
+    friend class InGameSession;
+    protected:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;
         std::vector<std::shared_ptr<GameRoom>> gameRooms;

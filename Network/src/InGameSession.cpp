@@ -21,7 +21,9 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
         if (!err) {
             GameInfo::PlayerCommandRequest playerCommandRequest;
+
             playerCommandRequest.ParseFromArray(userPtr->data, length);
+
 
             std::ofstream outfile;
             outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
@@ -31,7 +33,8 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             //outfile << playerCommandRequest.DebugString();
             outfile.close();
             userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, userPtr->id);
-            DoWrite(userPtr);
+            WriteToAll(userPtr, playerCommandRequest);
+            //DoWrite(userPtr);
         }
 
         //end of connection
@@ -61,6 +64,29 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
         }
     });
  }
+
+ void InGameSession::WriteToAll(std::shared_ptr<User> userPtr, GameInfo::PlayerCommandRequest playerCommandRequest) {
+
+     for(auto i : userPtr->lobby.users){
+         if(i != userPtr){   //Don't need to write own actions to self.
+         boost::system::error_code err;
+         boost::asio::streambuf stream_buffer;
+         std::ostream output_stream(&stream_buffer);
+         playerCommandRequest.SerializeToOstream(&output_stream);
+
+         boost::asio::write(i->socket,stream_buffer,err);
+
+          if(err) {
+             std::cerr << "ERROR writing AHA" << std::endl;
+             return;
+          }
+        // std::cout << "Close your eyes!\n\n";
+         }
+     }
+
+     DoRead(userPtr);
+ }
+
 
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {

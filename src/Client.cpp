@@ -72,6 +72,7 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
 
     int DPlayerNumber = to_underlying(context->DPlayerNumber);
 
+    playerCommandRequest.set_playernum(DPlayerNumber);
     playerCommandRequest.set_daction(to_underlying(context->DPlayerCommands[DPlayerNumber].DAction));
     playerCommandRequest.set_dtargetnumber(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetNumber));
     playerCommandRequest.set_dtargettype(to_underlying(context->DPlayerCommands[DPlayerNumber].DTargetType));
@@ -116,9 +117,11 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
 
     RoomInfo::RoomInformation roomInfo;
     roomInfo.set_host(context->DUsername);
-    roomInfo.set_map("Dummy map1");
+
+    //std::string mapName =
+    roomInfo.set_map(context->DSelectedMap->MapName());
     roomInfo.set_size(1);
-    roomInfo.set_capacity(8);
+    roomInfo.set_capacity(context->DSelectedMap->PlayerCount());
 
     // send package to server
     boost::system::error_code err;
@@ -162,6 +165,24 @@ void Client::SendMessage(std::string message) {
         return;
     }
     return;
+}
+
+void Client::GetGameInfo(std::shared_ptr<CApplicationData> context){
+    char data[BUFFER_SIZE];
+    bzero(data, BUFFER_SIZE);
+    boost::system::error_code err;
+    size_t length =  socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
+    GameInfo::PlayerCommandRequest playerCommandRequest;
+    playerCommandRequest.ParseFromArray(data,length);
+    std::cerr << playerCommandRequest.DebugString() << std::endl;
+
+        //context->
+      /*  context->DPlayerCommands[playerCommandRequest.playernum()].DAction = (EAssetCapabilityType)(playerCommandRequest.daction());
+        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetNumber = (EPlayerNumber)(playerCommandRequest.dtargetnumber());
+        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetType = (EAssetType)(playerCommandRequest.dtargettype());
+        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetXFromTile(playerCommandRequest.mutable_dtargetlocation()->dx());
+        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetYFromTile(playerCommandRequest.mutable_dtargetlocation()->dy());
+      */
 }
 
 // Close the conenction fromm server

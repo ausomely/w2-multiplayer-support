@@ -64,6 +64,7 @@ message PlayerCommandRequest {
     required int32 DTargetType = 3; //EAssetType
     repeated int32 DActors = 4; //CPlayerAsset IDs
     required CPixelPosition DTargetLocation= 5; //CPixelPosition
+    required int32 PlayerNum = 6;
 }
 
 message PlayerCommandPackage {

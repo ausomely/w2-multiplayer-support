@@ -19,7 +19,11 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-            DoWrite(userPtr);
+          // goes to InGameSession if receives "Test"
+            if(strcmp(userPtr->data, "Test") == 0) {
+                userPtr->ChangeSession(InGameSession::Instance());
+            }
+            //DoWrite(userPtr);
         }
 
         //end of connection
@@ -34,7 +38,7 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
 void InRoomSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
-    userPtr->currentRoom.lock()->SetData(userPtr->data);
+    //userPtr->currentRoom.lock()->SetData(userPtr->data);
     //write game package to socket
     boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
         [this, userPtr](boost::system::error_code err, std::size_t ) {

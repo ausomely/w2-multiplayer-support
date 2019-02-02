@@ -7,6 +7,7 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     owner = host;
     roomInfo.CopyFrom(roomInformation);
     players.insert(owner);
+    host->id = 0;
     for (int i = 0; i < capacity; i++) {
         playerCommandPackage.add_dplayercommand();
     }

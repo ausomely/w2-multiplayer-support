@@ -46,8 +46,6 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
     context->ClientPointer->SendMessage("Host");
     context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
 
-    context->ClientPointer->SendRoomInfo(context);
-
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 

@@ -20,18 +20,24 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
+            // goes to FindGameSession if receives "Join"
+            if(strcmp(userPtr->data, "Join") == 0) {
+                userPtr->ChangeSession(FindGameSession::Instance());
+            }
 
-            RoomInfo::RoomInformation roomInfo;
-            roomInfo.ParseFromArray(userPtr->data,length);
+            else {
+                RoomInfo::RoomInformation roomInfo;
+                roomInfo.ParseFromArray(userPtr->data,length);
 
-            std::cout << roomInfo.DebugString() << std::endl;
+                std::cout << roomInfo.DebugString() << std::endl;
 
-            // Create the room object and add it to lobby
-            std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, roomInfo);
-            userPtr->currentRoom = DRoom;
-            userPtr->lobby.AddRoom(DRoom);
+                // Create the room object and add it to lobby
+                std::shared_ptr<GameRoom> DRoom = std::make_shared<GameRoom> (userPtr, roomInfo);
+                userPtr->currentRoom = DRoom;
+                userPtr->lobby.AddRoom(DRoom);
 
-            userPtr->ChangeSession(InRoomSession::Instance());
+                userPtr->ChangeSession(InRoomSession::Instance());
+            }
             // incase we want to write something back
             //DoWrite(userPtr);
         }

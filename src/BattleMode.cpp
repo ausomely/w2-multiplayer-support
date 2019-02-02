@@ -980,12 +980,14 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     }
 
     // serialize packages and send it to server
-    context->ClientPointer->SendGameInfo(context);
+  //  context->ClientPointer->SendGameInfo(context);
 }
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
 {
 
+    context->ClientPointer->SendGameInfo(context);
+    context->ClientPointer->GetGameInfo(context);
 
     //! If Menu button pressed switch to in-game options screen
     if (CButtonRenderer::EButtonState::Pressed == context->DMenuButtonState)

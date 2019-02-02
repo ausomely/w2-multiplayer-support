@@ -29,6 +29,7 @@ class Client
         void SendRoomInfo(std::shared_ptr<CApplicationData> context);
         void GetRoomList(std::shared_ptr<CApplicationData> context);
         void SendMessage(std::string message);
+        void GetGameInfo(std::shared_ptr<CApplicationData> context);
         void CloseConnection();
 };
 #endif

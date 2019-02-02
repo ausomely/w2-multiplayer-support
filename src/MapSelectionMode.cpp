@@ -58,6 +58,7 @@ void CMapSelectionMode::SelectMapButtonCallback(
     }
     context->DPlayerNumber = EPlayerNumber::Player1;
 
+    context->ClientPointer->SendRoomInfo(context);
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 
@@ -67,6 +68,7 @@ void CMapSelectionMode::BackButtonCallback(
 {
     if (CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
     {
+        context->ClientPointer->SendMessage("Back");
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
     else
