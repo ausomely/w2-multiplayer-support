@@ -23,7 +23,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
             if(strcmp(userPtr->data, "Back") == 0) {
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
-            
+
             // joins the room
             else {
                 int index = std::stoi(std::string(userPtr->data));
@@ -62,8 +62,8 @@ void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 
 //start reading from connection
 void FindGameSession::Start(std::shared_ptr<User> userPtr) {
-    boost::asio::ip::tcp::no_delay option(true);
-    userPtr->socket.set_option(option);
+    //boost::asio::ip::tcp::no_delay option(true);
+    //userPtr->socket.set_option(option);
     std::cout << userPtr->name << " has joined Find Game session" << std::endl;
 
     // send game list information
