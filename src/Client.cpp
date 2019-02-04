@@ -10,7 +10,6 @@ using boost::asio::ip::tcp;
 // create a client
 Client::Client()
     : socket(io_service), resolver(io_service) {
-
 }
 
 // connect the client to the server
@@ -27,7 +26,6 @@ bool Client::Connect(std::shared_ptr<CApplicationData> context){
         std::cerr << "ERROR connecting. Check your hostname and port number." << std::endl;
         return false;
     }
-
     return true;
 }
 
@@ -144,30 +142,31 @@ RoomInfo::RoomInfoPackage Client::GetRoomList(std::shared_ptr<CApplicationData> 
     boost::system::error_code err;
     char data[BUFFER_SIZE];
     RoomInfo::RoomInfoPackage roomList;
-   size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
-   if(err) {
-       std::cerr << "ERROR reading" << std::endl;
-       return roomList;
-   }
-   roomList.ParseFromArray(data, length);
-   return roomList;
+
+    size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
+    if(err) {
+        std::cerr << "ERROR reading" << std::endl;
+        return roomList;
+    }
+    roomList.ParseFromArray(data, length);
+    return roomList;
 }
 
 void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     char data[BUFFER_SIZE];
-    //std::cout << "Reading updates" << std::endl;
-    boost::asio::async_read(socket,
-        boost::asio::buffer(data, BUFFER_SIZE),
-        boost::bind(&Client::HandleUpdateRoomList, shared_from_this(), data, roomList,
-          boost::asio::placeholders::error));
-}
+    
+    socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
+        [this, data, roomList](boost::system::error_code err, std::size_t length) {
+        if(!err) {
+            roomList->ParseFromArray(data, length);
+            std::cout << roomList->DebugString() << std::endl;
+            std::cout << "getting updated" << std::endl;
+        }
 
-void Client::HandleUpdateRoomList(char* data, RoomInfo::RoomInfoPackage* roomList,
-    const boost::system::error_code& err) {
-    //std::cout << "Handle updates" << std::endl;
-    if(!err) {
-        roomList->ParseFromArray(data, sizeof(data));
-    }
+        else {
+           std::cerr << "ERROR reading" << std::endl;
+        }
+    });
 }
 
 // send the server a message

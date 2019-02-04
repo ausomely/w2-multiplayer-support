@@ -90,7 +90,6 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
 
 void CServerConnectMenuMode::Calculate(std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer->UpdateRoomList(&roomList);
 }
 
 void CServerConnectMenuMode::InitializeChange(
