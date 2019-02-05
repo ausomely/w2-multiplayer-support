@@ -86,14 +86,14 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
     playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
 
     // write package to ostream: a file
-    std::ofstream outfile;
+    /*std::ofstream outfile;
 
     outfile.open("LocalStreamCommand.bin", std::ios_base::app | std::ios::binary);
 
     playerCommandRequest.SerializeToOstream(&outfile);
     //outfile << playerCommandRequest.DebugString();
 
-    outfile.close();
+    outfile.close();*/
 
     // send package to server
     boost::system::error_code err;
@@ -154,7 +154,7 @@ RoomInfo::RoomInfoPackage Client::GetRoomList(std::shared_ptr<CApplicationData> 
 
 void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     char data[BUFFER_SIZE];
-    
+
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
         [this, data, roomList](boost::system::error_code err, std::size_t length) {
         if(!err) {
@@ -186,9 +186,11 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context){
     bzero(data, BUFFER_SIZE);
     boost::system::error_code err;
     size_t length =  socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
-    GameInfo::PlayerCommandRequest playerCommandRequest;
-    playerCommandRequest.ParseFromArray(data,length);
-    std::cerr << playerCommandRequest.DebugString() << std::endl;
+    if(!err) {
+      GameInfo::PlayerCommandPackage playerCommandPackage;
+      playerCommandPackage.ParseFromArray(data,length);
+      std::cerr << playerCommandPackage.DebugString() << std::endl;
+    }
 
         //context->
       /*  context->DPlayerCommands[playerCommandRequest.playernum()].DAction = (EAssetCapabilityType)(playerCommandRequest.daction());

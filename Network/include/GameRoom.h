@@ -34,6 +34,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         void leave(std::shared_ptr<User> user);
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
         const RoomInfo::RoomInformation& GetRoomInfo() const;
+        void InitializeGame();
         void SetData(char* data);
 };
 

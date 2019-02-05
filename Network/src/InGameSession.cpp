@@ -25,16 +25,15 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             playerCommandRequest.ParseFromArray(userPtr->data, length);
 
 
-            std::ofstream outfile;
+            /*std::ofstream outfile;
             outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
 
-            playerCommandRequest.SerializeToOstream(&outfile);
+            playerCommandRequest.SerializeToOstream(&outfile);*/
 
-            //outfile << playerCommandRequest.DebugString();
-            outfile.close();
+            //outfile.close();
             userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, userPtr->id);
-            WriteToAll(userPtr, playerCommandRequest);
-            //DoWrite(userPtr);
+            //WriteToAll(userPtr, playerCommandRequest);
+            DoWrite(userPtr);
         }
 
         //end of connection
@@ -91,5 +90,9 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined in game session" << std::endl;
+    userPtr->currentRoom.lock()->InitializeGame();
+    // set tcp_no_delay for sending data
+    boost::asio::ip::tcp::no_delay option(true);
+    userPtr->socket.set_option(option);
     DoRead(userPtr);
 }
