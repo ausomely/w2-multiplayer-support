@@ -36,9 +36,8 @@ const RoomInfo::RoomInformation& GameRoom::GetRoomInfo() const {
     return roomInfo;
 }
 
-void GameRoom::SetData(char* data) {
-    size_t size = playerCommandPackage.ByteSizeLong();
-    playerCommandPackage.SerializeToArray(data, size);
+const GameInfo::PlayerCommandPackage GameRoom::GetPlayerCommandPackage() const {
+    return playerCommandPackage;
 }
 
 void GameRoom::InitializeGame() {
