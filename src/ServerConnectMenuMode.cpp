@@ -47,6 +47,7 @@ void CServerConnectMenuMode::BackButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage("Back");
+    context->ClientPointer->CloseThread();
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
@@ -55,6 +56,7 @@ void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
+    context->ClientPointer->CloseThread();
 }
 
 // TODO: Complete this later
@@ -99,7 +101,9 @@ void CServerConnectMenuMode::InitializeChange(
     DButtonLocations.clear();
     DJoinButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
-    roomList = context->ClientPointer->GetRoomList(context);
+
+    // start updating room list
+    context->ClientPointer->StartUpdateRoomList(&roomList);
 }
 
 // Handle rendering of the game server information and join buttons

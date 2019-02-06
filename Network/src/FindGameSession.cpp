@@ -22,6 +22,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
             // goes back to AcceptedSession if receives "Back"
             if(strcmp(userPtr->data, "Back") == 0) {
                 userPtr->ChangeSession(AcceptedSession::Instance());
+                //DoWrite(userPtr);
             }
 
             // joins the room
@@ -51,6 +52,7 @@ void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
     size_t size = roomList.ByteSizeLong();
     roomList.SerializeToArray(userPtr->data, size);
+
     boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read input from client
@@ -62,8 +64,6 @@ void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 
 //start reading from connection
 void FindGameSession::Start(std::shared_ptr<User> userPtr) {
-    //boost::asio::ip::tcp::no_delay option(true);
-    //userPtr->socket.set_option(option);
     std::cout << userPtr->name << " has joined Find Game session" << std::endl;
 
     // send game list information

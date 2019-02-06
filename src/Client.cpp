@@ -4,6 +4,7 @@
 #include "GameInfo.pb.h"
 #include <fstream>
 #include <boost/bind.hpp>
+#include <boost/thread/thread.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -136,31 +137,13 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
     return;
 }
 
-// get the room list information from client
-RoomInfo::RoomInfoPackage Client::GetRoomList(std::shared_ptr<CApplicationData> context) {
-
-    boost::system::error_code err;
-    char data[BUFFER_SIZE];
-    RoomInfo::RoomInfoPackage roomList;
-
-    size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
-    if(err) {
-        std::cerr << "ERROR reading" << std::endl;
-        return roomList;
-    }
-    roomList.ParseFromArray(data, length);
-    return roomList;
-}
-
 void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
-    char data[BUFFER_SIZE];
-
-    socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
-        [this, data, roomList](boost::system::error_code err, std::size_t length) {
+    bzero(data, BUFFER_SIZE);
+    boost::asio::async_read(socket, boost::asio::buffer(data, BUFFER_SIZE),
+        [this, roomList](boost::system::error_code err, std::size_t length) {
         if(!err) {
             roomList->ParseFromArray(data, length);
-            std::cout << roomList->DebugString() << std::endl;
-            std::cout << "getting updated" << std::endl;
+            UpdateRoomList(roomList);
         }
 
         else {
@@ -181,15 +164,15 @@ void Client::SendMessage(std::string message) {
     return;
 }
 
-void Client::GetGameInfo(std::shared_ptr<CApplicationData> context){
-    char data[BUFFER_SIZE];
+void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
+
     bzero(data, BUFFER_SIZE);
     boost::system::error_code err;
     size_t length =  socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
     if(!err) {
-      GameInfo::PlayerCommandPackage playerCommandPackage;
-      playerCommandPackage.ParseFromArray(data,length);
-      std::cerr << playerCommandPackage.DebugString() << std::endl;
+        GameInfo::PlayerCommandPackage playerCommandPackage;
+        playerCommandPackage.ParseFromArray(data,length);
+        std::cerr << playerCommandPackage.DebugString() << std::endl;
     }
 
         //context->
@@ -199,6 +182,16 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context){
         context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetXFromTile(playerCommandRequest.mutable_dtargetlocation()->dx());
         context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetYFromTile(playerCommandRequest.mutable_dtargetlocation()->dy());
       */
+}
+
+void Client::StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
+    io_service.reset();
+    UpdateRoomList(roomList);
+    thread = boost::make_shared<boost::thread> (boost::bind(&boost::asio::io_service::run, &io_service));
+}
+
+void Client::CloseThread() {
+    io_service.stop();
 }
 
 // Close the conenction fromm server

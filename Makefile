@@ -25,7 +25,7 @@ else
 CFLAGS   += -O3
 endif
 
-BOOSTFLAGS += -lboost_system
+BOOSTFLAGS += -lboost_system -lboost_thread-mt
 
 INCLUDE  += -I $(INC_DIR)
 CFLAGS   +=  -Wall `pkg-config --cflags $(PKGS)`
