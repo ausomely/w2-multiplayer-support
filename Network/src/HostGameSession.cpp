@@ -17,7 +17,7 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [userPtr](boost::system::error_code err, std::size_t length) {
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
@@ -36,10 +36,12 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->currentRoom = DRoom;
                 userPtr->lobby.AddRoom(DRoom);
 
+                // send notification to people that in FindGameSession
+                DoWrite(userPtr);
+
+                // move to in room session
                 userPtr->ChangeSession(InRoomSession::Instance());
             }
-            // incase we want to write something back
-            //DoWrite(userPtr);
         }
 
         //end of connection
@@ -53,14 +55,23 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void HostGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
+    roomList.SerializeToOstream(&output_stream);
 
-    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [this, userPtr](boost::system::error_code err, std::size_t ) {
-        //if no error, continue trying to read from socket
-        if (!err) {
-            DoRead(userPtr);
+     for(auto &user : userPtr->lobby.users) {
+        // sending notification to those in find game session to update room list
+        if(user->currentSession == FindGameSession::Instance()) {
+            boost::asio::async_write(user->socket, stream_buffer,
+                [user](boost::system::error_code err, std::size_t ) {
+
+                if (!err) {
+
+                }
+            });
         }
-    });
+     }
  }
 
 //start reading from connection

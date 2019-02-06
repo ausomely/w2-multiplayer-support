@@ -139,7 +139,7 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
 
 void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     bzero(data, BUFFER_SIZE);
-    boost::asio::async_read(socket, boost::asio::buffer(data, BUFFER_SIZE),
+    socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
         [this, roomList](boost::system::error_code err, std::size_t length) {
         if(!err) {
             roomList->ParseFromArray(data, length);

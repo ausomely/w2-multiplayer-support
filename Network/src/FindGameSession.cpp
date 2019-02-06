@@ -48,12 +48,17 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(userPtr->data, MAX_BUFFER);
     RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
-    size_t size = roomList.ByteSizeLong();
-    roomList.SerializeToArray(userPtr->data, size);
 
-    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+    bzero(userPtr->data, MAX_BUFFER);
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomList.SerializeToOstream(&output_stream);
+
+    size_t length = roomList.ByteSizeLong();
+    roomList.SerializeToArray(userPtr->data, length);
+
+    boost::asio::async_write(userPtr->socket, stream_buffer,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read input from client
         if (!err) {

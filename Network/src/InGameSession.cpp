@@ -47,10 +47,14 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(userPtr->data, MAX_BUFFER);
-    userPtr->currentRoom.lock()->SetData(userPtr->data);
+    GameInfo::PlayerCommandPackage playerCommandPackage = userPtr->currentRoom.lock()->GetPlayerCommandPackage();
+
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    playerCommandPackage.SerializeToOstream(&output_stream);
+
     //write game package to socket
-    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+    boost::asio::async_write(userPtr->socket, stream_buffer,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket
         if (!err) {
