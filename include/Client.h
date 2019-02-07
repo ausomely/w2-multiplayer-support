@@ -24,7 +24,6 @@ class Client: public std::enable_shared_from_this<Client>
         tcp::socket socket;
         tcp::resolver resolver;
         char data[BUFFER_SIZE];
-        boost::shared_ptr<boost::thread> thread;
 
     // member functions
         Client();
@@ -36,7 +35,6 @@ class Client: public std::enable_shared_from_this<Client>
         void SendMessage(std::string message);
         void GetGameInfo(std::shared_ptr<CApplicationData> context);
         void StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList);
-        void CloseThread();
         void CloseConnection();
 };
 #endif

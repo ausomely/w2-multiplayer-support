@@ -47,7 +47,7 @@ void CServerConnectMenuMode::BackButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage("Back");
-    context->ClientPointer->CloseThread();
+    context->ClientPointer->io_service.stop();
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
@@ -56,7 +56,6 @@ void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
-    context->ClientPointer->CloseThread();
 }
 
 // TODO: Complete this later
@@ -88,6 +87,7 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
             DButtonFunctions[0](context);
         }
     }
+    context->ClientPointer->io_service.poll();
 }
 
 void CServerConnectMenuMode::Calculate(std::shared_ptr<CApplicationData> context)
@@ -237,6 +237,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     // Keep track of the button hovered state
     DButtonHovered = ButtonHovered;
+
 }
 
 void CServerConnectMenuMode::DrawText(std::shared_ptr<CApplicationData> context,

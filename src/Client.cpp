@@ -187,11 +187,6 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
 void Client::StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     io_service.reset();
     UpdateRoomList(roomList);
-    thread = boost::make_shared<boost::thread> (boost::bind(&boost::asio::io_service::run, &io_service));
-}
-
-void Client::CloseThread() {
-    io_service.stop();
 }
 
 // Close the conenction fromm server
