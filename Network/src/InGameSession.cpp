@@ -25,16 +25,15 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             playerCommandRequest.ParseFromArray(userPtr->data, length);
 
 
-            std::ofstream outfile;
+            /*std::ofstream outfile;
             outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
 
-            playerCommandRequest.SerializeToOstream(&outfile);
+            playerCommandRequest.SerializeToOstream(&outfile);*/
 
-            //outfile << playerCommandRequest.DebugString();
-            outfile.close();
+            //outfile.close();
             userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, userPtr->id);
-            WriteToAll(userPtr, playerCommandRequest);
-            //DoWrite(userPtr);
+            //WriteToAll(userPtr, playerCommandRequest);
+            DoWrite(userPtr);
         }
 
         //end of connection
@@ -48,10 +47,14 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(userPtr->data, MAX_BUFFER);
-    userPtr->currentRoom.lock()->SetData(userPtr->data);
+    GameInfo::PlayerCommandPackage playerCommandPackage = userPtr->currentRoom.lock()->GetPlayerCommandPackage();
+
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    playerCommandPackage.SerializeToOstream(&output_stream);
+
     //write game package to socket
-    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+    boost::asio::async_write(userPtr->socket, stream_buffer,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket
         if (!err) {
@@ -91,5 +94,9 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined in game session" << std::endl;
+    userPtr->currentRoom.lock()->InitializeGame();
+    // set tcp_no_delay for sending data
+    boost::asio::ip::tcp::no_delay option(true);
+    userPtr->socket.set_option(option);
     DoRead(userPtr);
 }

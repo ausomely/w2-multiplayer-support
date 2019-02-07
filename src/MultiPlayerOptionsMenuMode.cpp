@@ -15,6 +15,7 @@
     ownership of this material.
 */
 #include "MultiPlayerOptionsMenuMode.h"
+#include "JoinMultiPlayerOptions.h"
 #include "ApplicationData.h"
 #include "MainMenuMode.h"
 #include "MapSelectionMode.h"
@@ -41,8 +42,6 @@ CMultiPlayerOptionsMenuMode::CMultiPlayerOptionsMenuMode(
 void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    // changed to single player for testing
-    //context->DGameSessionType = CApplicationData::gstSinglePlayer;
     context->ClientPointer->SendMessage("Host");
     context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
 
@@ -53,8 +52,7 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
 void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer->SendMessage("Join");
-    context->ClientPointer->GetRoomList(context);
+    context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
 //! @brief Returns to Main menu of the game

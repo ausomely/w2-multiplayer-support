@@ -8,9 +8,6 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     roomInfo.CopyFrom(roomInformation);
     players.insert(owner);
     host->id = 0;
-    for (int i = 0; i < capacity; i++) {
-        playerCommandPackage.add_dplayercommand();
-    }
 }
 
 void GameRoom::join(std::shared_ptr<User> user) {
@@ -39,7 +36,12 @@ const RoomInfo::RoomInformation& GameRoom::GetRoomInfo() const {
     return roomInfo;
 }
 
-void GameRoom::SetData(char* data) {
-    size_t size = playerCommandPackage.ByteSizeLong();
-    playerCommandPackage.SerializeToArray(data, size);
+const GameInfo::PlayerCommandPackage GameRoom::GetPlayerCommandPackage() const {
+    return playerCommandPackage;
+}
+
+void GameRoom::InitializeGame() {
+    for (int i = 0; i < size; i++) {
+        playerCommandPackage.add_dplayercommand();
+    }
 }

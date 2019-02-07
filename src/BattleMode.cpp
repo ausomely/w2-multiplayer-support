@@ -52,6 +52,10 @@ void CBattleMode::InitializeChange(std::shared_ptr<CApplicationData> context)
     context->DSoundLibraryMixer->StopSong();
     context->DSoundLibraryMixer->PlaySong(
         context->DSoundLibraryMixer->FindSong("game1"), context->DMusicVolume);
+
+    // set tcp_no_delay
+  //  boost::asio::ip::tcp::no_delay option(true);
+    //context->ClientPointer->socket.set_option(option);
 }
 
 //! @brief Handles keyboard and mouse input while the game is running

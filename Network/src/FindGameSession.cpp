@@ -16,19 +16,24 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [userPtr](boost::system::error_code err, std::size_t length) {
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
             if(strcmp(userPtr->data, "Back") == 0) {
                 userPtr->ChangeSession(AcceptedSession::Instance());
+                //DoWrite(userPtr);
             }
 
             // joins the room
             else {
                 int index = std::stoi(std::string(userPtr->data));
-                userPtr->lobby.JoinRoom(userPtr, index);
-                userPtr->ChangeSession(InRoomSession::Instance());
+                std::cout << userPtr->name << " wanted to join room " << index + 1 << std::endl;
+
+                DoRead(userPtr);
+
+                //userPtr->lobby.JoinRoom(userPtr, index);
+                //userPtr->ChangeSession(InRoomSession::Instance());
             }
         }
 
@@ -43,11 +48,17 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
 void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
-    bzero(userPtr->data, MAX_BUFFER);
     RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
-    size_t size = roomList.ByteSizeLong();
-    roomList.SerializeToArray(userPtr->data, size);
-    boost::asio::async_write(userPtr->socket, boost::asio::buffer(userPtr->data, MAX_BUFFER),
+
+    bzero(userPtr->data, MAX_BUFFER);
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomList.SerializeToOstream(&output_stream);
+
+    size_t length = roomList.ByteSizeLong();
+    roomList.SerializeToArray(userPtr->data, length);
+
+    boost::asio::async_write(userPtr->socket, stream_buffer,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read input from client
         if (!err) {

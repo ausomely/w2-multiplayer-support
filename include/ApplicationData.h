@@ -40,6 +40,8 @@ typedef bool (*TEditTextValidationCallbackFunction)(const std::string &text);
 
 class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 {
+    friend class CJoinMultiPlayerOptions;
+    friend class CServerConnectMenuMode;
     friend class CInGameMenuMode;
     friend class CGameOverMenuMode;
     friend class CButtonMenuMode;
@@ -200,7 +202,9 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 
     // add shared_ptr to Client
     std::shared_ptr< Client > ClientPointer;
-
+    // selected room number
+    int DSelectedRoomNumber;
+    
     // Model
     EPlayerNumber DPlayerNumber;
     std::shared_ptr<CGameModel> DGameModel;

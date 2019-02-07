@@ -403,6 +403,7 @@ class CPlayerAsset
     int DHitPoints;
     int DGold;
     int DLumber;
+    uint32_t DRandomId;
     int DStep;
     int DMoveRemainderX;
     int DMoveRemainderY;
@@ -443,6 +444,21 @@ class CPlayerAsset
     int GetIdCounter() const
     {
         return DIdCounter;
+    };
+
+    uint32_t RandomId() const
+    {
+        return DRandomId;
+    };
+
+    void SetRandomId(uint32_t id)
+    {
+        DRandomId = id;
+    };
+
+    std::string Name() const
+    {
+        return DType->Name();
     };
 
     bool Alive() const

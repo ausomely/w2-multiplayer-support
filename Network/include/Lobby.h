@@ -13,6 +13,8 @@ class Lobby
        Used to managing overall game communication and data management
     */
     friend class InGameSession;
+    friend class HostGameSession;
+    
     protected:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;

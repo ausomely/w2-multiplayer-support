@@ -16,8 +16,12 @@
 */
 #include "GameModel.h"
 #include <algorithm>
+#include <iostream>
+#include <unordered_map>
 #include "Debug.h"
-//#include <iostream>
+
+static std::unordered_map<int, std::shared_ptr<CPlayerAsset>> umap;
+
 int RangeToDistanceSquared(int range)
 {
     range *= CPosition::TileWidth();
@@ -127,7 +131,7 @@ std::shared_ptr<CPlayerAsset> CPlayerData::CreateMarker(
 
     return NewMarker;
 }
- 
+
 std::shared_ptr<CPlayerAsset> CPlayerData::CreateAsset(
     const std::string &assettypename)
 {
@@ -140,8 +144,12 @@ std::shared_ptr<CPlayerAsset> CPlayerData::CreateAsset(
 
     //Adds and asset ID to each created player asset.
     CreatedAsset->SetId(CreatedAsset->GetIdCounter());
+    umap[CreatedAsset->Id()] = CreatedAsset;
+    //std::cout << "Found " << umap.find(CreatedAsset->Id())->first << "\n";
+    //std::cout << umap.find(CreatedAsset->Id())->second->Name() << "\n";
+
     CreatedAsset->IncIdCounter();
-    
+
     //std::cout << CreatedAsset->GetIdCounter() << "\n";
 
     return CreatedAsset;
@@ -201,7 +209,7 @@ bool CPlayerData::AssetRequirementsMet(const std::string &assettypename)
 
 void CPlayerData::UpdateVisibility()
 {
-    std::list<std::shared_ptr<CPlayerAsset> > RemoveList;
+    std::list<std::shared_ptr<CPlayerAsset>> RemoveList;
 
     DVisibilityMap->Update(DAssets);
     DPlayerMap->UpdateMap(*DVisibilityMap, *DActualMap);
@@ -223,10 +231,10 @@ void CPlayerData::UpdateVisibility()
     }
 }
 
-std::list<std::weak_ptr<CPlayerAsset> > CPlayerData::SelectAssets(
+std::list<std::weak_ptr<CPlayerAsset>> CPlayerData::SelectAssets(
     const SRectangle &selectarea, EAssetType assettype, bool selectidentical)
 {
-    std::list<std::weak_ptr<CPlayerAsset> > ReturnList;
+    std::list<std::weak_ptr<CPlayerAsset>> ReturnList;
 
     if ((!selectarea.DWidth) || (!selectarea.DHeight))
     {
@@ -588,9 +596,9 @@ int CPlayerData::FoundAssetCount(EAssetType type)
     return Count;
 }
 
-std::list<std::weak_ptr<CPlayerAsset> > CPlayerData::IdleAssets() const
+std::list<std::weak_ptr<CPlayerAsset>> CPlayerData::IdleAssets() const
 {
-    std::list<std::weak_ptr<CPlayerAsset> > AssetList;
+    std::list<std::weak_ptr<CPlayerAsset>> AssetList;
 
     for (auto WeakAsset : DAssets)
     {
@@ -646,6 +654,7 @@ CGameModel::CGameModel(
     DGoldPerMining = 100;
 
     DRandomNumberGenerator.Seed(seed);
+    DAssetsRandomNumberGenerator.Seed(seed);
     DActualMap = CAssetDecoratedMap::DuplicateMap(mapindex);
 
     for (int PlayerIndex = 0; PlayerIndex < to_underlying(EPlayerNumber::Max);
@@ -686,6 +695,51 @@ std::shared_ptr<CPlayerData> CGameModel::Player(EPlayerNumber number) const
         return nullptr;
     }
     return DPlayers.at(to_underlying(number));
+}
+
+// Clear all player assets in evaluation list
+void CGameModel::ClearAssetsEvalList()
+{
+    DSortedAssets.clear();
+}
+
+// Copy and sort all player assets to an evaluation list
+void CGameModel::CreateAssetsEvalList()
+{
+    for (auto &Asset : DActualMap->Assets())
+    {
+        Asset->SetRandomId(DAssetsRandomNumberGenerator.Random());
+        DSortedAssets.push_back(Asset);
+    }
+
+    std::sort(DSortedAssets.begin(), DSortedAssets.end(), SortAssets);
+}
+
+// Comparison function to sort assets
+bool CGameModel::SortAssets(const std::shared_ptr<CPlayerAsset> &a,
+                            const std::shared_ptr<CPlayerAsset> &b)
+{
+    // In the first two cases, always choose the movable asset
+    if ((a->Speed() != 0) && (b->Speed() == 0))
+    {
+        return true;  // a is movable and is in the right place in the list
+    }
+    else if ((a->Speed() == 0) && (b->Speed() != 0))
+    {
+        return false;  // b is movable and is not, so a is not in right place
+    }
+    // Both assets are either movable or immmovable
+    else
+    {
+        // Small chance both assets have the same random ID
+        if (a->RandomId() == b->RandomId())
+        {
+            // Selection based on lowest unique ID
+            return a->Id() < b->Id();
+        }
+
+        return a->RandomId() < b->RandomId();
+    }
 }
 
 void CGameModel::Timestep()
@@ -729,7 +783,11 @@ void CGameModel::Timestep()
         }
     }
 
-    auto AllAssets = DActualMap->Assets();
+    // Create randomized asset evaluation list
+    CreateAssetsEvalList();
+
+    // Put player assets into action
+    auto AllAssets = AssetsEvalList();
     for (auto &Asset : AllAssets)
     {
         if (EAssetAction::None == Asset->Action())
@@ -1572,6 +1630,8 @@ void CGameModel::Timestep()
             }
         }
     }
+
+    ClearAssetsEvalList();
 
     DGameCycle++;
     for (int PlayerIndex = 0; PlayerIndex < to_underlying(EPlayerNumber::Max);
