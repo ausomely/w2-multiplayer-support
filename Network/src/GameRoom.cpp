@@ -1,6 +1,7 @@
 #include "GameRoom.h"
 #include "User.h"
 #include <boost/bind.hpp>
+#include "Lobby.h"
 
 GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &roomInformation)
     : capacity(roomInformation.capacity()), size(1), map(roomInformation.map()) {
@@ -22,7 +23,10 @@ void GameRoom::leave(std::shared_ptr<User> user) {
     roomInfo.set_size(size);
     user->id = -1;
     players.erase(user);
-    if (user == owner) {
+    if (size == 0) {
+        user->lobby.RemoveRoom(user->currentRoom.lock());
+    }
+    else if (user == owner) {
         owner = *players.begin();
         roomInfo.set_host((*players.begin())->name);
     }
