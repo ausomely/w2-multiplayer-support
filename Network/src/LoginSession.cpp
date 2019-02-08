@@ -42,7 +42,7 @@ void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
             userPtr->password = credential.password();
 
             //testing if we got the password!
-            std::cout << "Password for " << userPtr->name << " is " << userPtr->password << std::endl;
+            std::cout << "Authenticating " << userPtr->name << " with webserver." <<std::endl;
 
             //TODO: send authentication request to web server
 
