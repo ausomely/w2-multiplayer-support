@@ -25,10 +25,41 @@ void GameRoom::leave(std::shared_ptr<User> user) {
     players.erase(user);
     if (size == 0) {
         user->lobby.RemoveRoom(user->currentRoom.lock());
+        for(auto &It : user->lobby.users) {
+           // sending notification to those in find game session to clear room list
+           if(It->currentSession == FindGameSession::Instance()) {
+               boost::asio::async_write(It->socket, boost::asio::buffer("Empty", MAX_BUFFER),
+                   [It](boost::system::error_code err, std::size_t ) {
+
+                   if (!err) {
+
+                   }
+               });
+           }
+        }
     }
     else if (user == owner) {
         owner = *players.begin();
         roomInfo.set_host((*players.begin())->name);
+
+        // update room list
+        boost::asio::streambuf stream_buffer;
+        std::ostream output_stream(&stream_buffer);
+        RoomInfo::RoomInfoPackage roomList = user->lobby.GetRoomList();
+        roomList.SerializeToOstream(&output_stream);
+
+        for(auto &It : user->lobby.users) {
+           // sending notification to those in find game session to update room list
+           if(It->currentSession == FindGameSession::Instance()) {
+               boost::asio::async_write(It->socket, stream_buffer,
+                   [It](boost::system::error_code err, std::size_t ) {
+
+                   if (!err) {
+
+                   }
+               });
+           }
+        }
     }
 }
 

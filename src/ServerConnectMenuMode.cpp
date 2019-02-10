@@ -101,6 +101,7 @@ void CServerConnectMenuMode::InitializeChange(
     DButtonLocations.clear();
     DJoinButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
+    roomList.Clear();
 
     // start updating room list
     context->ClientPointer->StartUpdateRoomList(&roomList);

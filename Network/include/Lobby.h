@@ -14,7 +14,8 @@ class Lobby
     */
     friend class InGameSession;
     friend class HostGameSession;
-    
+    friend class GameRoom;
+
     protected:
         std::set<std::shared_ptr<User> > users;
         std::vector<std::string> userNames;

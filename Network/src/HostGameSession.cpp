@@ -60,11 +60,11 @@ void HostGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
     roomList.SerializeToOstream(&output_stream);
 
-     for(auto &user : userPtr->lobby.users) {
+    for(auto &It : userPtr->lobby.users) {
         // sending notification to those in find game session to update room list
-        if(user->currentSession == FindGameSession::Instance()) {
-            boost::asio::async_write(user->socket, stream_buffer,
-                [user](boost::system::error_code err, std::size_t ) {
+        if(It->currentSession == FindGameSession::Instance()) {
+            boost::asio::async_write(It->socket, stream_buffer,
+                [It](boost::system::error_code err, std::size_t ) {
 
                 if (!err) {
 

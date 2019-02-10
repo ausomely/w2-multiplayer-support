@@ -142,7 +142,15 @@ void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
         [this, roomList](boost::system::error_code err, std::size_t length) {
         if(!err) {
-            roomList->ParseFromArray(data, length);
+
+            // empty room list
+            if(strcmp(data, "Empty") == 0) {
+                roomList->Clear();
+            }
+
+            else {
+                roomList->ParseFromArray(data, length);
+            }
             UpdateRoomList(roomList);
         }
 
