@@ -8,13 +8,15 @@
 class Server
 {
     private:
+        boost::asio::io_service& io_service;
         tcp::acceptor acceptor;
         tcp::socket socket;
         Lobby lobby;
 
+
         void DoAccept();
     public:
-        Server(boost::asio::io_service& io_service, short port);
+        Server(boost::asio::io_service& io_service_, short port);
 };
 
 #endif

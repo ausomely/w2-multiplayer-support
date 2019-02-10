@@ -18,12 +18,22 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         struct SPrivateSessionType{};
     protected:
         static std::shared_ptr< Session > DLoginSessionPointer;
+        boost::asio::io_service& io_service;
+        tcp::resolver resolver;
+        tcp::resolver::query query;
+        tcp::resolver::iterator endpoint_iterator;
+        tcp::socket sock;
+        boost::asio::streambuf response;
     public:
-        explicit LoginSession(const SPrivateSessionType &key) {}
+        //explicit LoginSession(const SPrivateSessionType &key) {};
+
+        LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv);// : io_service(io_serv), sock(io_serv) {};
+        //LoginSession(const SPrivateSessionType &key) {};
 
         ~LoginSession() {std::cout << "Session destroyed" << std::endl;}
 
-        static std::shared_ptr< Session > Instance();
+        //static std::shared_ptr< Session > Instance();
+        static std::shared_ptr< Session > Instance(boost::asio::io_service& io_serv);
 
         //read data from current session's socket
         void DoRead(std::shared_ptr<User> userPtr);
@@ -39,6 +49,11 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 
         //get authentication by sending http request to the web server
         bool GetAuthentication(std::shared_ptr<User> userPtr);
+
+        void StartAuthentication(std::shared_ptr<User> userPtr);
+
+        void FinishAuthentication(std::shared_ptr<User> userPtr);
+
 };
 
 #endif

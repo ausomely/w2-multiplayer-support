@@ -38,10 +38,11 @@ class User: public std::enable_shared_from_this<User>
         std::shared_ptr<Session> currentSession;
         int id; // -1 if not in a room
     public:
-        User(tcp::socket socket_, Lobby& lobby_)
-            : socket(std::move(socket_)), lobby(lobby_), id(-1) {}
+        User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv);
+          //  : socket(std::move(socket_)), lobby(lobby_), id(-1) {}
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
+        boost::asio::io_service& io_service;
 };
 
 #endif

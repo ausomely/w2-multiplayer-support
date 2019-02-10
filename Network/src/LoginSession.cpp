@@ -17,13 +17,22 @@ using boost::asio::ip::tcp;
 
 std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
 
-std::shared_ptr< Session > LoginSession::Instance() {
+std::shared_ptr< Session > LoginSession::Instance(boost::asio::io_service& io_serv) {
     if(DLoginSessionPointer == nullptr) {
-        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType());
+        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType(), io_serv);
     }
     return DLoginSessionPointer;
 }
+/*
+tcp::resolver resolver(io_service);
+tcp::resolver::query query("ecs160.herokuapp.com", "http");
+tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+*/
 
+LoginSession::LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv) : io_service(io_serv), resolver(io_service), query("ecs160.herokuapp.com", "http"), sock(io_serv) {
+    endpoint_iterator = resolver.resolve(query);
+    boost::asio::connect(sock, endpoint_iterator);
+}
 
 void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
@@ -47,6 +56,8 @@ void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
             //TODO: send authentication request to web server
 
             //if authenticated
+            StartAuthentication(userPtr);
+/*
             if(GetAuthentication(userPtr)) {
                 //add name to list of users
                 userPtr->lobby.join(userPtr);
@@ -60,6 +71,7 @@ void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
                 // just call restart to read data again from client
                 Restart(userPtr);
             }
+            */
         }
 
         //end of connection
@@ -105,6 +117,80 @@ void LoginSession::Restart(std::shared_ptr<User> userPtr) {
 
         }
     });
+}
+
+
+void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
+    boost::asio::streambuf request;
+    std::ostream request_stream(&request);
+
+    ptree root, info;
+
+    info.put("email", userPtr->name + "@ucdavis.edu");
+    info.put("password", userPtr->password);
+    root.put_child("user", info);
+
+
+    std::ostringstream buf;
+    write_json (buf, root, true);
+    std::string json = buf.str();
+
+    request_stream << "POST /login.json/ HTTP/1.1\r\n";
+    request_stream << "Host:" << "ecs160.herokuapp.com." << "\r\n";
+    request_stream << "User-Agent: C/1.0\r\n";
+    request_stream << "Content-Type: application/json; charset=utf-8 \r\n";
+    request_stream << "Authorization: Bearer \r\n";
+    request_stream << "Accept: */*\r\n";
+    request_stream << "Content-Length: " << json.length() << "\r\n";
+    request_stream << "Connection: close\r\n\r\n";  //NOTE THE Double line feed
+    request_stream << json;
+
+
+    boost::asio::async_write(sock,  request,
+        [this, userPtr](boost::system::error_code err, std::size_t ) {
+        //if no error, continue trying to read from socket
+        if (!err) {
+            std::cout << "No error" << std::endl;
+            FinishAuthentication(userPtr);
+        }
+        //FinishAuthentication(userPtr);
+    });
+
+}
+
+
+void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
+
+  boost::asio::async_read_until(sock, response, "\r\n",
+      [this, userPtr](boost::system::error_code err, std::size_t length) {
+      std::cout << "Reading" << std::endl;
+      if (!err) {
+          std::istream response_stream(&response);
+          std::string http_version;
+          response_stream >> http_version;
+          unsigned int status_code;
+          response_stream >> status_code;
+          std::string status_message;
+
+          std::getline(response_stream, status_message);
+          if (!response_stream || http_version.substr(0, 5) != "HTTP/")
+          {
+            std::cout << "Invalid response\n";
+            Restart(userPtr);
+          }
+          if (status_code != 200)
+          {
+            std::cout << "Response returned with status code " << status_code << "\n";
+            Restart(userPtr);
+          }
+
+          //write message to connected client and move to the next session
+          userPtr->lobby.join(userPtr);
+          DoWrite(userPtr);
+          std::cout << "authenticated\n";
+      }
+  });
+
 }
 
 bool LoginSession::GetAuthentication(std::shared_ptr<User> userPtr) {
