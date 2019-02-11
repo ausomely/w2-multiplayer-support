@@ -57,6 +57,7 @@ void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
+    context->ClientPointer->io_service.stop();
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 

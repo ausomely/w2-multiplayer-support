@@ -52,6 +52,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
     DButtonHovered = false;
     DButtonFunctions.clear();
     DButtonLocations.clear();
+    DButtonTexts.clear();
     DColorButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
 
@@ -108,6 +109,8 @@ void CPlayerAIColorSelectMode::InitializeChange(
 void CPlayerAIColorSelectMode::PlayGameButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
+    // Testing exchanging commands
+    context->ClientPointer->SendMessage("Test");
     context->ChangeApplicationMode(CBattleMode::Instance());
 }
 
@@ -133,8 +136,6 @@ std::shared_ptr<CApplicationData> context)
         }
     }
 
-    // Testing exchanging commands
-    context->ClientPointer->SendMessage("Test");
     // send player types and colors to game server
 
     context->ChangeApplicationMode(CBattleMode::Instance());
@@ -184,41 +185,59 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
     DPlayerNumberRequesTypeChange = EPlayerNumber::Neutral;
 
     // True if left mouse button is clicked and it has not already been down
-    if (context->DLeftClick && !context->DLeftDown &&
-        (CApplicationData::gstMultiPlayerClient != context->DGameSessionType))
+    if (context->DLeftClick && !context->DLeftDown)
     {
-        // Iterate over all the colored button locations
-        for (int Index = 0; Index < DColorButtonLocations.size(); Index++)
+        if (CApplicationData::gstMultiPlayerClient != context->DGameSessionType)
         {
-            // Each index corresponds to an SRectangle object for a colored
-            // button. The object can check if the pointer is within the bounds
-            // of the button.
-            if (DColorButtonLocations[Index].PointInside(CurrentX, CurrentY))
+            // Iterate over all the colored button locations
+            for (int Index = 0; Index < DColorButtonLocations.size(); Index++)
             {
-                int PlayerSelecting =
-                    1 + (Index / (to_underlying(EPlayerNumber::Max) - 1));
-                int ColorSelecting =
-                    1 + (Index % (to_underlying(EPlayerColor::Max) - 1));
-
-                // Coordinating selecting colors between all players while
-                // in a non-multiplayer session
-                if ((PlayerSelecting == to_underlying(context->DPlayerNumber)) ||
-                    (CApplicationData::gstMultiPlayerClient !=
-                     context->DGameSessionType))
+                // Each index corresponds to an SRectangle object for a colored
+                // button. The object can check if the pointer is within the bounds
+                // of the button.
+                if (DColorButtonLocations[Index].PointInside(CurrentX, CurrentY))
                 {
-                    if ((PlayerSelecting ==
-                         to_underlying(context->DPlayerNumber)) ||
-                        (CApplicationData::ptHuman !=
-                         context->DLoadingPlayerTypes[PlayerSelecting]))
-                    {
-                        // Track which player number is requesting the color change
-                        DPlayerNumberRequestingChange =
-                            static_cast<EPlayerNumber>(PlayerSelecting);
+                    int PlayerSelecting =
+                        1 + (Index / (to_underlying(EPlayerNumber::Max) - 1));
+                    int ColorSelecting =
+                        1 + (Index % (to_underlying(EPlayerColor::Max) - 1));
 
-                        // Track the color change request
-                        DPlayerColorChangeRequest =
-                            static_cast<EPlayerColor>(ColorSelecting);
+                    // Coordinating selecting colors between all players while
+                    // in a non-multiplayer session
+                    if ((PlayerSelecting == to_underlying(context->DPlayerNumber)) ||
+                        (CApplicationData::gstMultiPlayerClient !=
+                         context->DGameSessionType))
+                    {
+                        if ((PlayerSelecting ==
+                             to_underlying(context->DPlayerNumber)) ||
+                            (CApplicationData::ptHuman !=
+                             context->DLoadingPlayerTypes[PlayerSelecting]))
+                        {
+                            // Track which player number is requesting the color change
+                            DPlayerNumberRequestingChange =
+                                static_cast<EPlayerNumber>(PlayerSelecting);
+
+                            // Track the color change request
+                            DPlayerColorChangeRequest =
+                                static_cast<EPlayerColor>(ColorSelecting);
+                        }
                     }
+                }
+            }
+
+            // Iterate over player type buttons, these can be the AI difficulty
+            // level settings.
+            for (int Index = 0; Index < DPlayerTypeButtonLocations.size(); Index++)
+            {
+
+                // If a pointer is over a button's location, then set a flag for
+                // calculate() where the difficulty level is changed.
+                if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX,
+                                                                  CurrentY))
+                {
+                    DPlayerNumberRequesTypeChange =
+                        static_cast<EPlayerNumber>(Index + 2);
+                    break;
                 }
             }
         }
@@ -232,22 +251,6 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
             if (DButtonLocations[Index].PointInside(CurrentX, CurrentY))
             {
                 DButtonFunctions[Index](context);
-            }
-        }
-
-        // Iterate over player type buttons, these can be the AI difficulty
-        // level settings.
-        for (int Index = 0; Index < DPlayerTypeButtonLocations.size(); Index++)
-        {
-
-            // If a pointer is over a button's location, then set a flag for
-            // calculate() where the difficulty level is changed.
-            if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX,
-                                                              CurrentY))
-            {
-                DPlayerNumberRequesTypeChange =
-                    static_cast<EPlayerNumber>(Index + 2);
-                break;
             }
         }
     }

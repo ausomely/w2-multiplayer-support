@@ -52,8 +52,8 @@ void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
 void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
     context->DGameSessionType = CApplicationData::gstMultiPlayerClient;
+    context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
 //! @brief Returns to Main menu of the game
