@@ -7,6 +7,12 @@ message RoomInformation {
     required string map = 2;
     required int32 capacity = 3;
     required int32 size = 4;
+    required bool active = 5;
+    repeated int32 colors = 6;
+    repeated string players = 7;
+    repeated int32 types = 8;
+    repeated bool ready = 9;
+
 }
 
 message RoomInfoPackage {

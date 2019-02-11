@@ -116,6 +116,23 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
 
     RoomInfo::RoomInformation roomInfo;
     roomInfo.set_host(context->DUsername);
+    roomInfo.set_active(false);
+
+    for(auto &It: context->DLoadingPlayerTypes) {
+        roomInfo.add_types(to_underlying(It));
+    }
+
+    for(auto &It: context->DLoadingPlayerColors) {
+        roomInfo.add_colors(to_underlying(It));
+    }
+
+    for(auto &It: context->DPlayerNames) {
+        roomInfo.add_players(It);
+    }
+
+    for(auto &It: context->DPlayerReady) {
+        roomInfo.add_ready(It);
+    }
 
     //std::string mapName =
     roomInfo.set_map(context->DSelectedMap->MapName());

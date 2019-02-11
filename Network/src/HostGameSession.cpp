@@ -27,7 +27,7 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
 
             else {
                 RoomInfo::RoomInformation roomInfo;
-                roomInfo.ParseFromArray(userPtr->data,length);
+                roomInfo.ParseFromArray(userPtr->data, length);
 
                 std::cout << roomInfo.DebugString() << std::endl;
 
