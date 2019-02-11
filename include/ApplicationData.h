@@ -224,6 +224,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::array<EPlayerColor, to_underlying(EPlayerNumber::Max)>
         DLoadingPlayerColors;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> DPlayerNames;
+    std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
 
     std::shared_ptr<CApplicationMode> DApplicationMode;
     std::shared_ptr<CApplicationMode> DNextApplicationMode;

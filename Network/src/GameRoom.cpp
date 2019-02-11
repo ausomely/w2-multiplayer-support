@@ -8,13 +8,14 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     owner = host;
     roomInfo.CopyFrom(roomInformation);
     players.insert(owner);
-    host->id = 0;
+    host->id = 1;
 }
 
 void GameRoom::join(std::shared_ptr<User> user) {
-    user->id = size;
     size++;
+    user->id = size;
     players.insert(user);
+    roomInfo.set_players(size, user->name);
     roomInfo.set_size(size);
 }
 

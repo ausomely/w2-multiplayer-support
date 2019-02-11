@@ -23,9 +23,6 @@
 std::shared_ptr<CPlayerAIColorSelectMode>
     CPlayerAIColorSelectMode::DPlayerAIColorSelectModePointer;
 
-std::array<bool, to_underlying(EPlayerNumber::Max)>
-    CPlayerAIColorSelectMode::DReadyPlayers;
-
 int CPlayerAIColorSelectMode::DCountdownTimer = 0;
 
 CPlayerAIColorSelectMode::CPlayerAIColorSelectMode(
@@ -77,24 +74,17 @@ void CPlayerAIColorSelectMode::InitializeChange(
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
 
-            // Reset ready players array anytime this mode is entered
-            DReadyPlayers.fill(false);
-            // Neutral player and the host are always marked as ready
-            DReadyPlayers[to_underlying(EPlayerNumber::Neutral)] = true;
-            DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
-
         }
         break;
         case CApplicationData::gstMultiPlayerClient:
         {
             DTitle = "Are You Ready?!?";
-
-            // Query game server for player number
-            // context->DPlayerNumber = context->ClientPointer // something
-
             CancelButtonText = "Leave Server";
             DButtonTexts.push_back("I'm Ready!");
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
+
+            // Query game server for player number
+            // context->DPlayerNumber = context->ClientPointer // something
 
         }
     }
@@ -110,7 +100,7 @@ void CPlayerAIColorSelectMode::PlayGameButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
     // Testing exchanging commands
-    context->ClientPointer->SendMessage("Test");
+    // context->ClientPointer->SendMessage("Test");
     context->ChangeApplicationMode(CBattleMode::Instance());
 }
 
@@ -130,7 +120,7 @@ std::shared_ptr<CApplicationData> context)
     // Indices 0 and 1 are Neutral player and the host
     for (int Index = 2; Index < context->DSelectedMap->PlayerCount(); Index++)
     {
-        if (false == DReadyPlayers[Index])
+        if (false == context->DReadyPlayers[Index])
         {
             context->DLoadingPlayerTypes[Index] = CApplicationData::ptNone;
         }
@@ -145,13 +135,13 @@ void CPlayerAIColorSelectMode::MPClientReadyButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
     // Toggle player ready status
-    if (DReadyPlayers[to_underlying(context->DPlayerNumber)])
+    if (context->DReadyPlayers[to_underlying(context->DPlayerNumber)])
     {
-        DReadyPlayers[to_underlying(context->DPlayerNumber)] = false;
+        context->DReadyPlayers[to_underlying(context->DPlayerNumber)] = false;
     }
     else
     {
-        DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
+        context->DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
     }
 
 }
@@ -711,7 +701,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         break;
         case CApplicationData::gstMultiPlayerClient:
         {
-            if (DReadyPlayers[to_underlying(context->DPlayerNumber)]) {
+            if (context->DReadyPlayers[to_underlying(context->DPlayerNumber)]) {
                 TempString = "Waiting for Host!";
             }
         }

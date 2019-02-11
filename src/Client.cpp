@@ -130,9 +130,9 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
         roomInfo.add_players(It);
     }
 
-    /*for(auto &It: context->DPlayerReady) {
+    for(auto &It: context->DReadyPlayers) {
         roomInfo.add_ready(It);
-    }*/
+    }
 
     //std::string mapName =
     roomInfo.set_map(context->DSelectedMap->MapName());

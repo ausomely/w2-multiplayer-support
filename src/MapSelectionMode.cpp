@@ -41,12 +41,14 @@ void CMapSelectionMode::SelectMapButtonCallback(
     {
         context->DLoadingPlayerTypes[Index] = CApplicationData::ptNone;
         context->DPlayerNames[Index] = "None";
+        context->DReadyPlayers[Index] = true;
         if (Index)
         {
             if (1 == Index)
             {
                 context->DLoadingPlayerTypes[Index] = CApplicationData::ptHuman;
                 context->DPlayerNames[Index] = context->DUsername;
+                context->DReadyPlayers[Index] = false;
             }
             else if (Index <= context->DSelectedMap->PlayerCount())
             {
@@ -60,6 +62,11 @@ void CMapSelectionMode::SelectMapButtonCallback(
                             context->DGameSessionType
                         ? "None"
                         : "AIEasy";
+                context->DReadyPlayers[Index] =
+                    CApplicationData::gstMultiPlayerHost ==
+                            context->DGameSessionType
+                        ? false
+                        : true;
             }
         }
     }

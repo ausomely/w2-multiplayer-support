@@ -40,7 +40,6 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     std::vector<SRectangle> DButtonLocations;
     std::vector<SRectangle> DColorButtonLocations;
     std::vector<SRectangle> DPlayerTypeButtonLocations;
-    static std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
     static int DCountdownTimer;
     EPlayerNumber DPlayerNumberRequestingChange;
     EPlayerColor DPlayerColorChangeRequest;
