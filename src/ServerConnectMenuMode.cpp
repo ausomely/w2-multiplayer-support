@@ -18,6 +18,7 @@
 #include "JoinMultiPlayerOptions.h"
 #include "MainMenuMode.h"
 #include "MemoryDataSource.h"
+#include "PlayerAIColorSelectMode.h"
 #include "Rectangle.h"
 
 std::shared_ptr<CServerConnectMenuMode>
