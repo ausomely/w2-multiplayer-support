@@ -60,6 +60,7 @@ void CMultiPlayerOptionsMenuMode::MainMenuButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->CloseConnection();
+    context->DGameSessionType = CApplicationData::gstSinglePlayer;
     context->ChangeApplicationMode(CMainMenuMode::Instance());
 }
 

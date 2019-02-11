@@ -25,7 +25,7 @@ else
 CFLAGS   += -O3
 endif
 
-BOOSTFLAGS += -lboost_system -lboost_thread
+BOOSTFLAGS += -lboost_system
 
 INCLUDE  += -I $(INC_DIR)
 CFLAGS   +=  -Wall `pkg-config --cflags $(PKGS)`
@@ -75,6 +75,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/MiniMapRenderer.o                \
     $(OBJ_DIR)/MultiPlayerOptionsMenuMode.o     \
     $(OBJ_DIR)/NetworkOptionsMode.o             \
+		$(OBJ_DIR)/NotificationRenderer.o           \
     $(OBJ_DIR)/OptionsMenuMode.o                \
     $(OBJ_DIR)/Path.o                           \
     $(OBJ_DIR)/PeriodicTimeout.o                \
@@ -84,10 +85,10 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/Position.o                       \
     $(OBJ_DIR)/ResourceRenderer.o               \
     $(OBJ_DIR)/RouterMap.o                      \
-    $(OBJ_DIR)/SoundClip.o                      \
     $(OBJ_DIR)/SoundEventRenderer.o             \
     $(OBJ_DIR)/SoundLibraryMixer.o              \
     $(OBJ_DIR)/SoundOptionsMode.o               \
+		$(OBJ_DIR)/SoundClip.o                      \
     $(OBJ_DIR)/TerrainMap.o                     \
     $(OBJ_DIR)/TextFormatter.o                  \
     $(OBJ_DIR)/Tokenizer.o                      \
@@ -95,6 +96,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/UnitActionRenderer.o             \
     $(OBJ_DIR)/UnitDescriptionRenderer.o        \
     $(OBJ_DIR)/UnitUpgradeCapabilities.o        \
+		$(OBJ_DIR)/ButtonDescriptionRenderer.o      \
     $(OBJ_DIR)/ViewportRenderer.o               \
     $(OBJ_DIR)/VisibilityMap.o									\
 		$(OBJ_DIR)/LoginInfo.pb.o                   \

@@ -37,7 +37,7 @@ std::shared_ptr<CApplicationData> CApplicationData::DApplicationDataPointer;
 
 void LoadSettings(float *DSoundVolume, float *DMusicVolume)
 {
-    // If sound and music options were previously altered, set to those values 
+    // If sound and music options were previously altered, set to those values
     if (std::ifstream("settings.json"))
     {
         std::ifstream i("settings.json");
@@ -247,8 +247,14 @@ bool CApplicationData::DrawingAreaMotionNotifyEventCallback(
 void CApplicationData::Activate()
 {
     CPath AppPath = GetApplicationPath().Containing();
+    // Set data directory path if not set from command line
+    if (DDataPath.length() == 0)
+    {
+        DDataPath = AppPath.ToString() + "/data";
+    }
+
     std::shared_ptr<CDataContainer> TempDataContainer =
-        std::make_shared<CDirectoryDataContainer>(AppPath.ToString() + "/data");
+        std::make_shared<CDirectoryDataContainer>(DDataPath);
     std::shared_ptr<CDataContainer> ImageDirectory =
         TempDataContainer->DataContainer("img");
     std::shared_ptr<CDataContainerIterator> FileIterator;
@@ -1351,6 +1357,8 @@ void CApplicationData::LoadGameMap(int index)
     DMiniMapRenderer = std::make_shared<CMiniMapRenderer>(
         DMapRenderer, DAssetRenderer, DFogRenderer, DViewportRenderer,
         DDoubleBufferSurface->Format());
+    PrintDebug(DEBUG_LOW, "Creating NotificationRenderer\n");
+    DNotificationRenderer = std::make_shared<CNotificationRenderer>(DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]);
     PrintDebug(DEBUG_LOW, "Creating UnitDescriptionRenderer\n");
     DUnitDescriptionRenderer = std::make_shared<CUnitDescriptionRenderer>(
         DMiniBevel, DIconTileset, DFonts,
@@ -1363,6 +1371,9 @@ void CApplicationData::LoadGameMap(int index)
         DMiniIconTileset,
         DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Medium)],
         DGameModel->Player(DPlayerNumber));
+    PrintDebug(DEBUG_LOW, "Creating CButtonDescriptionRenderer\n");
+    DButtonDescriptionRenderer = std::make_shared<CButtonDescriptionRenderer>(
+        DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]);
     PrintDebug(DEBUG_LOW, "Creating CSoundEventRenderer\n");
     DSoundEventRenderer = std::make_shared<CSoundEventRenderer>(
         DSoundLibraryMixer, DGameModel->Player(DPlayerNumber));
@@ -1515,10 +1526,10 @@ void CApplicationData::ResizeCanvases()
         ResourceContext->Rectangle(0, 0, CurWidth, CurHeight);
         ResourceContext->Fill();
     }
-    if (!DUnitDescriptionRenderer)
-    {
-        return;
-    }
+    //if (!DUnitDescriptionRenderer)
+    //{
+      //  return;
+    //}
     if (!DOuterBevel)
     {
         return;
@@ -1573,6 +1584,24 @@ void CApplicationData::ResizeCanvases()
                 ARGB32);  // DDrawingArea->CreateSimilarSurface(DUnitActionRenderer->MinimumWidth(),
         // DUnitActionRenderer->MinimumHeight());
     }
+
+    //Notification Renderer surface
+    if(nullptr != DNotificationRendererSurface){
+        int CurWidth, CurHeight;
+
+        CurWidth = DNotificationRendererSurface->Width();
+        CurHeight = DNotificationRendererSurface->Height();
+
+        if((ViewportWidth != CurWidth || (DBorderWidth != CurHeight)))
+        {
+            DNotificationRendererSurface = nullptr;
+        }
+    }
+    if(nullptr == DNotificationRendererSurface)
+    {
+        DNotificationRendererSurface = CGraphicFactory::CreateSurface(ViewportWidth,ViewportHeight/4,CGraphicSurface::ESurfaceFormat::ARGB32);
+    }
+
     if (nullptr != DResourceSurface)
     {
         int CurWidth, CurHeight;
@@ -1591,6 +1620,25 @@ void CApplicationData::ResizeCanvases()
             CGraphicSurface::ESurfaceFormat::
                 ARGB32);  // DDrawingArea->CreateSimilarSurface(ViewportWidth,
                           // DBorderWidth);
+    }
+    // Button Description Surface
+    if (nullptr != DButtonDescriptionSurface)
+    {
+        int CurWidth, CurHeight;
+
+        CurWidth = DButtonDescriptionSurface->Width();
+        CurHeight = DButtonDescriptionSurface->Height();
+
+        if ((ViewportWidth != CurWidth) || (DBorderWidth != CurHeight))
+        {
+            DButtonDescriptionSurface = nullptr;
+        }
+    }
+    if (nullptr == DButtonDescriptionSurface)
+    {
+        DButtonDescriptionSurface = CGraphicFactory::CreateSurface(
+            ViewportWidth, DBorderWidth,
+            CGraphicSurface::ESurfaceFormat::ARGB32);
     }
 
     if (nullptr != DViewportSurface)
@@ -1637,5 +1685,16 @@ void CApplicationData::ResizeCanvases()
 
 int CApplicationData::Run(int argc, char *argv[])
 {
+    if (argc == 3)
+    {
+        std::string arg = argv[1];
+        if (arg == "-d")
+        {
+            DDataPath = argv[2];
+            // Workaround because GTK code doesn't recognize the commandline options
+            // Very ugly! Will make this better. -MLH
+            argc = 1;
+        }
+    }
     return DApplication->Run(argc, argv);
 }

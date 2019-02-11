@@ -1,9 +1,11 @@
 obj/
 
-boostServer
+Network/boostServer
 
 theGame
 
 Network/obj/
+
+Debug.out
 
 .DS_Store

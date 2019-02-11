@@ -33,6 +33,8 @@
 #include "UnitActionRenderer.h"
 #include "UnitDescriptionRenderer.h"
 #include "ViewportRenderer.h"
+#include "ButtonDescriptionRenderer.h"
+#include "NotificationRenderer.h"
 #include "Client.h"
 
 typedef void (*TButtonCallbackFunction)(void *calldata);
@@ -110,6 +112,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
         *EPlayerTypeRef;
 
     static std::shared_ptr<CApplicationData> DApplicationDataPointer;
+    std::string DDataPath;
     bool DActiveGame;  //!< Active game flag
     bool DDeleted;
     EGameSessionType DGameSessionType;
@@ -132,6 +135,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CGraphicSurface> DUnitActionSurface;
     std::shared_ptr<CGraphicSurface> DResourceSurface;
     std::shared_ptr<CGraphicSurface> DMapSelectListViewSurface;
+    std::shared_ptr<CGraphicSurface> DButtonDescriptionSurface;
+    std::shared_ptr<CGraphicSurface> DNotificationRendererSurface;
     uint32_t DMiniMapViewportColor;
 
     int DBorderWidth;
@@ -192,8 +197,10 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CFogRenderer> DFogRenderer;
     std::shared_ptr<CViewportRenderer> DViewportRenderer;
     std::shared_ptr<CMiniMapRenderer> DMiniMapRenderer;
+    std::shared_ptr<CNotificationRenderer> DNotificationRenderer;
     std::shared_ptr<CUnitDescriptionRenderer> DUnitDescriptionRenderer;
     std::shared_ptr<CUnitActionRenderer> DUnitActionRenderer;
+    std::shared_ptr<CButtonDescriptionRenderer> DButtonDescriptionRenderer;
     std::shared_ptr<CResourceRenderer> DResourceRenderer;
     std::shared_ptr<CButtonRenderer> DMenuButtonRenderer;
     std::shared_ptr<CButtonRenderer> DButtonRenderer;
@@ -204,7 +211,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr< Client > ClientPointer;
     // selected room number
     int DSelectedRoomNumber;
-    
+
     // Model
     EPlayerNumber DPlayerNumber;
     std::shared_ptr<CGameModel> DGameModel;

@@ -989,9 +989,11 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
 {
-
-    context->ClientPointer->SendGameInfo(context);
-    context->ClientPointer->GetGameInfo(context);
+    if (CApplicationData::gstMultiPlayerClient == context->DGameSessionType ||
+        CApplicationData::gstMultiPlayerHost == context->DGameSessionType) {
+        context->ClientPointer->SendGameInfo(context);
+        context->ClientPointer->GetGameInfo(context);
+    }
 
     //! If Menu button pressed switch to in-game options screen
     if (CButtonRenderer::EButtonState::Pressed == context->DMenuButtonState)
@@ -1187,6 +1189,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     int DescriptionWidth, DescriptionHeight;
     int ActionWidth, ActionHeight;
     int ResourceWidth, ResourceHeight;
+    int ButtonDescriptionWidth, ButtonDescriptionHeight;
     std::list<std::weak_ptr<CPlayerAsset> > SelectedAndMarkerAssets =
         context->DSelectedPlayerAssets;
 
@@ -1204,6 +1207,8 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     ActionHeight = context->DUnitActionSurface->Height();
     ResourceWidth = context->DResourceSurface->Width();
     ResourceHeight = context->DResourceSurface->Height();
+    ButtonDescriptionWidth = context->DButtonDescriptionSurface->Width();
+    ButtonDescriptionHeight = context->DButtonDescriptionSurface->Height();
 
     if (context->DLeftDown && 0 < context->DMouseDown.X())
     {
@@ -1238,6 +1243,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         }
     }
 
+    // Draws resource surface with resources on the top
     context->DInnerBevel->DrawBevel(
         context->DWorkingBufferSurface, context->DViewportXOffset,
         context->DViewportYOffset, ViewWidth, ViewHeight);
@@ -1265,7 +1271,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     context->DWorkingBufferSurface->Draw(
         context->DUnitDescriptionSurface, context->DUnitDescriptionXOffset,
         context->DUnitDescriptionYOffset, -1, -1, 0, 0);
-
+    // Action buttons of the unit box on the bottom left of the screen
     context->DOuterBevel->DrawBevel(
         context->DWorkingBufferSurface, context->DUnitActionXOffset,
         context->DUnitActionYOffset, ActionWidth, ActionHeight);
@@ -1305,8 +1311,42 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         context->DWorkingBufferSurface, context->DMenuButtonXOffset,
         context->DMenuButtonYOffset, context->DMenuButtonState);
 
+
+    //These lines handle notification renderering. DO NOT CHANGE ANYTHING if you don't know exactly what you are doing.
+    context->DNotificationRenderer->AddNotification(std::to_string(context->DNotificationRenderer->IncTime()));
+
+    context->DNotificationRendererSurface->Draw(context->DWorkingBufferSurface,0,0,context->DNotificationRendererSurface->Width(),
+        context->DNotificationRendererSurface->Height(),context->DViewportXOffset, BufferHeight - (ViewHeight / 4));
+
+    context->DNotificationRenderer->DrawNotifications(context->DNotificationRendererSurface);
+
+    context->DWorkingBufferSurface->Draw(context->DNotificationRendererSurface,context->DViewportXOffset,BufferHeight - (ViewHeight / 4),
+        -1,-1,0,0);
+
     switch (context->FindUIComponentType(CPixelPosition(CurrentX, CurrentY)))
     {
+        case CApplicationData::uictUserAction:
+        {
+            EAssetCapabilityType CapabilityType =
+                context->DUnitActionRenderer->Selection(
+                    context->ScreenToUnitAction(
+                        CPixelPosition(CurrentX, CurrentY)));
+
+            if (EAssetCapabilityType::None != CapabilityType)
+            {
+                // Action button description at the bottom of the screen
+                context->DButtonDescriptionSurface->Draw(
+                    context->DWorkingBufferSurface, 0, 0, ButtonDescriptionWidth,
+                    ButtonDescriptionHeight, context->DViewportXOffset,
+                    BufferHeight - ButtonDescriptionHeight);
+                context->DButtonDescriptionRenderer->DrawButtonDescription(
+                    context->DButtonDescriptionSurface,
+                    CPlayerCapability::TypeToName(CapabilityType));
+                context->DWorkingBufferSurface->Draw(
+                    context->DButtonDescriptionSurface, context->DViewportXOffset,
+                    BufferHeight - ButtonDescriptionHeight, -1, -1, 0, 0);
+                }
+            }
         case CApplicationData::uictViewport:
         {
             CPixelPosition ViewportCursorLocation =
@@ -1413,7 +1453,7 @@ std::shared_ptr<CApplicationMode> CBattleMode::Instance()
     if (DBattleModePointer == nullptr)
     {
         DBattleModePointer =
-            std::make_shared<CBattleMode>(SPrivateConstructorType{});
+        std::make_shared<CBattleMode>(SPrivateConstructorType{});
     }
     return DBattleModePointer;
 }

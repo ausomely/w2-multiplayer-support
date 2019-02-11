@@ -157,6 +157,64 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
+  // repeated int32 colors = 6;
+  int colors_size() const;
+  void clear_colors();
+  static const int kColorsFieldNumber = 6;
+  ::google::protobuf::int32 colors(int index) const;
+  void set_colors(int index, ::google::protobuf::int32 value);
+  void add_colors(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      colors() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_colors();
+
+  // repeated string players = 7;
+  int players_size() const;
+  void clear_players();
+  static const int kPlayersFieldNumber = 7;
+  const ::std::string& players(int index) const;
+  ::std::string* mutable_players(int index);
+  void set_players(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_players(int index, ::std::string&& value);
+  #endif
+  void set_players(int index, const char* value);
+  void set_players(int index, const char* value, size_t size);
+  ::std::string* add_players();
+  void add_players(const ::std::string& value);
+  #if LANG_CXX11
+  void add_players(::std::string&& value);
+  #endif
+  void add_players(const char* value);
+  void add_players(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& players() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_players();
+
+  // repeated int32 types = 8;
+  int types_size() const;
+  void clear_types();
+  static const int kTypesFieldNumber = 8;
+  ::google::protobuf::int32 types(int index) const;
+  void set_types(int index, ::google::protobuf::int32 value);
+  void add_types(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      types() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_types();
+
+  // repeated bool ready = 9;
+  int ready_size() const;
+  void clear_ready();
+  static const int kReadyFieldNumber = 9;
+  bool ready(int index) const;
+  void set_ready(int index, bool value);
+  void add_ready(bool value);
+  const ::google::protobuf::RepeatedField< bool >&
+      ready() const;
+  ::google::protobuf::RepeatedField< bool >*
+      mutable_ready();
+
   // required string host = 1;
   bool has_host() const;
   void clear_host();
@@ -201,6 +259,13 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::int32 size() const;
   void set_size(::google::protobuf::int32 value);
 
+  // required bool active = 5;
+  bool has_active() const;
+  void clear_active();
+  static const int kActiveFieldNumber = 5;
+  bool active() const;
+  void set_active(bool value);
+
   // @@protoc_insertion_point(class_scope:RoomInfo.RoomInformation)
  private:
   void set_has_host();
@@ -211,6 +276,8 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
   void clear_has_capacity();
   void set_has_size();
   void clear_has_size();
+  void set_has_active();
+  void clear_has_active();
 
   // helper for ByteSizeLong()
   size_t RequiredFieldsByteSizeFallback() const;
@@ -218,10 +285,15 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > colors_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> players_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > types_;
+  ::google::protobuf::RepeatedField< bool > ready_;
   ::google::protobuf::internal::ArenaStringPtr host_;
   ::google::protobuf::internal::ArenaStringPtr map_;
   ::google::protobuf::int32 capacity_;
   ::google::protobuf::int32 size_;
+  bool active_;
   friend struct ::protobuf_RoomInfo_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -530,6 +602,189 @@ inline void RoomInformation::set_size(::google::protobuf::int32 value) {
   set_has_size();
   size_ = value;
   // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.size)
+}
+
+// required bool active = 5;
+inline bool RoomInformation::has_active() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void RoomInformation::set_has_active() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void RoomInformation::clear_has_active() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void RoomInformation::clear_active() {
+  active_ = false;
+  clear_has_active();
+}
+inline bool RoomInformation::active() const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.active)
+  return active_;
+}
+inline void RoomInformation::set_active(bool value) {
+  set_has_active();
+  active_ = value;
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.active)
+}
+
+// repeated int32 colors = 6;
+inline int RoomInformation::colors_size() const {
+  return colors_.size();
+}
+inline void RoomInformation::clear_colors() {
+  colors_.Clear();
+}
+inline ::google::protobuf::int32 RoomInformation::colors(int index) const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.colors)
+  return colors_.Get(index);
+}
+inline void RoomInformation::set_colors(int index, ::google::protobuf::int32 value) {
+  colors_.Set(index, value);
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.colors)
+}
+inline void RoomInformation::add_colors(::google::protobuf::int32 value) {
+  colors_.Add(value);
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.colors)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+RoomInformation::colors() const {
+  // @@protoc_insertion_point(field_list:RoomInfo.RoomInformation.colors)
+  return colors_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+RoomInformation::mutable_colors() {
+  // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.colors)
+  return &colors_;
+}
+
+// repeated string players = 7;
+inline int RoomInformation::players_size() const {
+  return players_.size();
+}
+inline void RoomInformation::clear_players() {
+  players_.Clear();
+}
+inline const ::std::string& RoomInformation::players(int index) const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.players)
+  return players_.Get(index);
+}
+inline ::std::string* RoomInformation::mutable_players(int index) {
+  // @@protoc_insertion_point(field_mutable:RoomInfo.RoomInformation.players)
+  return players_.Mutable(index);
+}
+inline void RoomInformation::set_players(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.players)
+  players_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void RoomInformation::set_players(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.players)
+  players_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void RoomInformation::set_players(int index, const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  players_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:RoomInfo.RoomInformation.players)
+}
+inline void RoomInformation::set_players(int index, const char* value, size_t size) {
+  players_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:RoomInfo.RoomInformation.players)
+}
+inline ::std::string* RoomInformation::add_players() {
+  // @@protoc_insertion_point(field_add_mutable:RoomInfo.RoomInformation.players)
+  return players_.Add();
+}
+inline void RoomInformation::add_players(const ::std::string& value) {
+  players_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.players)
+}
+#if LANG_CXX11
+inline void RoomInformation::add_players(::std::string&& value) {
+  players_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.players)
+}
+#endif
+inline void RoomInformation::add_players(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  players_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:RoomInfo.RoomInformation.players)
+}
+inline void RoomInformation::add_players(const char* value, size_t size) {
+  players_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:RoomInfo.RoomInformation.players)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+RoomInformation::players() const {
+  // @@protoc_insertion_point(field_list:RoomInfo.RoomInformation.players)
+  return players_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+RoomInformation::mutable_players() {
+  // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.players)
+  return &players_;
+}
+
+// repeated int32 types = 8;
+inline int RoomInformation::types_size() const {
+  return types_.size();
+}
+inline void RoomInformation::clear_types() {
+  types_.Clear();
+}
+inline ::google::protobuf::int32 RoomInformation::types(int index) const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.types)
+  return types_.Get(index);
+}
+inline void RoomInformation::set_types(int index, ::google::protobuf::int32 value) {
+  types_.Set(index, value);
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.types)
+}
+inline void RoomInformation::add_types(::google::protobuf::int32 value) {
+  types_.Add(value);
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.types)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+RoomInformation::types() const {
+  // @@protoc_insertion_point(field_list:RoomInfo.RoomInformation.types)
+  return types_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+RoomInformation::mutable_types() {
+  // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.types)
+  return &types_;
+}
+
+// repeated bool ready = 9;
+inline int RoomInformation::ready_size() const {
+  return ready_.size();
+}
+inline void RoomInformation::clear_ready() {
+  ready_.Clear();
+}
+inline bool RoomInformation::ready(int index) const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.ready)
+  return ready_.Get(index);
+}
+inline void RoomInformation::set_ready(int index, bool value) {
+  ready_.Set(index, value);
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.ready)
+}
+inline void RoomInformation::add_ready(bool value) {
+  ready_.Add(value);
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.ready)
+}
+inline const ::google::protobuf::RepeatedField< bool >&
+RoomInformation::ready() const {
+  // @@protoc_insertion_point(field_list:RoomInfo.RoomInformation.ready)
+  return ready_;
+}
+inline ::google::protobuf::RepeatedField< bool >*
+RoomInformation::mutable_ready() {
+  // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.ready)
+  return &ready_;
 }
 
 // -------------------------------------------------------------------
