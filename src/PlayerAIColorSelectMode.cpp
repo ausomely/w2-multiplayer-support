@@ -13,12 +13,14 @@
     ownership of this material.
 */
 #include "PlayerAIColorSelectMode.h"
+#include "ServerConnectMenuMode.h"
 #include "ApplicationData.h"
 #include "BattleMode.h"
 #include "MainMenuMode.h"
 #include "MapSelectionMode.h"
 #include "MemoryDataSource.h"
 #include "MultiPlayerOptionsMenuMode.h"
+#include "Client.h"
 
 std::shared_ptr<CPlayerAIColorSelectMode>
     CPlayerAIColorSelectMode::DPlayerAIColorSelectModePointer;
@@ -73,7 +75,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
-
+            context->ClientPointer->StartUpdateRoomInfo(&(context->roomInfo));
         }
         break;
         case CApplicationData::gstMultiPlayerClient:
@@ -84,7 +86,25 @@ void CPlayerAIColorSelectMode::InitializeChange(
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
 
             // Query game server for player number
-            // context->DPlayerNumber = context->ClientPointer // something
+            context->ClientPointer->io_service.reset();
+
+            context->DSelectedMapIndex = 0;
+            context->DSelectedMap = CAssetDecoratedMap::DuplicateMap(0);
+            context->DMapRenderer = std::make_shared<CMapRenderer>(
+                std::make_shared<CMemoryDataSource>(
+                    context->DMapRendererConfigurationData),
+                context->DTerrainTileset, context->DSelectedMap);
+            context->DAssetRenderer = std::make_shared<CAssetRenderer>(
+                context->DAssetRecolorMap, context->DAssetTilesets,
+                context->DMarkerTileset, context->DCorpseTileset,
+                context->DFireTilesets, context->DBuildingDeathTileset,
+                context->DArrowTileset, nullptr, context->DSelectedMap);
+            context->DMiniMapRenderer = std::make_shared<CMiniMapRenderer>(
+                context->DMapRenderer, context->DAssetRenderer, nullptr, nullptr,
+                context->DDoubleBufferSurface->Format());
+
+            *context->DSelectedMap =
+                *CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(context->roomInfo.map()));
 
         }
     }
@@ -150,10 +170,10 @@ std::shared_ptr<CApplicationData> context)
 void CPlayerAIColorSelectMode::CancelButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
-    if (CApplicationData::gstMultiPlayerClient == context->DGameSessionType ||
-        CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
+    if (CApplicationData::gstSinglePlayer != context->DGameSessionType)
     {
         context->ClientPointer->SendMessage("Leave");
+        context->ClientPointer->io_service.run();
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
     else
@@ -397,6 +417,11 @@ void CPlayerAIColorSelectMode::Calculate(
 
 void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 {
+    // check the io_service event list to get update on room info
+    if(CApplicationData::gstSinglePlayer != context->DGameSessionType) {
+        context->ClientPointer->io_service.poll();
+    }
+
     int CurrentX, CurrentY;
     int BufferWidth, BufferHeight;
     int TitleHeight;

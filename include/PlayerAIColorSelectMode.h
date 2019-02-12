@@ -22,6 +22,7 @@
 #include "ApplicationMode.h"
 #include "GameDataTypes.h"
 #include "Rectangle.h"
+#include "RoomInfo.pb.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);

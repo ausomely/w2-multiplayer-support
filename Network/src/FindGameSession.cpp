@@ -21,6 +21,8 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
             if(strcmp(userPtr->data, "Back") == 0) {
+
+                userPtr->SendFinish();
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
 
@@ -29,6 +31,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 int index = std::stoi(std::string(userPtr->data));
                 std::cout << userPtr->name << " wanted to join room " << index + 1 << std::endl;
 
+                userPtr->SendFinish();
                 userPtr->lobby.JoinRoom(userPtr, index);
                 userPtr->ChangeSession(InRoomSession::Instance());
             }
