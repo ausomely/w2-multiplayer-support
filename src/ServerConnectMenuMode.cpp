@@ -48,10 +48,8 @@ void CServerConnectMenuMode::BackButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage("Back");
-    context->ClientPointer->io_service.poll();
-    //context->ClientPointer->io_service.poll();
-    /*context->ClientPointer->io_service.stop();
-    context->ClientPointer->io_service.reset();*/
+    context->ClientPointer->io_service.run();
+
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
@@ -60,9 +58,11 @@ void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
-    //context->ClientPointer->io_service.poll();
-  /*  context->ClientPointer->io_service.stop();
-    context->ClientPointer->io_service.reset();*/
+    context->ClientPointer->io_service.run();
+
+    context->ClientPointer->StartUpdateRoomInfo(&(context->roomInfo));
+    context->ClientPointer->io_service.run_one();
+
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 
@@ -110,10 +110,10 @@ void CServerConnectMenuMode::InitializeChange(
     DButtonLocations.clear();
     DJoinButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
-    roomList.Clear();
+    context->roomList.Clear();
 
     // start updating room list
-    context->ClientPointer->StartUpdateRoomList(&roomList);
+    context->ClientPointer->StartUpdateRoomList(&(context->roomList));
 }
 
 // Handle rendering of the game server information and join buttons
@@ -168,7 +168,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     // Each game server gets a row of info and a join button
     // Need some way to get the total number of game servers
-    int game_servers = roomList.roominfo().size();
+    int game_servers = context->roomList.roominfo().size();
     for (int i = 0, YPosDataRow = YPosRowStart; i < game_servers; i++)
     {
         std::string num_str = std::to_string(i + 1);
@@ -176,13 +176,13 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
         DrawText(context, game + num_str, XPosCol1, YPosDataRow,
                  GoldColor);
 
-        DrawText(context, roomList.roominfo()[i].host(), XPosCol2, YPosDataRow,
+        DrawText(context, context->roomList.roominfo()[i].host(), XPosCol2, YPosDataRow,
                  GoldColor);
 
-        DrawText(context, roomList.roominfo()[i].map(), XPosCol3, YPosDataRow,
+        DrawText(context, context->roomList.roominfo()[i].map(), XPosCol3, YPosDataRow,
                  GoldColor);
-        std::string player_count = std::to_string(roomList.roominfo()[i].size()) + " / "
-                 + std::to_string(roomList.roominfo()[i].capacity());
+        std::string player_count = std::to_string(context->roomList.roominfo()[i].size()) + " / "
+                 + std::to_string(context->roomList.roominfo()[i].capacity());
         DrawText(context, player_count, XPosCol4, YPosDataRow,
                  GoldColor);
 

@@ -42,6 +42,7 @@ class User: public std::enable_shared_from_this<User>
             : socket(std::move(socket_)), lobby(lobby_), id(-1) {}
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
+        void SendFinish();
 };
 
 #endif

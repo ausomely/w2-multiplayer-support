@@ -163,6 +163,7 @@ void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
             // empty room list
             if(strcmp(data, "Empty") == 0) {
                 roomList->Clear();
+                UpdateRoomList(roomList);
             }
 
             else if(!strcmp(data, "Finish") == 0) {
@@ -170,7 +171,7 @@ void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
                 UpdateRoomList(roomList);
             }
             else {
-                std::cout << "FInish" << std::endl;
+                std::cout << "Update room list Finish" << std::endl;
             }
         }
 
@@ -191,12 +192,29 @@ void Client::UpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
                 std::cout << roomInfo->DebugString() << std::endl;
                 UpdateRoomInfo(roomInfo);
             }
+            else {
+                std::cout << "Update roominfo Finish" << std::endl;
+            }
         }
 
         else {
            std::cerr << "ERROR reading" << std::endl;
         }
     });
+}
+
+RoomInfo::RoomInformation Client::GetRoomInfo() {
+    bzero(data, BUFFER_SIZE);
+    RoomInfo::RoomInformation roomInfo;
+    boost::system::error_code err;
+    size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
+    if(!err) {
+        roomInfo.ParseFromArray(data, length);
+    }
+    else {
+        std::cout << "Error Reading" << std::endl;
+        return roomInfo;
+    }
 }
 
 // send the server a message
@@ -233,11 +251,13 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
 
 void Client::StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     //io_service.post(boost::bind(&Client::UpdateRoomList, shared_from_this(), roomList));
+    io_service.reset();
     UpdateRoomList(roomList);
 }
 
 void Client::StartUpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
     //io_service.post(boost::bind(&Client::UpdateRoomInfo, shared_from_this(), roomInfo));
+    io_service.reset();
     UpdateRoomInfo(roomInfo);
 }
 

@@ -48,8 +48,6 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     bool DButtonHovered;
     int DMapOffset;
 
-    RoomInfo::RoomInformation roomInfo;
-
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void MPHostPlayGameButtonCallback(

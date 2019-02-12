@@ -13,6 +13,7 @@
     ownership of this material.
 */
 #include "PlayerAIColorSelectMode.h"
+#include "ServerConnectMenuMode.h"
 #include "ApplicationData.h"
 #include "BattleMode.h"
 #include "MainMenuMode.h"
@@ -74,7 +75,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
-            context->ClientPointer->StartUpdateRoomInfo(&roomInfo);
+            context->ClientPointer->StartUpdateRoomInfo(&(context->roomInfo));
         }
         break;
         case CApplicationData::gstMultiPlayerClient:
@@ -85,8 +86,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
 
             // Query game server for player number
-            // context->DPlayerNumber = context->ClientPointer // something
-            context->ClientPointer->StartUpdateRoomInfo(&roomInfo);
+            context->ClientPointer->io_service.reset();
 
             context->DSelectedMapIndex = 0;
             context->DSelectedMap = CAssetDecoratedMap::DuplicateMap(0);
@@ -103,8 +103,8 @@ void CPlayerAIColorSelectMode::InitializeChange(
                 context->DMapRenderer, context->DAssetRenderer, nullptr, nullptr,
                 context->DDoubleBufferSurface->Format());
 
-            /*context->DSelectedMap =
-                CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(roomInfo.map()));*/
+            *context->DSelectedMap =
+                *CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(context->roomInfo.map()));
 
         }
     }
@@ -170,12 +170,10 @@ std::shared_ptr<CApplicationData> context)
 void CPlayerAIColorSelectMode::CancelButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
-    if (CApplicationData::gstMultiPlayerClient == context->DGameSessionType ||
-        CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
+    if (CApplicationData::gstSinglePlayer != context->DGameSessionType)
     {
         context->ClientPointer->SendMessage("Leave");
-        context->ClientPointer->io_service.stop();
-        context->ClientPointer->io_service.reset();
+        context->ClientPointer->io_service.run();
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
     else
@@ -186,11 +184,6 @@ std::shared_ptr<CApplicationData> context)
 
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 {
-    // check the io_service event list to get update on room info
-    if(CApplicationData::gstSinglePlayer != context->DGameSessionType) {
-        context->ClientPointer->io_service.poll();
-    }
-
     int CurrentX, CurrentY;
 
     // Get the X,Y coordinates of the pointer's position
@@ -424,6 +417,11 @@ void CPlayerAIColorSelectMode::Calculate(
 
 void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 {
+    // check the io_service event list to get update on room info
+    if(CApplicationData::gstSinglePlayer != context->DGameSessionType) {
+        context->ClientPointer->io_service.poll();
+    }
+
     int CurrentX, CurrentY;
     int BufferWidth, BufferHeight;
     int TitleHeight;

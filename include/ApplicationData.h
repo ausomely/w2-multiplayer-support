@@ -35,6 +35,7 @@
 #include "ViewportRenderer.h"
 #include "ButtonDescriptionRenderer.h"
 #include "NotificationRenderer.h"
+#include "RoomInfo.pb.h"
 #include "Client.h"
 
 typedef void (*TButtonCallbackFunction)(void *calldata);
@@ -225,6 +226,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
         DLoadingPlayerColors;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> DPlayerNames;
     std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
+    RoomInfo::RoomInformation roomInfo;
+    RoomInfo::RoomInfoPackage roomList;
 
     std::shared_ptr<CApplicationMode> DApplicationMode;
     std::shared_ptr<CApplicationMode> DNextApplicationMode;

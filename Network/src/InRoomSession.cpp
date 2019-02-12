@@ -25,6 +25,7 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
             }
 
             else if(strcmp(userPtr->data, "Leave") == 0) {
+                userPtr->SendFinish();
                 userPtr->currentRoom.lock()->leave(userPtr);
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }

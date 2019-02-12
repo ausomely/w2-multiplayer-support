@@ -34,6 +34,7 @@ class Client: public std::enable_shared_from_this<Client>
         void UpdateRoomList(RoomInfo::RoomInfoPackage* roomList);
         void UpdateRoomInfo(RoomInfo::RoomInformation* roomInfo);
         void SendMessage(std::string message);
+        RoomInfo::RoomInformation GetRoomInfo();
         void GetGameInfo(std::shared_ptr<CApplicationData> context);
         void StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList);
         void StartUpdateRoomInfo(RoomInfo::RoomInformation* roomInfo);

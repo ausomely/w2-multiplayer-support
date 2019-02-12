@@ -32,8 +32,6 @@ class CServerConnectMenuMode : public CApplicationMode
     {
     };
 
-    RoomInfo::RoomInfoPackage roomList;
-
     static std::shared_ptr<CServerConnectMenuMode> DServerConnectMenuModePointer;
     std::string DTitle;
     std::vector<std::string> DButtonTexts;
