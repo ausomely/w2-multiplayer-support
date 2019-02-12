@@ -21,6 +21,29 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
             if(strcmp(userPtr->data, "Back") == 0) {
+                /*RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
+                boost::asio::streambuf stream_buffer;
+                std::ostream output_stream(&stream_buffer);
+                roomList.SerializeToOstream(&output_stream);
+
+                size_t length = roomList.ByteSizeLong();
+                roomList.SerializeToArray(userPtr->data, length);
+
+                boost::asio::async_write(userPtr->socket, stream_buffer,
+                    [this, userPtr](boost::system::error_code err, std::size_t ) {
+                    //if no error, continue trying to read input from client
+                    if (!err) {
+                        DoRead(userPtr);
+                    }
+                });*/
+                std::string message = "Finish";
+                boost::asio::async_write(userPtr->socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
+                    [this, userPtr](boost::system::error_code err, std::size_t ) {
+                    //if no error, continue trying to read input from client
+                    if (!err) {
+
+                    }
+                });
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
 
@@ -29,6 +52,21 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 int index = std::stoi(std::string(userPtr->data));
                 std::cout << userPtr->name << " wanted to join room " << index + 1 << std::endl;
 
+                /*RoomInfo::RoomInfoPackage roomList = userPtr->lobby.GetRoomList();
+                boost::asio::streambuf stream_buffer;
+                std::ostream output_stream(&stream_buffer);
+                roomList.SerializeToOstream(&output_stream);
+
+                size_t length = roomList.ByteSizeLong();
+                roomList.SerializeToArray(userPtr->data, length);*/
+                std::string message = "Finish";
+                boost::asio::async_write(userPtr->socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
+                    [this, userPtr](boost::system::error_code err, std::size_t ) {
+                    //if no error, continue trying to read input from client
+                    if (!err) {
+                        
+                    }
+                });
                 userPtr->lobby.JoinRoom(userPtr, index);
                 userPtr->ChangeSession(InRoomSession::Instance());
             }

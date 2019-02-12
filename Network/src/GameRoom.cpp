@@ -17,6 +17,22 @@ void GameRoom::join(std::shared_ptr<User> user) {
     players.insert(user);
     roomInfo.set_players(size, user->name);
     roomInfo.set_size(size);
+
+    // update room info for everyone in the game room
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomInfo.SerializeToOstream(&output_stream);
+
+    for(auto &It: players) {
+        // sending notification to other players in the room to update room info
+        boost::asio::async_write(It->socket, stream_buffer,
+            [It](boost::system::error_code err, std::size_t ) {
+
+            if (!err) {
+
+            }
+        });
+    }
 }
 
 void GameRoom::leave(std::shared_ptr<User> user) {

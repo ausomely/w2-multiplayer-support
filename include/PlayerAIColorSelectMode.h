@@ -22,6 +22,7 @@
 #include "ApplicationMode.h"
 #include "GameDataTypes.h"
 #include "Rectangle.h"
+#include "RoomInfo.pb.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
@@ -46,6 +47,8 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     EPlayerNumber DPlayerNumberRequesTypeChange;
     bool DButtonHovered;
     int DMapOffset;
+
+    RoomInfo::RoomInformation roomInfo;
 
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);

@@ -48,7 +48,10 @@ void CServerConnectMenuMode::BackButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage("Back");
-    context->ClientPointer->io_service.stop();
+    context->ClientPointer->io_service.poll();
+    //context->ClientPointer->io_service.poll();
+    /*context->ClientPointer->io_service.stop();
+    context->ClientPointer->io_service.reset();*/
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
@@ -57,7 +60,9 @@ void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
-    context->ClientPointer->io_service.stop();
+    //context->ClientPointer->io_service.poll();
+  /*  context->ClientPointer->io_service.stop();
+    context->ClientPointer->io_service.reset();*/
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 
@@ -90,6 +95,7 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
             DButtonFunctions[0](context);
         }
     }
+
     context->ClientPointer->io_service.poll();
 }
 

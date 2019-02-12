@@ -165,10 +165,32 @@ void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
                 roomList->Clear();
             }
 
-            else {
+            else if(!strcmp(data, "Finish") == 0) {
                 roomList->ParseFromArray(data, length);
+                UpdateRoomList(roomList);
             }
-            UpdateRoomList(roomList);
+            else {
+                std::cout << "FInish" << std::endl;
+            }
+        }
+
+        else {
+           std::cerr << "ERROR reading" << std::endl;
+        }
+    });
+}
+
+void Client::UpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
+    bzero(data, BUFFER_SIZE);
+    socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
+        [this, roomInfo](boost::system::error_code err, std::size_t length) {
+        if(!err) {
+
+            if(!strcmp(data, "Finish") == 0) {
+                roomInfo->ParseFromArray(data, length);
+                std::cout << roomInfo->DebugString() << std::endl;
+                UpdateRoomInfo(roomInfo);
+            }
         }
 
         else {
@@ -210,8 +232,13 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
 }
 
 void Client::StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
-    io_service.reset();
+    //io_service.post(boost::bind(&Client::UpdateRoomList, shared_from_this(), roomList));
     UpdateRoomList(roomList);
+}
+
+void Client::StartUpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
+    //io_service.post(boost::bind(&Client::UpdateRoomInfo, shared_from_this(), roomInfo));
+    UpdateRoomInfo(roomInfo);
 }
 
 // Close the conenction fromm server
