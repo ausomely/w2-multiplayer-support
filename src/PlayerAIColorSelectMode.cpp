@@ -75,7 +75,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
-            context->ClientPointer->StartUpdateRoomInfo(&(context->roomInfo));
+            context->ClientPointer->StartUpdateRoomInfo(context);
         }
         break;
         case CApplicationData::gstMultiPlayerClient:
@@ -105,6 +105,27 @@ void CPlayerAIColorSelectMode::InitializeChange(
 
             *context->DSelectedMap =
                 *CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(context->roomInfo.map()));
+
+            // find the DPlayerNumber
+            for(int Index = 2; Index < to_underlying(EPlayerColor::Max); Index++) {
+                if(context->roomInfo.players(Index) == "None") {
+                    context->DPlayerNumber = static_cast <EPlayerNumber> (Index - 1);
+                    break;
+                }
+
+                // last one in the room of maximum number
+                else if(Index == to_underlying(EPlayerColor::Max) - 1) {
+                    context->DPlayerNumber = static_cast <EPlayerNumber> (Index);
+                }
+            }
+
+            /*// copy over room info
+            for(int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++) {
+                context->DLoadingPlayerTypes[Index] = static_cast <CApplicationData::EPlayerType> (context->roomInfo.types(Index));
+                context->DPlayerNames[Index] = context->roomInfo.players(Index);
+                context->DReadyPlayers[Index] = context->roomInfo.ready(Index);
+                context->DLoadingPlayerColors[Index] = static_cast <EPlayerColor> (context->roomInfo.colors(Index));
+            }*/
 
         }
     }
@@ -138,7 +159,7 @@ std::shared_ptr<CApplicationData> context)
 
     // Check for empty player spaces
     // Indices 0 and 1 are Neutral player and the host
-    for (int Index = 2; Index < context->DSelectedMap->PlayerCount(); Index++)
+    for (int Index = 2; Index <= context->DSelectedMap->PlayerCount(); Index++)
     {
         if (false == context->DReadyPlayers[Index])
         {
@@ -536,6 +557,11 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         {
             PlayerNames[Index] = TempString =
             std::to_string(Index) + ". Player " + std::to_string(Index);
+        }
+        else if (CApplicationData::ptHuman ==
+                 context->DLoadingPlayerTypes[Index] && "None" != context->DPlayerNames[Index])
+        {
+            PlayerNames[Index] = TempString = std::to_string(Index) + ". " + context->DPlayerNames[Index];
         }
         context
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]

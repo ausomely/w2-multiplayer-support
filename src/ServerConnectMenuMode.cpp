@@ -60,7 +60,7 @@ void CServerConnectMenuMode::JoinButtonCallback(
     context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
     context->ClientPointer->io_service.run();
 
-    context->ClientPointer->StartUpdateRoomInfo(&(context->roomInfo));
+    context->ClientPointer->StartUpdateRoomInfo(context);
     context->ClientPointer->io_service.run_one();
 
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
@@ -113,7 +113,7 @@ void CServerConnectMenuMode::InitializeChange(
     context->roomList.Clear();
 
     // start updating room list
-    context->ClientPointer->StartUpdateRoomList(&(context->roomList));
+    context->ClientPointer->StartUpdateRoomList(context);
 }
 
 // Handle rendering of the game server information and join buttons

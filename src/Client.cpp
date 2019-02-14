@@ -154,21 +154,21 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
     return;
 }
 
-void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
+void Client::UpdateRoomList(std::shared_ptr<CApplicationData> context) {
     bzero(data, BUFFER_SIZE);
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
-        [this, roomList](boost::system::error_code err, std::size_t length) {
+        [this, context](boost::system::error_code err, std::size_t length) {
         if(!err) {
 
             // empty room list
             if(strcmp(data, "Empty") == 0) {
-                roomList->Clear();
-                UpdateRoomList(roomList);
+                context->roomList.Clear();
+                UpdateRoomList(context);
             }
 
             else if(!strcmp(data, "Finish") == 0) {
-                roomList->ParseFromArray(data, length);
-                UpdateRoomList(roomList);
+                context->roomList.ParseFromArray(data, length);
+                UpdateRoomList(context);
             }
             else {
                 std::cout << "Update room list Finish" << std::endl;
@@ -181,16 +181,23 @@ void Client::UpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
     });
 }
 
-void Client::UpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
+void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
     bzero(data, BUFFER_SIZE);
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
-        [this, roomInfo](boost::system::error_code err, std::size_t length) {
+        [this, context](boost::system::error_code err, std::size_t length) {
         if(!err) {
 
             if(!strcmp(data, "Finish") == 0) {
-                roomInfo->ParseFromArray(data, length);
-                std::cout << roomInfo->DebugString() << std::endl;
-                UpdateRoomInfo(roomInfo);
+                context->roomInfo.ParseFromArray(data, length);
+                std::cout << context->roomInfo.DebugString() << std::endl;
+                // copy over room info
+                for(int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++) {
+                    context->DLoadingPlayerTypes[Index] = static_cast <CApplicationData::EPlayerType> (context->roomInfo.types(Index));
+                    context->DPlayerNames[Index] = context->roomInfo.players(Index);
+                    context->DReadyPlayers[Index] = context->roomInfo.ready(Index);
+                    context->DLoadingPlayerColors[Index] = static_cast <EPlayerColor> (context->roomInfo.colors(Index));
+                }
+                UpdateRoomInfo(context);
             }
             else {
                 std::cout << "Update roominfo Finish" << std::endl;
@@ -249,16 +256,14 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
       */
 }
 
-void Client::StartUpdateRoomList(RoomInfo::RoomInfoPackage* roomList) {
-    //io_service.post(boost::bind(&Client::UpdateRoomList, shared_from_this(), roomList));
+void Client::StartUpdateRoomList(std::shared_ptr<CApplicationData> context) {
     io_service.reset();
-    UpdateRoomList(roomList);
+    UpdateRoomList(context);
 }
 
-void Client::StartUpdateRoomInfo(RoomInfo::RoomInformation* roomInfo) {
-    //io_service.post(boost::bind(&Client::UpdateRoomInfo, shared_from_this(), roomInfo));
+void Client::StartUpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
     io_service.reset();
-    UpdateRoomInfo(roomInfo);
+    UpdateRoomInfo(context);
 }
 
 // Close the conenction fromm server
