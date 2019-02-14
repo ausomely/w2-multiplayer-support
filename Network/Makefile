@@ -1,5 +1,5 @@
 CXX=g++
-PROTOC=protoc
+PROTOC=~/bin/protoc
 CFLAGS   +=  -Wall
 CPPFLAGS += -std=c++11
 BOOSTFLAGS += -lboost_system
