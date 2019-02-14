@@ -74,6 +74,32 @@ void CMapSelectionMode::SelectMapButtonCallback(
 
     if (CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
     {
+        context->roomInfo.Clear();
+        // configure room info
+        context->roomInfo.set_host(context->DUsername);
+        context->roomInfo.set_active(false);
+
+        for(auto &It: context->DLoadingPlayerTypes) {
+            context->roomInfo.add_types(to_underlying(It));
+        }
+
+        for(auto &It: context->DLoadingPlayerColors) {
+            context->roomInfo.add_colors(to_underlying(It));
+        }
+
+        for(auto &It: context->DPlayerNames) {
+            context->roomInfo.add_players(It);
+        }
+
+        for(auto &It: context->DReadyPlayers) {
+            context->roomInfo.add_ready(It);
+        }
+
+        context->roomInfo.set_map(context->DSelectedMap->MapName());
+        context->roomInfo.set_size(1);
+        context->roomInfo.set_capacity(context->DSelectedMap->PlayerCount());
+
+        // send room info
         context->ClientPointer->SendRoomInfo(context);
     }
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());

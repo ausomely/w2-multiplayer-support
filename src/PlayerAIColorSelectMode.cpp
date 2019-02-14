@@ -186,6 +186,10 @@ std::shared_ptr<CApplicationData> context)
     }
 
     // send ready information
+    for (int Index = 2; Index < to_underlying(EPlayerColor::Max); Index++)
+    {
+        context->roomInfo.set_ready(context->DReadyPlayers[Index], Index);
+    }
     context->ClientPointer->SendRoomInfo(context);
 }
 
@@ -268,8 +272,8 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                 // when a player has joiend it shouldn't change the type for that player
                 if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX, CurrentY) &&
                       (context->DLoadingPlayerTypes[Index + 2] != CApplicationData::ptHuman ||
-                       context->DLoadingPlayerTypes[Index + 2] == CApplicationData::ptHuman &&
-                       context->DPlayerNames[Index + 2] == "None"))
+                       (context->DLoadingPlayerTypes[Index + 2] == CApplicationData::ptHuman &&
+                       context->DPlayerNames[Index + 2] == "None")))
                 {
                     DPlayerNumberRequesTypeChange =
                         static_cast<EPlayerNumber>(Index + 2);
@@ -350,6 +354,10 @@ void CPlayerAIColorSelectMode::Calculate(
         // Sync color change to server
         if (context->DGameSessionType == CApplicationData::gstMultiPlayerHost)
         {
+            for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++)
+            {
+                context->roomInfo.set_colors(to_underlying(context->DLoadingPlayerColors[Index]), Index);
+            }
             context->ClientPointer->SendRoomInfo(context);
         }
     }

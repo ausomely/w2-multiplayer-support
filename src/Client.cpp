@@ -113,37 +113,11 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
 
 // send the server the information of the room hosted
 void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
-
-    RoomInfo::RoomInformation roomInfo;
-    roomInfo.set_host(context->DUsername);
-    roomInfo.set_active(false);
-
-    for(auto &It: context->DLoadingPlayerTypes) {
-        roomInfo.add_types(to_underlying(It));
-    }
-
-    for(auto &It: context->DLoadingPlayerColors) {
-        roomInfo.add_colors(to_underlying(It));
-    }
-
-    for(auto &It: context->DPlayerNames) {
-        roomInfo.add_players(It);
-    }
-
-    for(auto &It: context->DReadyPlayers) {
-        roomInfo.add_ready(It);
-    }
-
-    //std::string mapName =
-    roomInfo.set_map(context->DSelectedMap->MapName());
-    roomInfo.set_size(1);
-    roomInfo.set_capacity(context->DSelectedMap->PlayerCount());
-
     // send package to server
     boost::system::error_code err;
     boost::asio::streambuf stream_buffer;
     std::ostream output_stream(&stream_buffer);
-    roomInfo.SerializeToOstream(&output_stream);
+    context->roomInfo.SerializeToOstream(&output_stream);
 
     boost::asio::write(socket, stream_buffer, err);
     if(err) {
@@ -166,7 +140,7 @@ void Client::UpdateRoomList(std::shared_ptr<CApplicationData> context) {
                 UpdateRoomList(context);
             }
 
-            else if(!strcmp(data, "Finish") == 0) {
+            else if(!(strcmp(data, "Finish") == 0)) {
                 context->roomList.ParseFromArray(data, length);
                 UpdateRoomList(context);
             }
@@ -187,7 +161,7 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
         [this, context](boost::system::error_code err, std::size_t length) {
         if(!err) {
 
-            if(!strcmp(data, "Finish") == 0) {
+            if(!(strcmp(data, "Finish") == 0)) {
                 context->roomInfo.ParseFromArray(data, length);
                 std::cout << context->roomInfo.DebugString() << std::endl;
                 // copy over room info
