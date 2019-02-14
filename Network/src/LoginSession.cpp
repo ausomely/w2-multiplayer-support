@@ -23,16 +23,8 @@ std::shared_ptr< Session > LoginSession::Instance(boost::asio::io_service& io_se
     }
     return DLoginSessionPointer;
 }
-/*
-tcp::resolver resolver(io_service);
-tcp::resolver::query query("ecs160.herokuapp.com", "http");
-tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-*/
 
-LoginSession::LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv) : io_service(io_serv), resolver(io_service), query("ecs160.herokuapp.com", "http"), sock(io_serv) {
-    endpoint_iterator = resolver.resolve(query);
-    boost::asio::connect(sock, endpoint_iterator);
-}
+LoginSession::LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv) : io_service(io_serv) { }
 
 void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
@@ -57,21 +49,6 @@ void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
 
             //if authenticated
             StartAuthentication(userPtr);
-/*
-            if(GetAuthentication(userPtr)) {
-                //add name to list of users
-                userPtr->lobby.join(userPtr);
-                //write message to connected client and move to the next session
-                DoWrite(userPtr);
-            }
-
-            //else
-            //send fail and continue reading as login session
-            else {
-                // just call restart to read data again from client
-                Restart(userPtr);
-            }
-            */
         }
 
         //end of connection
@@ -146,14 +123,13 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
     request_stream << json;
 
 
-    boost::asio::async_write(sock,  request,
+    boost::asio::async_write(userPtr->webServerSocket,  request,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket
         if (!err) {
             std::cout << "No error" << std::endl;
             FinishAuthentication(userPtr);
         }
-        //FinishAuthentication(userPtr);
     });
 
 }
@@ -161,7 +137,7 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
 
 void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
 
-  boost::asio::async_read_until(sock, response, "\r\n",
+  boost::asio::async_read_until(userPtr->webServerSocket, response, "\r\n",
       [this, userPtr](boost::system::error_code err, std::size_t length) {
       std::cout << "Reading" << std::endl;
       if (!err) {
