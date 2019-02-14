@@ -16,7 +16,7 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [userPtr](boost::system::error_code err, std::size_t length) {
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
           // goes to InGameSession if receives "Test"
@@ -28,6 +28,15 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->SendFinish();
                 userPtr->currentRoom.lock()->leave(userPtr);
                 userPtr->ChangeSession(AcceptedSession::Instance());
+            }
+
+            // getting room info updates
+            else {
+                RoomInfo::RoomInformation roomInfo;
+                roomInfo.ParseFromArray(userPtr->data, length);
+                userPtr->currentRoom.lock()->CopyRoomInfo(roomInfo);
+                userPtr->currentRoom.lock()->UpdateRoomInfo();
+                DoRead(userPtr);
             }
 
         }

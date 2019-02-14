@@ -185,6 +185,8 @@ std::shared_ptr<CApplicationData> context)
         context->DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
     }
 
+    // send ready information
+    context->ClientPointer->SendRoomInfo(context);
 }
 
 
@@ -263,8 +265,11 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 
                 // If a pointer is over a button's location, then set a flag for
                 // calculate() where the difficulty level is changed.
-                if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX,
-                                                                  CurrentY))
+                // when a player has joiend it shouldn't change the type for that player
+                if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX, CurrentY) &&
+                      (context->DLoadingPlayerTypes[Index + 2] != CApplicationData::ptHuman ||
+                       context->DLoadingPlayerTypes[Index + 2] == CApplicationData::ptHuman &&
+                       context->DPlayerNames[Index + 2] == "None"))
                 {
                     DPlayerNumberRequesTypeChange =
                         static_cast<EPlayerNumber>(Index + 2);
@@ -345,11 +350,7 @@ void CPlayerAIColorSelectMode::Calculate(
         // Sync color change to server
         if (context->DGameSessionType == CApplicationData::gstMultiPlayerHost)
         {
-            // send data
-        }
-        else if (context->DGameSessionType == CApplicationData::gstMultiPlayerClient)
-        {
-            // get data
+            context->ClientPointer->SendRoomInfo(context);
         }
     }
 

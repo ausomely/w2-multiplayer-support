@@ -11,6 +11,11 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     host->id = 1;
 }
 
+void GameRoom::CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
+    roomInfo.CopyFrom(roomInformation);
+}
+
+
 void GameRoom::join(std::shared_ptr<User> user) {
     size++;
     user->id = size;
@@ -18,21 +23,7 @@ void GameRoom::join(std::shared_ptr<User> user) {
     roomInfo.set_players(size, user->name);
     roomInfo.set_size(size);
 
-    // update room info for everyone in the game room
-    boost::asio::streambuf stream_buffer;
-    std::ostream output_stream(&stream_buffer);
-    roomInfo.SerializeToOstream(&output_stream);
-
-    for(auto &It: players) {
-        // sending notification to other players in the room to update room info
-        boost::asio::async_write(It->socket, stream_buffer,
-            [It](boost::system::error_code err, std::size_t ) {
-
-            if (!err) {
-
-            }
-        });
-    }
+    UpdateRoomInfo();
 }
 
 void GameRoom::leave(std::shared_ptr<User> user) {
@@ -60,45 +51,49 @@ void GameRoom::leave(std::shared_ptr<User> user) {
         owner = *players.begin();
         roomInfo.set_host((*players.begin())->name);
 
-        // update room list
-        boost::asio::streambuf stream_buffer;
-        std::ostream output_stream(&stream_buffer);
-        RoomInfo::RoomInfoPackage roomList = user->lobby.GetRoomList();
-        roomList.SerializeToOstream(&output_stream);
-
-        for(auto &It : user->lobby.users) {
-           // sending notification to those in find game session to update room list
-           if(It->currentSession == FindGameSession::Instance()) {
-               boost::asio::async_write(It->socket, stream_buffer,
-                   [It](boost::system::error_code err, std::size_t ) {
-
-                   if (!err) {
-
-                   }
-               });
-           }
-        }
+        UpdateRoomList(user);
     }
 
     else {
+        UpdateRoomList(user);
+    }
+}
 
-        // update room list
-        boost::asio::streambuf stream_buffer;
-        std::ostream output_stream(&stream_buffer);
-        RoomInfo::RoomInfoPackage roomList = user->lobby.GetRoomList();
-        roomList.SerializeToOstream(&output_stream);
-        for(auto &It : user->lobby.users) {
-           // sending notification to those in find game session to update room list
-           if(It->currentSession == FindGameSession::Instance()) {
-               boost::asio::async_write(It->socket, stream_buffer,
-                   [It](boost::system::error_code err, std::size_t ) {
+void GameRoom::UpdateRoomInfo() {
+    // update room info for everyone in the game room
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomInfo.SerializeToOstream(&output_stream);
 
-                   if (!err) {
+    for(auto &It: players) {
+        // sending notification to other players in the room to update room info
+        boost::asio::async_write(It->socket, stream_buffer,
+            [It](boost::system::error_code err, std::size_t ) {
 
-                   }
-               });
-           }
-        }
+            if (!err) {
+
+            }
+        });
+    }
+}
+
+void GameRoom::UpdateRoomList(std::shared_ptr<User> user) {
+    // update room list
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    RoomInfo::RoomInfoPackage roomList = user->lobby.GetRoomList();
+    roomList.SerializeToOstream(&output_stream);
+    for(auto &It : user->lobby.users) {
+       // sending notification to those in find game session to update room list
+       if(It->currentSession == FindGameSession::Instance()) {
+           boost::asio::async_write(It->socket, stream_buffer,
+               [It](boost::system::error_code err, std::size_t ) {
+
+               if (!err) {
+
+               }
+           });
+       }
     }
 }
 

@@ -30,8 +30,11 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         RoomInfo::RoomInformation roomInfo;
     public:
         GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &roomInformation);
+        void CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation);
         void join(std::shared_ptr<User> user);
         void leave(std::shared_ptr<User> user);
+        void UpdateRoomInfo();
+        void UpdateRoomList(std::shared_ptr<User> user);
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
         const RoomInfo::RoomInformation& GetRoomInfo() const;
         void InitializeGame();
