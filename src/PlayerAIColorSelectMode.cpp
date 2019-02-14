@@ -188,7 +188,7 @@ std::shared_ptr<CApplicationData> context)
     // send ready information
     for (int Index = 2; Index < to_underlying(EPlayerColor::Max); Index++)
     {
-        context->roomInfo.set_ready(context->DReadyPlayers[Index], Index);
+        context->roomInfo.set_ready(Index, context->DReadyPlayers[Index]);
     }
     context->ClientPointer->SendRoomInfo(context);
 }
@@ -356,7 +356,7 @@ void CPlayerAIColorSelectMode::Calculate(
         {
             for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++)
             {
-                context->roomInfo.set_colors(to_underlying(context->DLoadingPlayerColors[Index]), Index);
+                context->roomInfo.set_colors(Index, to_underlying(context->DLoadingPlayerColors[Index]));
             }
             context->ClientPointer->SendRoomInfo(context);
         }
