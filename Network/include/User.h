@@ -38,6 +38,7 @@ class User: public std::enable_shared_from_this<User>
         char data[MAX_BUFFER];
         std::string password;
         std::string name; //username associated with session
+        std::string jwt;
         Lobby& lobby; //shared lobby object
         std::weak_ptr<GameRoom> currentRoom;
         std::shared_ptr<Session> currentSession;

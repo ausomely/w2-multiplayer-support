@@ -160,14 +160,33 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
             Restart(userPtr);
           }
 
-          //write message to connected client and move to the next session
-          userPtr->lobby.join(userPtr);
-          DoWrite(userPtr);
-          std::cout << "authenticated\n";
+          GetJwt(userPtr);
       }
   });
 
 }
+
+void LoginSession::GetJwt(std::shared_ptr<User> userPtr) {
+    boost::asio::async_read_until(userPtr->webServerSocket, response, "\r\n\r\n",
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
+            if (!err) {
+                std::istream response_stream(&response);
+                std::string header;
+                while (std::getline(response_stream, header) && header != "\r") {
+                    if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+                        userPtr->jwt = header.substr(22);
+                    }
+
+                }
+
+                std::cout << "JWT for user is: " << userPtr->jwt << "\n";
+                //write message to connected client and move to the next session
+                userPtr->lobby.join(userPtr);
+                DoWrite(userPtr);
+            } 
+        });
+}
+
 
 bool LoginSession::GetAuthentication(std::shared_ptr<User> userPtr) {
 
