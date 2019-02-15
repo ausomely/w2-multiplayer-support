@@ -160,10 +160,20 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
         [this, context](boost::system::error_code err, std::size_t length) {
         if(!err) {
-            if(!(strcmp(data, "Finish") == 0)) {
+            // Set flag for a indication of starting game
+            if(strcmp(data, "StartGame") == 0) {
+                std::string message = "Play";
+                boost::system::error_code err;
+                boost::asio::write(socket, boost::asio::buffer(message.c_str(), BUFFER_SIZE), err);
+                if(!err) {
+                    context->roomInfo.set_active(true);
+                }
+            }
+            else if(!(strcmp(data, "Finish") == 0)) {
                 context->roomInfo.ParseFromArray(data, length);
                 std::cout << context->roomInfo.DebugString() << std::endl;
 
+                // update DPlayerNumber if someone before you left
                 if(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
                     context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
                 }

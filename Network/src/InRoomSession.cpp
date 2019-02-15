@@ -19,8 +19,17 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-          // goes to InGameSession if receives "Test"
-            if(strcmp(userPtr->data, "Test") == 0) {
+            // receives start signal from host, send over all the players in the room
+            if(strcmp(userPtr->data, "StartGame") == 0) {
+                userPtr->currentRoom.lock()->BroadcastStartGame();
+
+                // initialize game
+                userPtr->currentRoom.lock()->InitializeGame();
+                DoRead(userPtr);
+            }
+
+            // let all players go to goes to ingame session
+            else if(strcmp(userPtr->data, "Play") == 0) {
                 userPtr->ChangeSession(InGameSession::Instance());
             }
 
@@ -36,6 +45,8 @@ void InRoomSession::DoRead(std::shared_ptr<User> userPtr) {
                 roomInfo.ParseFromArray(userPtr->data, length);
                 userPtr->currentRoom.lock()->CopyRoomInfo(roomInfo);
                 userPtr->currentRoom.lock()->UpdateRoomInfo();
+                userPtr->currentRoom.lock()->UpdateRoomList(userPtr);
+
                 DoRead(userPtr);
             }
 

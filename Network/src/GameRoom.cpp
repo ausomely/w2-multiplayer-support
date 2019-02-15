@@ -77,8 +77,20 @@ void GameRoom::OrganizeRoomInfo(int index) {
     roomInfo.set_players(size + 1, "None");
     roomInfo.set_ready(size + 1, false);
     roomInfo.set_types(size + 1, roomInfo.types()[index]);
-    
+
     UpdateRoomInfo();
+}
+
+void GameRoom::BroadcastStartGame() {
+    std::string message = "StartGame";
+    for(auto &It: players) {
+        boost::asio::async_write(It->socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
+            [](boost::system::error_code err, std::size_t ) {
+            if (!err) {
+
+            }
+        });
+    }
 }
 
 void GameRoom::UpdateRoomInfo() {

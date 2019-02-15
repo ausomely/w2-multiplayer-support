@@ -982,9 +982,6 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
             context->DPanningSpeed = 1 << PAN_SPEED_SHIFT;
         }
     }
-
-    // serialize packages and send it to server
-  //  context->ClientPointer->SendGameInfo(context);
 }
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
