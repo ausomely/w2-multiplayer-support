@@ -227,7 +227,7 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
 
     bzero(data, BUFFER_SIZE);
     boost::system::error_code err;
-    size_t length =  socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
+    size_t length = socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
     if(!err) {
         GameInfo::PlayerCommandPackage playerCommandPackage;
         playerCommandPackage.ParseFromArray(data,length);

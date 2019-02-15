@@ -1,12 +1,10 @@
 /*
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
-
     All source material (source code, images, sounds, etc.) have been provided
     to University of California, Davis students of course ECS 160 for educational
     purposes. It may not be distributed beyond those enrolled in the course
     without prior permission from the copyright holder.
-
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
     were found freely available via internet sources and have been labeld as
@@ -52,10 +50,6 @@ void CBattleMode::InitializeChange(std::shared_ptr<CApplicationData> context)
     context->DSoundLibraryMixer->StopSong();
     context->DSoundLibraryMixer->PlaySong(
         context->DSoundLibraryMixer->FindSong("game1"), context->DMusicVolume);
-
-    // set tcp_no_delay
-  //  boost::asio::ip::tcp::no_delay option(true);
-    //context->ClientPointer->socket.set_option(option);
 }
 
 //! @brief Handles keyboard and mouse input while the game is running
@@ -68,6 +62,8 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
 
     CurrentX = context->DCurrentX;
     CurrentY = context->DCurrentY;
+
+    SPlayerCommandRequest& request = context->DPlayerCommands[to_underlying(context->DPlayerNumber)];
 
     //! Does things based on current keyboard input
     context->DGameModel->ClearGameEvents();
@@ -198,42 +194,22 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                             context->DPlayerNumber),
                                         ActorTarget))
                                 {
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DAction = KeyLookup->second;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DActors =
-                                        context->DSelectedPlayerAssets;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetNumber = EPlayerNumber::Neutral;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetType = EAssetType::None;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetLocation =
-                                        ActorTarget->Position();
-                                    context->DCurrentAssetCapability =
-                                        EAssetCapabilityType::None;
+                                    request.DAction = KeyLookup->second;
+                                    request.DActors = context->DSelectedPlayerAssets;
+                                    request.DTargetNumber = EPlayerNumber::Neutral;
+                                    request.DTargetType = EAssetType::None;
+                                    request.DTargetLocation = ActorTarget->Position();
+                                    context->DCurrentAssetCapability = EAssetCapabilityType::None;
                                 }
                             }
                             else
                             {
-                                context->DCurrentAssetCapability =
-                                    KeyLookup->second;
+                                context->DCurrentAssetCapability = KeyLookup->second;
                             }
                         }
                         else
                         {
-                            context->DCurrentAssetCapability =
-                                KeyLookup->second;
+                            context->DCurrentAssetCapability = KeyLookup->second;
                         }
                     }
                 }
@@ -283,42 +259,22 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                             context->DPlayerNumber),
                                         ActorTarget))
                                 {
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DAction = KeyLookup->second;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DActors =
-                                        context->DSelectedPlayerAssets;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetNumber = EPlayerNumber::Neutral;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetType = EAssetType::None;
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetLocation =
-                                        ActorTarget->Position();
-                                    context->DCurrentAssetCapability =
-                                        EAssetCapabilityType::None;
+                                    request.DAction = KeyLookup->second;
+                                    request.DActors = context->DSelectedPlayerAssets;
+                                    request.DTargetNumber = EPlayerNumber::Neutral;
+                                    request.DTargetType = EAssetType::None;
+                                    request.DTargetLocation = ActorTarget->Position();
+                                    context->DCurrentAssetCapability = EAssetCapabilityType::None;
                                 }
                             }
                             else
                             {
-                                context->DCurrentAssetCapability =
-                                    KeyLookup->second;
+                                context->DCurrentAssetCapability = KeyLookup->second;
                             }
                         }
                         else
                         {
-                            context->DCurrentAssetCapability =
-                                KeyLookup->second;
+                            context->DCurrentAssetCapability = KeyLookup->second;
                         }
                     }
                 }
@@ -330,6 +286,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     context->DMenuButtonState = CButtonRenderer::EButtonState::None;
     CApplicationData::EUIComponentType ComponentType =
         context->FindUIComponentType(CPixelPosition(CurrentX, CurrentY));
+
 
     /*! Series of checks to see which UI element is selected
      * Check if UI elements such as buttons, player assets, overall game map,
@@ -366,22 +323,11 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                 if (EPlayerNumber::Neutral != PixelType.Number())
                 {
                     //! Command is either walk/deliver, repair, or attack
-
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DAction = EAssetCapabilityType::Move;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetNumber = PixelType.Number();
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetType = PixelType.AssetType();
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DActors = context->DSelectedPlayerAssets;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetLocation = TempPosition;
+                    request.DAction = EAssetCapabilityType::Move;
+                    request.DTargetNumber = PixelType.Number();
+                    request.DTargetType = PixelType.AssetType();
+                    request.DActors = context->DSelectedPlayerAssets;
+                    request.DTargetLocation = TempPosition;
                     if (PixelType.Number() == context->DPlayerNumber)
                     {
                         bool HaveLumber = false;
@@ -403,55 +349,21 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         }
                         if (HaveGold)
                         {
-                            if ((EAssetType::TownHall ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType) ||
-                                (EAssetType::Keep ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType) ||
-                                (EAssetType::Castle ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType))
+                            if ((EAssetType::TownHall == request.DTargetType) ||
+                                (EAssetType::Keep == request.DTargetType) ||
+                                (EAssetType::Castle == request.DTargetType))
                             {
-                                context
-                                    ->DPlayerCommands[to_underlying(
-                                        context->DPlayerNumber)]
-                                    .DAction = EAssetCapabilityType::Convey;
+                                request.DAction = EAssetCapabilityType::Convey;
                             }
                         }
                         else if (HaveLumber)
                         {
-                            if ((EAssetType::TownHall ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType) ||
-                                (EAssetType::Keep ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType) ||
-                                (EAssetType::Castle ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType) ||
-                                (EAssetType::LumberMill ==
-                                 context
-                                     ->DPlayerCommands[to_underlying(
-                                         context->DPlayerNumber)]
-                                     .DTargetType))
+                            if ((EAssetType::TownHall == request.DTargetType) ||
+                                (EAssetType::Keep == request.DTargetType) ||
+                                (EAssetType::Castle == request.DTargetType) ||
+                                (EAssetType::LumberMill == request.DTargetType))
                             {
-                                context
-                                    ->DPlayerCommands[to_underlying(
-                                        context->DPlayerNumber)]
-                                    .DAction = EAssetCapabilityType::Convey;
+                                request.DAction = EAssetCapabilityType::Convey;
                             }
                         }
                         else
@@ -466,22 +378,15 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                 (TargetAsset->MaxHitPoints() >
                                  TargetAsset->HitPoints()))
                             {
-                                context
-                                    ->DPlayerCommands[to_underlying(
-                                        context->DPlayerNumber)]
-                                    .DAction = EAssetCapabilityType::Repair;
+                                request.DAction = EAssetCapabilityType::Repair;
                             }
                         }
                     }
                     else
                     {
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DAction = EAssetCapabilityType::Attack;
+                        request.DAction = EAssetCapabilityType::Attack;
                     }
-                    context->DCurrentAssetCapability =
-                        EAssetCapabilityType::None;
+                    context->DCurrentAssetCapability = EAssetCapabilityType::None;
                 }
                 else
                 {
@@ -490,21 +395,11 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         CPixelPosition(CurrentX, CurrentY)));
                     bool CanHarvest = true;
 
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DAction = EAssetCapabilityType::Move;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetNumber = EPlayerNumber::Neutral;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetType = EAssetType::None;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DActors = context->DSelectedPlayerAssets;
-                    context
-                        ->DPlayerCommands[to_underlying(context->DPlayerNumber)]
-                        .DTargetLocation = TempPosition;
+                    request.DAction = EAssetCapabilityType::Move;
+                    request.DTargetNumber = EPlayerNumber::Neutral;
+                    request.DTargetType = EAssetType::None;
+                    request.DActors = context->DSelectedPlayerAssets;
+                    request.DTargetLocation = TempPosition;
 
                     for (auto &Asset : context->DSelectedPlayerAssets)
                     {
@@ -525,15 +420,8 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         {
                             CTilePosition TempTilePosition;
 
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DAction = EAssetCapabilityType::Mine;
-                            TempTilePosition.SetFromPixel(
-                                context
-                                    ->DPlayerCommands[to_underlying(
-                                        context->DPlayerNumber)]
-                                    .DTargetLocation);
+                            request.DAction = EAssetCapabilityType::Mine;
+                            TempTilePosition.SetFromPixel(request.DTargetLocation);
                             if (CTerrainMap::ETileType::Forest !=
                                 context->DGameModel
                                     ->Player(context->DPlayerNumber)
@@ -548,38 +436,25 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                         ->PlayerMap()
                                         ->TileType(TempTilePosition))
                                 {
-                                    context
-                                        ->DPlayerCommands[to_underlying(
-                                            context->DPlayerNumber)]
-                                        .DTargetLocation.SetFromTile(
-                                            TempTilePosition);
+                                    request.DTargetLocation.SetFromTile(TempTilePosition);
                                 }
                             }
                         }
                         else if (CPixelType::EAssetTerrainType::GoldMine ==
                                  PixelType.Type())
                         {
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DAction = EAssetCapabilityType::Mine;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetType = EAssetType::GoldMine;
+                            request.DAction = EAssetCapabilityType::Mine;
+                            request.DTargetType = EAssetType::GoldMine;
                         }
                     }
-                    context->DCurrentAssetCapability =
-                        EAssetCapabilityType::None;
+                    context->DCurrentAssetCapability = EAssetCapabilityType::None;
                 }
             }
         }
         else if (context->DLeftClick)
         {
-            if ((EAssetCapabilityType::None ==
-                 context->DCurrentAssetCapability) ||
-                (EAssetCapabilityType::BuildSimple ==
-                 context->DCurrentAssetCapability))
+            if ((EAssetCapabilityType::None == context->DCurrentAssetCapability) ||
+                (EAssetCapabilityType::BuildSimple == context->DCurrentAssetCapability))
             {
                 if (context->DLeftDown)
                 {
@@ -719,28 +594,12 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                             context->DGameModel->Player(context->DPlayerNumber)
                                 ->AddGameEvent(TempEvent);
 
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DAction = context->DCurrentAssetCapability;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DActors = context->DSelectedPlayerAssets;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetNumber = PixelType.Number();
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetType = PixelType.AssetType();
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetLocation = TempPosition;
-                            context->DCurrentAssetCapability =
-                                EAssetCapabilityType::None;
+                            request.DAction = context->DCurrentAssetCapability;
+                            request.DActors = context->DSelectedPlayerAssets;
+                            request.DTargetNumber = PixelType.Number();
+                            request.DTargetType = PixelType.AssetType();
+                            request.DTargetLocation = TempPosition;
+                            context->DCurrentAssetCapability = EAssetCapabilityType::None;
                         }
                     }
                     else if (((CPlayerCapability::ETargetType::Terrain ==
@@ -766,28 +625,12 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                             context->DGameModel->Player(context->DPlayerNumber)
                                 ->AddGameEvent(TempEvent);
 
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DAction = context->DCurrentAssetCapability;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DActors = context->DSelectedPlayerAssets;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetNumber = EPlayerNumber::Neutral;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetType = EAssetType::None;
-                            context
-                                ->DPlayerCommands[to_underlying(
-                                    context->DPlayerNumber)]
-                                .DTargetLocation = TempPosition;
-                            context->DCurrentAssetCapability =
-                                EAssetCapabilityType::None;
+                            request.DAction = context->DCurrentAssetCapability;
+                            request.DActors = context->DSelectedPlayerAssets;
+                            request.DTargetNumber = EPlayerNumber::Neutral;
+                            request.DTargetType = EAssetType::None;
+                            request.DTargetLocation = TempPosition;
+                            context->DCurrentAssetCapability = EAssetCapabilityType::None;
                         }
                     }
                     else
@@ -901,28 +744,12 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                             context->DGameModel->Player(context->DPlayerNumber),
                             ActorTarget))
                     {
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DAction = CapabilityType;
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DActors = context->DSelectedPlayerAssets;
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DTargetNumber = EPlayerNumber::Neutral;
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DTargetType = EAssetType::None;
-                        context
-                            ->DPlayerCommands[to_underlying(
-                                context->DPlayerNumber)]
-                            .DTargetLocation = ActorTarget->Position();
-                        context->DCurrentAssetCapability =
-                            EAssetCapabilityType::None;
+                        request.DAction = CapabilityType;
+                        request.DActors = context->DSelectedPlayerAssets;
+                        request.DTargetNumber = EPlayerNumber::Neutral;
+                        request.DTargetType = EAssetType::None;
+                        request.DTargetLocation = ActorTarget->Position();
+                        context->DCurrentAssetCapability = EAssetCapabilityType::None;
                     }
                 }
                 else
@@ -942,6 +769,53 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                         ? CButtonRenderer::EButtonState::Pressed
                                         : CButtonRenderer::EButtonState::Hover;
     }
+
+    //Handles Unit Grouping
+    //Key 0 - 6 will add to groups 1 - 5 respectively and keys 1-5 will select groups 1-5
+    //I tried doing shift 0-9 to add and just 0-9 to select but for some reason it hardly ever works
+        for(auto key : context->DPressedKeys)
+        {
+            /*Add to groups*/
+                if(SGUIKeyType::Key6 == key){ //Group 1
+                    context->DUnitGroups->AddUnits(context->DSelectedPlayerAssets,1);
+                    break;
+                }else if(SGUIKeyType::Key7 == key){ //Group 2
+                    context->DUnitGroups->AddUnits(context->DSelectedPlayerAssets,2);
+                    break;
+                }else if(SGUIKeyType::Key8 == key){ //Group 3
+                    context->DUnitGroups->AddUnits(context->DSelectedPlayerAssets,3);
+                    break;
+                }else if(SGUIKeyType::Key9 == key){//Group 4
+                    context->DUnitGroups->AddUnits(context->DSelectedPlayerAssets,4);
+                    break;
+                }else if(SGUIKeyType::Key0 == key){//Group 5
+                    context->DUnitGroups->AddUnits(context->DSelectedPlayerAssets,5);
+                    break;
+                }
+            /*Select Groups*/
+                 if(SGUIKeyType::Key1 == key){
+                    context->DSelectedPlayerAssets = context->DUnitGroups->GetGroup(1);
+                    break;
+                }else if(SGUIKeyType::Key2 == key){
+                    context->DSelectedPlayerAssets = context->DUnitGroups->GetGroup(2);
+                    break;
+                }else if(SGUIKeyType::Key3 == key){
+                    context->DSelectedPlayerAssets = context->DUnitGroups->GetGroup(3);
+                    break;
+                }else if(SGUIKeyType::Key4 == key){
+                    context->DSelectedPlayerAssets = context->DUnitGroups->GetGroup(4);
+                    break;
+                }else if(SGUIKeyType::Key5 == key){
+                    context->DSelectedPlayerAssets = context->DUnitGroups->GetGroup(5);
+                    break;
+                }
+            /*Remove selected from groups*/
+                if(SGUIKeyType::BackSpace == key){
+                    context->DUnitGroups->RemoveUnits(context->DSelectedPlayerAssets);
+                }
+            }
+
+
 
     if (!Panning)
     {
@@ -982,16 +856,17 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
             context->DPanningSpeed = 1 << PAN_SPEED_SHIFT;
         }
     }
-}
 
-void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
-{
+    // communicate with server if this is a multiplayer game
     if (CApplicationData::gstMultiPlayerClient == context->DGameSessionType ||
         CApplicationData::gstMultiPlayerHost == context->DGameSessionType) {
         context->ClientPointer->SendGameInfo(context);
         context->ClientPointer->GetGameInfo(context);
     }
+}
 
+void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
+{
     //! If Menu button pressed switch to in-game options screen
     if (CButtonRenderer::EButtonState::Pressed == context->DMenuButtonState)
     {
@@ -1229,6 +1104,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         TempRectangle.DXPosition = TempPosition.X();
         TempRectangle.DYPosition = TempPosition.Y();
     }
+
     for (int YPos = 0; YPos < BufferHeight;
          YPos += context->DBackgroundTileset->TileHeight())
     {
@@ -1240,7 +1116,6 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         }
     }
 
-    // Draws resource surface with resources on the top
     context->DInnerBevel->DrawBevel(
         context->DWorkingBufferSurface, context->DViewportXOffset,
         context->DViewportYOffset, ViewWidth, ViewHeight);
@@ -1248,6 +1123,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         context->DWorkingBufferSurface, context->DMiniMapXOffset,
         context->DMiniMapYOffset, MiniMapWidth, MiniMapHeight);
 
+    // Draws resource surface with resources on the top
     context->DResourceSurface->Draw(context->DWorkingBufferSurface, 0, 0,
                                     ResourceWidth, ResourceHeight,
                                     context->DViewportXOffset, 0);
@@ -1255,10 +1131,10 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     context->DWorkingBufferSurface->Draw(
         context->DResourceSurface, context->DViewportXOffset, 0, -1, -1, 0, 0);
 
+    // Draws the unit description box on the left
     context->DOuterBevel->DrawBevel(
         context->DWorkingBufferSurface, context->DUnitDescriptionXOffset,
         context->DUnitDescriptionYOffset, DescriptionWidth, DescriptionHeight);
-
     context->DUnitDescriptionSurface->Draw(context->DWorkingBufferSurface, 0, 0,
                                            DescriptionWidth, DescriptionHeight,
                                            context->DUnitDescriptionXOffset,
@@ -1268,6 +1144,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     context->DWorkingBufferSurface->Draw(
         context->DUnitDescriptionSurface, context->DUnitDescriptionXOffset,
         context->DUnitDescriptionYOffset, -1, -1, 0, 0);
+
     // Action buttons of the unit box on the bottom left of the screen
     context->DOuterBevel->DrawBevel(
         context->DWorkingBufferSurface, context->DUnitActionXOffset,
@@ -1297,6 +1174,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         context->DCurrentAssetCapability);
     context->DMiniMapRenderer->DrawMiniMap(context->DMiniMapSurface);
 
+
     context->DWorkingBufferSurface->Draw(
         context->DMiniMapSurface, context->DMiniMapXOffset,
         context->DMiniMapYOffset, -1, -1, 0, 0);
@@ -1308,12 +1186,11 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         context->DWorkingBufferSurface, context->DMenuButtonXOffset,
         context->DMenuButtonYOffset, context->DMenuButtonState);
 
-
     //These lines handle notification renderering. DO NOT CHANGE ANYTHING if you don't know exactly what you are doing.
     context->DNotificationRenderer->AddNotification(std::to_string(context->DNotificationRenderer->IncTime()));
 
     context->DNotificationRendererSurface->Draw(context->DWorkingBufferSurface,0,0,context->DNotificationRendererSurface->Width(),
-        context->DNotificationRendererSurface->Height(),context->DViewportXOffset, BufferHeight - (ViewHeight / 4));
+         context->DNotificationRendererSurface->Height(),context->DViewportXOffset, BufferHeight - (ViewHeight / 4));
 
     context->DNotificationRenderer->DrawNotifications(context->DNotificationRendererSurface);
 
@@ -1342,8 +1219,10 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
                 context->DWorkingBufferSurface->Draw(
                     context->DButtonDescriptionSurface, context->DViewportXOffset,
                     BufferHeight - ButtonDescriptionHeight, -1, -1, 0, 0);
-                }
+
+
             }
+        }
         case CApplicationData::uictViewport:
         {
             CPixelPosition ViewportCursorLocation =
@@ -1450,7 +1329,7 @@ std::shared_ptr<CApplicationMode> CBattleMode::Instance()
     if (DBattleModePointer == nullptr)
     {
         DBattleModePointer =
-        std::make_shared<CBattleMode>(SPrivateConstructorType{});
+            std::make_shared<CBattleMode>(SPrivateConstructorType{});
     }
     return DBattleModePointer;
 }

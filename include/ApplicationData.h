@@ -35,6 +35,7 @@
 #include "ViewportRenderer.h"
 #include "ButtonDescriptionRenderer.h"
 #include "NotificationRenderer.h"
+#include "UnitGrouping.h"
 #include "RoomInfo.pb.h"
 #include "Client.h"
 
@@ -247,6 +248,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     bool DLeftDown;
     bool DRightDown;
     CButtonRenderer::EButtonState DMenuButtonState;
+    std::shared_ptr<CUnitGrouping> DUnitGroups; 
 
     static void ActivateCallback(TGUICalldata data);
     static bool TimeoutCallback(TGUICalldata data);

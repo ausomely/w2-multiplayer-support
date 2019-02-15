@@ -96,6 +96,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/UnitActionRenderer.o             \
     $(OBJ_DIR)/UnitDescriptionRenderer.o        \
     $(OBJ_DIR)/UnitUpgradeCapabilities.o        \
+		$(OBJ_DIR)/UnitGrouping.o                   \
 		$(OBJ_DIR)/ButtonDescriptionRenderer.o      \
     $(OBJ_DIR)/ViewportRenderer.o               \
     $(OBJ_DIR)/VisibilityMap.o									\
