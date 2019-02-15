@@ -105,19 +105,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
 
             *context->DSelectedMap =
                 *CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(context->roomInfo.map()));
-
-            // find the DPlayerNumber
-            for(int Index = 2; Index < to_underlying(EPlayerColor::Max); Index++) {
-                if(context->roomInfo.players(Index) == "None") {
-                    context->DPlayerNumber = static_cast <EPlayerNumber> (Index - 1);
-                    break;
-                }
-
-                // last one in the room of maximum number
-                else if(Index == to_underlying(EPlayerColor::Max) - 1) {
-                    context->DPlayerNumber = static_cast <EPlayerNumber> (Index);
-                }
-            }
         }
     }
 
@@ -192,6 +179,7 @@ std::shared_ptr<CApplicationData> context)
     {
         int PlayerNumber = to_underlying(context->DPlayerNumber);
 
+        context->roomList.Clear();
         // Notify game server
         context->ClientPointer->SendMessage("Leave");
         context->ClientPointer->io_service.run();

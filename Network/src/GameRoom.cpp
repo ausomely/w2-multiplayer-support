@@ -71,19 +71,13 @@ void GameRoom::OrganizeRoomInfo(int index) {
         roomInfo.set_ready(i, roomInfo.ready()[i + 1]);
         roomInfo.set_types(i, roomInfo.types()[i + 1]);
         players[i - 1]->id--;
-        boost::asio::async_write(players[i - 1]->socket, boost::asio::buffer("DecreaseID", MAX_BUFFER),
-            [](boost::system::error_code err, std::size_t ) {
-
-            if (!err) {
-
-            }
-        });
     }
 
     // set the last one info
     roomInfo.set_players(size + 1, "None");
     roomInfo.set_ready(size + 1, false);
     roomInfo.set_types(size + 1, roomInfo.types()[index]);
+    
     UpdateRoomInfo();
 }
 

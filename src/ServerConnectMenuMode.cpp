@@ -63,6 +63,9 @@ void CServerConnectMenuMode::JoinButtonCallback(
     context->ClientPointer->StartUpdateRoomInfo(context);
     context->ClientPointer->io_service.run_one();
 
+    // set DPlayerNumber
+    context->DPlayerNumber = static_cast <EPlayerNumber> (context->roomInfo.size());
+
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 
