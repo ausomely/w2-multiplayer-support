@@ -18,7 +18,7 @@
 #include <unordered_map>
 #include "Debug.h"
 #include "UnitGrouping.h"
-static std::unordered_map<int, std::shared_ptr<CPlayerAsset>> umap;
+std::unordered_map<int, std::shared_ptr<CPlayerAsset>> CPlayerData::umap;
 
 int RangeToDistanceSquared(int range)
 {

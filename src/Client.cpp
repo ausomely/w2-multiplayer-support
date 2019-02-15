@@ -231,7 +231,28 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
     if(!err) {
         GameInfo::PlayerCommandPackage playerCommandPackage;
         playerCommandPackage.ParseFromArray(data,length);
-        std::cerr << playerCommandPackage.DebugString() << std::endl;
+        std::cout << playerCommandPackage.DebugString() << std::endl;
+
+        // set player commands
+        for(int Index = 1; Index <= context->roomInfo.size(); Index++) {
+              GameInfo::PlayerCommandRequest playerCommand = playerCommandPackage.dplayercommand()[Index - 1];
+              int playerNumber = playerCommand.playernum();
+
+              context->DPlayerCommands[playerNumber].DAction = static_cast <EAssetCapabilityType> (playerCommand.daction());
+              context->DPlayerCommands[playerNumber].DTargetNumber = static_cast <EPlayerNumber> (playerCommand.dtargetnumber());
+              context->DPlayerCommands[playerNumber].DTargetType = static_cast <EAssetType> (playerCommand.dtargettype());
+              context->DPlayerCommands[playerNumber].DTargetLocation.X(playerCommand.dtargetlocation().dx());
+              context->DPlayerCommands[playerNumber].DTargetLocation.Y(playerCommand.dtargetlocation().dy());
+
+              std::list<std::weak_ptr<CPlayerAsset> > DActors;
+              // add actors using umap
+              for(int i = 0; i < playerCommand.dactors().size(); i++) {
+                  DActors.push_back(CPlayerData::umap[playerCommand.dactors()[i]]);
+              }
+              context->DPlayerCommands[playerNumber].DActors = DActors;
+        }
+
+
     }
 
         //context->

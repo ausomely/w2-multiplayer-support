@@ -71,6 +71,8 @@ class CPlayerData
     CPlayerData(std::shared_ptr<CAssetDecoratedMap> map, EPlayerNumber number,
                 EPlayerColor color);
 
+    static std::unordered_map<int, std::shared_ptr<CPlayerAsset>> umap;
+
     int GameCycle() const
     {
         return DGameCycle;
