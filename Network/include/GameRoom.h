@@ -1,7 +1,7 @@
 #ifndef GAMEROOM_H
 #define GAMEROOM_H
 
-#include <set>
+#include <vector>
 #include <string>
 #include <memory>
 #include "GameInfo.pb.h"
@@ -21,7 +21,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
            the name of the map
     */
     protected:
-        std::set< std::shared_ptr<User> > players;
+        std::vector< std::shared_ptr<User> > players;
         std::shared_ptr<User> owner;
         int capacity;
         int size;
@@ -33,6 +33,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         void CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation);
         void join(std::shared_ptr<User> user);
         void leave(std::shared_ptr<User> user);
+        void OrganizeRoomInfo(int index);
         void UpdateRoomInfo();
         void UpdateRoomList(std::shared_ptr<User> user);
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);

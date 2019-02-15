@@ -7,7 +7,7 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     : capacity(roomInformation.capacity()), size(1), map(roomInformation.map()) {
     owner = host;
     roomInfo.CopyFrom(roomInformation);
-    players.insert(owner);
+    players.push_back(owner);
     host->id = 1;
 }
 
@@ -19,7 +19,7 @@ void GameRoom::CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
 void GameRoom::join(std::shared_ptr<User> user) {
     size++;
     user->id = size;
-    players.insert(user);
+    players.push_back(user);
     roomInfo.set_players(size, user->name);
     roomInfo.set_size(size);
 
@@ -29,9 +29,8 @@ void GameRoom::join(std::shared_ptr<User> user) {
 void GameRoom::leave(std::shared_ptr<User> user) {
     size--;
     roomInfo.set_size(size);
-    players.erase(user);
-    roomInfo.set_players(user->id, "None");
-    user->id = -1;
+    players.erase(std::remove(players.begin(), players.end(), user), players.end());
+
     if (size == 0) {
         user->lobby.RemoveRoom(user->currentRoom.lock());
         for(auto &It : user->lobby.users) {
@@ -50,13 +49,42 @@ void GameRoom::leave(std::shared_ptr<User> user) {
     else if (user == owner) {
         owner = *players.begin();
         roomInfo.set_host((*players.begin())->name);
-
+        OrganizeRoomInfo(user->id);
         UpdateRoomList(user);
     }
 
     else {
+        OrganizeRoomInfo(user->id);
         UpdateRoomList(user);
     }
+
+    // marked the user as left
+    user->id = -1;
+}
+
+// organize the room info when someone left
+void GameRoom::OrganizeRoomInfo(int index) {
+
+    // move the players up to fill the spot
+    for(int i = index; i <= size; i++) {
+        roomInfo.set_players(i, roomInfo.players()[i + 1]);
+        roomInfo.set_ready(i, roomInfo.ready()[i + 1]);
+        roomInfo.set_types(i, roomInfo.types()[i + 1]);
+        players[i - 1]->id--;
+        boost::asio::async_write(players[i - 1]->socket, boost::asio::buffer("DecreaseID", MAX_BUFFER),
+            [](boost::system::error_code err, std::size_t ) {
+
+            if (!err) {
+
+            }
+        });
+    }
+
+    // set the last one info
+    roomInfo.set_players(size + 1, "None");
+    roomInfo.set_ready(size + 1, false);
+    roomInfo.set_types(size + 1, roomInfo.types()[index]);
+    UpdateRoomInfo();
 }
 
 void GameRoom::UpdateRoomInfo() {
@@ -71,7 +99,6 @@ void GameRoom::UpdateRoomInfo() {
             [It](boost::system::error_code err, std::size_t ) {
 
             if (!err) {
-
             }
         });
     }

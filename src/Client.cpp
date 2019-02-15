@@ -160,8 +160,11 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
     socket.async_read_some(boost::asio::buffer(data, BUFFER_SIZE),
         [this, context](boost::system::error_code err, std::size_t length) {
         if(!err) {
-
-            if(!(strcmp(data, "Finish") == 0)) {
+            if(strcmp(data, "DecreaseID") == 0) {
+                context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
+                UpdateRoomInfo(context);
+            }
+            else if(!(strcmp(data, "Finish") == 0)) {
                 context->roomInfo.ParseFromArray(data, length);
                 std::cout << context->roomInfo.DebugString() << std::endl;
                 // copy over room info

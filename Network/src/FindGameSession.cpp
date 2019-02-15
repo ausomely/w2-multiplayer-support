@@ -34,6 +34,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->SendFinish();
                 userPtr->lobby.JoinRoom(userPtr, index);
                 userPtr->ChangeSession(InRoomSession::Instance());
+                userPtr->currentRoom.lock()->UpdateRoomList(userPtr);
             }
         }
 

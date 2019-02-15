@@ -118,15 +118,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
                     context->DPlayerNumber = static_cast <EPlayerNumber> (Index);
                 }
             }
-
-            /*// copy over room info
-            for(int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++) {
-                context->DLoadingPlayerTypes[Index] = static_cast <CApplicationData::EPlayerType> (context->roomInfo.types(Index));
-                context->DPlayerNames[Index] = context->roomInfo.players(Index);
-                context->DReadyPlayers[Index] = context->roomInfo.ready(Index);
-                context->DLoadingPlayerColors[Index] = static_cast <EPlayerColor> (context->roomInfo.colors(Index));
-            }*/
-
         }
     }
 
@@ -199,6 +190,9 @@ std::shared_ptr<CApplicationData> context)
 {
     if (CApplicationData::gstSinglePlayer != context->DGameSessionType)
     {
+        int PlayerNumber = to_underlying(context->DPlayerNumber);
+
+        // Notify game server
         context->ClientPointer->SendMessage("Leave");
         context->ClientPointer->io_service.run();
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
@@ -245,11 +239,13 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                         (CApplicationData::gstMultiPlayerClient !=
                          context->DGameSessionType))
                     {
+                        /*
                         if ((PlayerSelecting ==
                              to_underlying(context->DPlayerNumber)) ||
                             (CApplicationData::ptHuman !=
                              context->DLoadingPlayerTypes[PlayerSelecting]))
                         {
+                        */
                             // Track which player number is requesting the color change
                             DPlayerNumberRequestingChange =
                                 static_cast<EPlayerNumber>(PlayerSelecting);
@@ -257,7 +253,7 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                             // Track the color change request
                             DPlayerColorChangeRequest =
                                 static_cast<EPlayerColor>(ColorSelecting);
-                        }
+                        //}
                     }
                 }
             }
@@ -459,7 +455,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     int ColumnWidth, RowHeight;
     int MiniMapWidth, MiniMapHeight, MiniMapCenter, MiniMapLeft;
     int TextTop, ButtonLeft, ButtonTop, AIButtonLeft, ColorButtonHeight;
-    int GoldColor, WhiteColor, ShadowColor;
+    int GoldColor, WhiteColor, ShadowColor, RedColor;
     std::string TempString;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> PlayerNames;
     CButtonRenderer::EButtonState ButtonState =
@@ -487,6 +483,10 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     context
     ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
     ->FindColor("black");
+    RedColor =
+    context
+    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
+    ->FindColor("red");
 
     // Get the width and the height of the mini map
     MiniMapWidth = context->DMiniMapSurface->Width();
@@ -599,6 +599,26 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     // Draw rows of color buttons for each player in the game
     for (int Index = 1; Index <= context->DSelectedMap->PlayerCount(); Index++)
     {
+        int ActivationColor;
+        int PlayerNumber = to_underlying(context->DPlayerNumber);
+
+        // First check is for multiplayer
+        // If player has committed to the game, use activation color for name
+        if (context->DReadyPlayers[Index])
+        {
+            ActivationColor = RedColor;
+        }
+        // Otherwise, color the current player's name to stand out from others
+        else if (Index == PlayerNumber)
+        {
+            ActivationColor = GoldColor;
+        }
+        // Color all other players generically
+        else
+        {
+            ActivationColor = WhiteColor;
+        }
+
         TempString = PlayerNames[Index];
         context
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
@@ -607,9 +627,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
         ->DrawTextWithShadow(
         context->DWorkingBufferSurface, context->DBorderWidth, TextTop,
-        Index == to_underlying(context->DPlayerNumber) ? GoldColor
-                                                       : WhiteColor,
-        ShadowColor, 1, TempString);
+        ActivationColor, ShadowColor, 1, TempString);
 
         // Iterate over all the possible player colors
         for (int ColorIndex = 1; ColorIndex < to_underlying(EPlayerColor::Max);
@@ -774,7 +792,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
     ->DrawTextWithShadow(
     context->DWorkingBufferSurface, ButtonLeft + 7, ButtonTop - 50,
-    GoldColor, ShadowColor, 1, TempString);
+    RedColor, ShadowColor, 1, TempString);
 
 
     // Set initial button state
