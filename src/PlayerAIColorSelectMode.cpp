@@ -388,7 +388,6 @@ void CPlayerAIColorSelectMode::Calculate(
                     context->DLoadingPlayerTypes[to_underlying(
                         DPlayerNumberRequesTypeChange)] =
                         CApplicationData::ptAIEasy;
-                    context->roomInfo.set_size(context->roomInfo.size() + 1);
                     context->roomInfo.set_ready(to_underlying(DPlayerNumberRequesTypeChange),
                         true);
                     break;
@@ -412,7 +411,6 @@ void CPlayerAIColorSelectMode::Calculate(
                     context->DLoadingPlayerTypes[to_underlying(
                         DPlayerNumberRequesTypeChange)] =
                         CApplicationData::ptNone;
-                    context->roomInfo.set_size(context->roomInfo.size() - 1);
                     context->roomInfo.set_capacity(context->roomInfo.capacity() - 1);
                     break;
                 // For all types that don't have a case, set that player type

@@ -94,7 +94,6 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined in game session" << std::endl;
-    userPtr->currentRoom.lock()->InitializeGame();
     // set tcp_no_delay for sending data
     boost::asio::ip::tcp::no_delay option(true);
     userPtr->socket.set_option(option);

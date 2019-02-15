@@ -21,7 +21,10 @@ void GameRoom::join(std::shared_ptr<User> user) {
     user->id = size;
     players.push_back(user);
     roomInfo.set_players(size, user->name);
+    roomInfo.set_types(size, 1);
+    roomInfo.set_ready(size, false);
     roomInfo.set_size(size);
+
 
     UpdateRoomInfo();
 }
@@ -76,7 +79,7 @@ void GameRoom::OrganizeRoomInfo(int index) {
     // set the last one info
     roomInfo.set_players(size + 1, "None");
     roomInfo.set_ready(size + 1, false);
-    roomInfo.set_types(size + 1, roomInfo.types()[index]);
+    roomInfo.set_types(size + 1, 1);
 
     UpdateRoomInfo();
 }
