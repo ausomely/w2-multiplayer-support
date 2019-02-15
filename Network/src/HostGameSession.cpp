@@ -22,6 +22,7 @@ void HostGameSession::DoRead(std::shared_ptr<User> userPtr) {
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
             if(strcmp(userPtr->data, "Back") == 0) {
+                userPtr->lobby.RemoveRoom(userPtr->currentRoom.lock());
                 userPtr->ChangeSession(AcceptedSession::Instance());
             }
 
