@@ -31,9 +31,6 @@ class User: public std::enable_shared_from_this<User>
     protected:
         boost::asio::io_service& io_service;
         tcp::socket socket;
-        tcp::resolver resolver;
-        tcp::resolver::query query;
-        tcp::resolver::iterator endpoint_iterator;
         tcp::socket webServerSocket;
         char data[MAX_BUFFER];
         std::string password;
@@ -47,6 +44,8 @@ class User: public std::enable_shared_from_this<User>
         User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv);
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
+        void Logout();
+        void ConnectToServer();
 };
 
 #endif

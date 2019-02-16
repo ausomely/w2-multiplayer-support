@@ -2,7 +2,7 @@ CXX=g++
 PROTOC=~/bin/protoc
 CFLAGS   +=  -Wall
 CPPFLAGS += -std=c++11
-BOOSTFLAGS += -lboost_system
+BOOSTFLAGS += -lboost_system -lprotobuf
 PROTOCFLAGS += `pkg-config --cflags --libs protobuf`
 
 INC_DIR = ./include
@@ -27,7 +27,7 @@ SERVER_OBJS = $(OBJ_DIR)/main.o \
         $(OBJ_DIR)/GameInfo.pb.o \
         $(OBJ_DIR)/AcceptedSession.o
 
-all: $(SERVER_NAME)
+all: directories $(SERVER_NAME)
 
 $(SERVER_NAME): $(SERVER_OBJS)
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(SERVER_OBJS) -o $(SERVER_NAME) $(BOOSTFLAGS) $(PROTOCFLAGS)
