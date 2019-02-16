@@ -98,6 +98,7 @@ void LoginSession::Restart(std::shared_ptr<User> userPtr) {
 
 
 void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
+  std::cout << "Starting authentication" << std::endl;
     boost::asio::streambuf request;
     std::ostream request_stream(&request);
 
@@ -137,11 +138,11 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
 
 void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
 
-  boost::asio::async_read_until(userPtr->webServerSocket, response, "\r\n",
+  boost::asio::async_read_until(userPtr->webServerSocket, userPtr->response, "\r\n",
       [this, userPtr](boost::system::error_code err, std::size_t length) {
       std::cout << "Reading" << std::endl;
       if (!err) {
-          std::istream response_stream(&response);
+          std::istream response_stream(&userPtr->response);
           std::string http_version;
           response_stream >> http_version;
           unsigned int status_code;

@@ -40,12 +40,17 @@ class User: public std::enable_shared_from_this<User>
         std::string name; //username associated with session
         Lobby& lobby; //shared lobby object
         std::weak_ptr<GameRoom> currentRoom;
+        boost::asio::streambuf response;
         std::shared_ptr<Session> currentSession;
         int id; // -1 if not in a room
     public:
         User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv);
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
+        void WriteMatchResult(bool win);
+        void ReadMatchResult();
+        void StartPostMap(std::string input);
+        void FinishPostMap();
 };
 
 #endif

@@ -54,5 +54,6 @@ void AcceptedSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void AcceptedSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined Accepted session" << std::endl;
+    userPtr->WriteMatchResult(true);
     DoRead(userPtr);
 }
