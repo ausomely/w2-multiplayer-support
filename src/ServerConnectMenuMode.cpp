@@ -57,16 +57,18 @@ void CServerConnectMenuMode::BackButtonCallback(
 void CServerConnectMenuMode::JoinButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
-    context->ClientPointer->io_service.run();
+    // cannot join when room is full
+    if(context->roomList.roominfo()[context->DSelectedRoomNumber].size() !=
+        context->roomList.roominfo()[context->DSelectedRoomNumber].capacity()) {
+        context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
+        context->ClientPointer->io_service.run();
 
-    context->ClientPointer->StartUpdateRoomInfo(context);
-    context->ClientPointer->io_service.run_one();
+        context->roomInfo = context->roomList.roominfo()[context->DSelectedRoomNumber];
+        // set DPlayerNumber
+        context->DPlayerNumber = static_cast <EPlayerNumber> (context->roomInfo.size() + 1);
 
-    // set DPlayerNumber
-    context->DPlayerNumber = static_cast <EPlayerNumber> (context->roomInfo.size());
-
-    context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
+        context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
+    }
 }
 
 // TODO: Complete this later
