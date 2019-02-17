@@ -137,7 +137,6 @@ std::shared_ptr<CApplicationData> context)
     }
 
     // send ready game start message to server
-    std::cout << "Ready to start" << std::endl;
     context->ClientPointer->SendMessage("StartGame");
 }
 
@@ -182,6 +181,20 @@ std::shared_ptr<CApplicationData> context)
 
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 {
+    // if you become the host!
+    if(context->DPlayerNumber == EPlayerNumber::Player1) {
+        context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
+        DButtonHovered = false;
+        DButtonFunctions.clear();
+        DButtonTexts.clear();
+        DTitle = "Select Team Colors / Player Types";
+        std::string CancelButtonText = "Cancel";
+        DButtonTexts.push_back("Play Game");
+        DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
+        DButtonTexts.push_back(CancelButtonText);
+        DButtonFunctions.push_back(CancelButtonCallback);
+    }
+
     // ready to start game!
     if(context->roomInfo.active()) {
         context->ChangeApplicationMode(CBattleMode::Instance());

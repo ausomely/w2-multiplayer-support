@@ -29,6 +29,12 @@ void AcceptedSession::DoRead(std::shared_ptr<User> userPtr) {
             else if(strcmp(userPtr->data, "Host") == 0) {
                 userPtr->ChangeSession(HostGameSession::Instance());
             }
+
+            // goes back to main menu and log out
+            else if(strcmp(userPtr->data, "Back") == 0) {
+                userPtr->lobby.leave(userPtr);
+                // do log out
+            }
         }
 
         //end of connection
@@ -36,6 +42,7 @@ void AcceptedSession::DoRead(std::shared_ptr<User> userPtr) {
                 (boost::asio::error::connection_reset == err)) {
             //find username in Lobby clients and remove data
             userPtr->lobby.leave(userPtr);
+            // do log out
         }
     });
 }

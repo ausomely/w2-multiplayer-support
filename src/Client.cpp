@@ -276,5 +276,6 @@ void Client::StartUpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
 
 // Close the conenction fromm server
 void Client::CloseConnection(){
+    SendMessage("Back");
     socket.close();
 }

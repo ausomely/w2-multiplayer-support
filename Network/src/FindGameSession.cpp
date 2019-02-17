@@ -16,7 +16,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
     bzero(userPtr->data, MAX_BUFFER);
     userPtr->socket.async_read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER),
-        [this, userPtr](boost::system::error_code err, std::size_t length) {
+        [userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
             // goes back to AcceptedSession if receives "Back"
@@ -55,9 +55,6 @@ void FindGameSession::DoWrite(std::shared_ptr<User> userPtr) {
     boost::asio::streambuf stream_buffer;
     std::ostream output_stream(&stream_buffer);
     roomList.SerializeToOstream(&output_stream);
-
-    size_t length = roomList.ByteSizeLong();
-    roomList.SerializeToArray(userPtr->data, length);
 
     boost::asio::async_write(userPtr->socket, stream_buffer,
         [this, userPtr](boost::system::error_code err, std::size_t ) {

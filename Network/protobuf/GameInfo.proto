@@ -8,57 +8,7 @@ message PlayerCommandRequest {
         required int32 DX = 1;
         required int32 DY = 2;
     }
-
-    /*message SAssetCommand {
-        required int32 DAction= 1; //EAssetAction
-        required int32 DCapability = 2; //EAssetCapabilityType
-        required CPlayerAsset DAssetTarget = 3; //CPlayerAsset
-    }
-
-    message CPlayerAsset {
-        required int32 DID = 1;
-        required int32 DCreationCycle = 2;
-        required int32 DHitPoints = 3;
-        required int32 DGold = 4;
-        required int32 DLumber = 5;
-        required int32 DStep = 6;
-        required int32 DMoveRemainderX = 7;
-        required int32 DMoveRemainderY = 8;
-        required CPixelPosition DPosition = 9; //CPixelPosition
-        required int32 DDirection = 10; //EDirection
-        repeated SAssetCommand DCommands = 11; //vector<SAssetCommand>
-        required CPlayerAssetType DType = 12; //CPlayerAssetType
-    }
-
-    messgae CPlayerAssetType {
-        required string DName = 1;
-        required int32 DType = 2; //EAssetType
-        required int32 DColor = 3; //EPlayerColor
-        required int32 DNumber = 4; //EPlayerNumber
-        repeated bool DCapabilities = 5; //vector<bool>
-        repeated int32 DAssetRequirements = 6; //vector<EAssetType>
-        repeated CPlayerUpgrade DAssetUpgrades = 7; //vector<std::shared_ptr<CPlayerUpgrade> >
-        required int32 DHitPoints;
-        required int32 DArmor;
-        required int32 DSight;
-        required int32 DConstructionSight;
-        required int32 DSize;
-        required int32 DSpeed;
-        required int32 DGoldCost;
-        required int32 DLumberCost;
-        required int32 DFoodConsumption;
-        required int32 DBuildTime;
-        required int32 DAttackSteps;
-        required int32 DReloadSteps;
-        required int32 DBasicDamage;
-        required int32 DPiercingDamage;
-        required int32 DRange;
-    }
-
-    message CPlayerUpgrade {
-
-    }*/
-
+    
     required int32 DAction = 1; //EAssetCapabilityType
     required int32 DTargetNumber= 2; //EPlayerNumber
     required int32 DTargetType = 3; //EAssetType
