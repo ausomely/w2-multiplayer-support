@@ -75,6 +75,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
+            // start updating roominfo
             context->ClientPointer->StartUpdateRoomInfo(context);
         }
         break;
@@ -85,8 +86,8 @@ void CPlayerAIColorSelectMode::InitializeChange(
             DButtonTexts.push_back("I'm Ready!");
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
 
-            // Query game server for player number
-            context->ClientPointer->io_service.reset();
+            // start updating roominfo
+            context->ClientPointer->StartUpdateRoomInfo(context);
 
             context->DSelectedMapIndex = 0;
             context->DSelectedMap = CAssetDecoratedMap::DuplicateMap(0);
