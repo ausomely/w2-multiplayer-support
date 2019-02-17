@@ -48,6 +48,7 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 
         void FinishAuthentication(std::shared_ptr<User> userPtr);
 
+        void GetJwt(std::shared_ptr<User> userPtr);
 };
 
 #endif

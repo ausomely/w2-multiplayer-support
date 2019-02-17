@@ -45,8 +45,6 @@ void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
             //testing if we got the password!
             std::cout << "Password for " << userPtr->name << " is " << userPtr->password << std::endl;
 
-            //TODO: send authentication request to web server
-
             //if authenticated
             StartAuthentication(userPtr);
         }
@@ -122,7 +120,8 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
     request_stream << "Content-Length: " << json.length() << "\r\n";
     request_stream << "Connection: close\r\n\r\n";  //NOTE THE Double line feed
     request_stream << json;
-
+    
+    userPtr->ConnectToServer();
 
     boost::asio::async_write(userPtr->webServerSocket,  request,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
@@ -160,15 +159,48 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
             std::cout << "Response returned with status code " << status_code << "\n";
             Restart(userPtr);
           }
-
-          //write message to connected client and move to the next session
-          userPtr->lobby.join(userPtr);
-          DoWrite(userPtr);
-          std::cout << "authenticated\n";
+          //read rest of response header for jwt
+          GetJwt(userPtr);
       }
   });
 
 }
+
+//extract the JWT from login response on authentication success
+void LoginSession::GetJwt(std::shared_ptr<User> userPtr) {
+    boost::asio::async_read_until(userPtr->webServerSocket, response, "\r\n\r\n",
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
+            if (!err) {
+                std::istream response_stream(&response);
+                std::string header;
+                //read header information until authorization line
+                std::cout << "Reading for jwt\n" << std::endl;
+                while (std::getline(response_stream, header) && header != "\r") {
+                     std::cout << header << std::endl;
+                     if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+                        //extract jwt from authorization line
+                        userPtr->jwt = header.substr(22);
+                        
+                        //remove carriage return and newline in extracted substr
+                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
+                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
+                        break;
+                    }
+
+                }
+                 
+                //add user to lobby
+                userPtr->lobby.join(userPtr);
+
+                //close the user's connection to web server
+                userPtr->webServerSocket.close();
+
+                //send successful authentication to user
+                DoWrite(userPtr);
+            } 
+        });
+}
+
 
 bool LoginSession::GetAuthentication(std::shared_ptr<User> userPtr) {
 
