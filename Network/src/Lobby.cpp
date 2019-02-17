@@ -49,11 +49,7 @@ void Lobby::AddRoom(std::shared_ptr<GameRoom> room) {
 
 //remove a game room from the list
 void Lobby::RemoveRoom(std::shared_ptr<GameRoom> room) {
-    for (auto It = gameRooms.begin(); It != gameRooms.end();) {
-        if(*It == room) {
-            gameRooms.erase(It);
-        }
-    }
+    gameRooms.erase(std::remove(gameRooms.begin(), gameRooms.end(), room), gameRooms.end());
 }
 
 //get a protobuf package list of rooms info from the set of gameRooms
