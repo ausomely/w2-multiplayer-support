@@ -12,11 +12,10 @@ using boost::property_tree::write_json;
 
 User::User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv)
     : socket(std::move(socket_)), lobby(lobby_), id(-1), io_service(io_serv), webServerSocket(io_serv)  {
-//    ConnectToServer();
 }
 
 void User::InitializeSession() {
-    currentSession = LoginSession::Instance(io_service);
+    currentSession = LoginSession::Instance();
     currentSession->Start(shared_from_this());
 }
 
@@ -47,7 +46,6 @@ void User::WriteMatchResult(bool win){
       std::string json = buf.str();
 
       std::cout << json << std::endl;
-
       // Write header
       request_stream << "POST /match.json/ HTTP/1.1\r\n";
       request_stream << "Host:" << "ecs160.herokuapp.com." << "\r\n";
@@ -161,7 +159,7 @@ void User::Logout() {
 
     //write delete request to web server
     boost::asio::async_write(webServerSocket,  request,
-        [this](boost::system::error_code err, std::size_t ) {
+        [](boost::system::error_code err, std::size_t ) {
         if (!err) {
             std::cout << "No error on logout" << std::endl;
         }

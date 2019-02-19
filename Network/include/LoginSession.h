@@ -18,16 +18,14 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         struct SPrivateSessionType{};
     protected:
         static std::shared_ptr< Session > DLoginSessionPointer;
-        boost::asio::io_service& io_service;
-        boost::asio::streambuf response;
     public:
 
-        LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv);
+        LoginSession(const SPrivateSessionType &key);
 
-        ~LoginSession() {std::cout << "Session destroyed" << std::endl;}
+        //~LoginSession() {std::cout << "Session destroyed" << std::endl;}
 
         //static std::shared_ptr< Session > Instance();
-        static std::shared_ptr< Session > Instance(boost::asio::io_service& io_serv);
+        static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
         void DoRead(std::shared_ptr<User> userPtr);
@@ -47,8 +45,6 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         void StartAuthentication(std::shared_ptr<User> userPtr);
 
         void FinishAuthentication(std::shared_ptr<User> userPtr);
-
-        void GetJwt(std::shared_ptr<User> userPtr);
 };
 
 #endif

@@ -17,14 +17,14 @@ using boost::asio::ip::tcp;
 
 std::shared_ptr< Session > LoginSession::DLoginSessionPointer;
 
-std::shared_ptr< Session > LoginSession::Instance(boost::asio::io_service& io_serv) {
+std::shared_ptr< Session > LoginSession::Instance() {
     if(DLoginSessionPointer == nullptr) {
-        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType(), io_serv);
+        DLoginSessionPointer = std::make_shared< LoginSession >(SPrivateSessionType());
     }
     return DLoginSessionPointer;
 }
 
-LoginSession::LoginSession(const SPrivateSessionType &key, boost::asio::io_service& io_serv) : io_service(io_serv) { }
+LoginSession::LoginSession(const SPrivateSessionType &key) { }
 
 void LoginSession::DoRead(std::shared_ptr<User> userPtr) {
     auto self(shared_from_this());
@@ -159,46 +159,29 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
             std::cout << "Response returned with status code " << status_code << "\n";
             Restart(userPtr);
           }
-          //read rest of response header for jwt
-          GetJwt(userPtr);
+
+          std::string header;
+          //read header information until authorization line
+          while (std::getline(response_stream, header) && header != "\r") {
+            if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+              //extract jwt from authorization line
+              userPtr->jwt = header.substr(22);
+                
+              //remove carriage return and newline in extracted substr
+              userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
+              userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
+              break;
+            }
+
+          }
+          userPtr->lobby.join(userPtr);
+
+          //close the user's connection to web server
+          userPtr->webServerSocket.close();
+          DoWrite(userPtr);
       }
   });
 
-}
-
-//extract the JWT from login response on authentication success
-void LoginSession::GetJwt(std::shared_ptr<User> userPtr) {
-    boost::asio::async_read_until(userPtr->webServerSocket, response, "\r\n\r\n",
-        [this, userPtr](boost::system::error_code err, std::size_t length) {
-            if (!err) {
-                std::istream response_stream(&response);
-                std::string header;
-                //read header information until authorization line
-                std::cout << "Reading for jwt\n" << std::endl;
-                while (std::getline(response_stream, header) && header != "\r") {
-                     std::cout << header << std::endl;
-                     if (strncmp(header.c_str(), "Authorization", 13) == 0) {
-                        //extract jwt from authorization line
-                        userPtr->jwt = header.substr(22);
-                        
-                        //remove carriage return and newline in extracted substr
-                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
-                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
-                        break;
-                    }
-
-                }
-                 
-                //add user to lobby
-                userPtr->lobby.join(userPtr);
-
-                //close the user's connection to web server
-                userPtr->webServerSocket.close();
-
-                //send successful authentication to user
-                DoWrite(userPtr);
-            } 
-        });
 }
 
 
