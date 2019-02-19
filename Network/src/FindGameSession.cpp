@@ -44,6 +44,7 @@ void FindGameSession::DoRead(std::shared_ptr<User> userPtr) {
         else if ((boost::asio::error::eof == err) ||
                 (boost::asio::error::connection_reset == err)) {
             //find username in Lobby clients and remove data
+            userPtr->Logout();
             userPtr->lobby.leave(userPtr);
         }
     });

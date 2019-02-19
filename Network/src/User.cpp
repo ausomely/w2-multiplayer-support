@@ -146,6 +146,7 @@ void User::ConnectToServer() {
 void User::Logout() {
     boost::asio::streambuf request;
     std::ostream request_stream(&request);
+    //connect to web server
     ConnectToServer();
     //construct header
     request_stream << "DELETE /logout.json/ HTTP/1.1\r\n";
@@ -156,7 +157,7 @@ void User::Logout() {
     request_stream << "Accept: */*\r\n";
     request_stream << "Content-Length: 0\r\n";
     request_stream << "Connection: close\r\n\r\n";  //NOTE THE Double line feed
-
+    
     //write delete request to web server
     boost::asio::async_write(webServerSocket,  request,
         [](boost::system::error_code err, std::size_t ) {
