@@ -19,10 +19,12 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
     protected:
         static std::shared_ptr< Session > DLoginSessionPointer;
     public:
-        explicit LoginSession(const SPrivateSessionType &key) {}
 
-        ~LoginSession() {std::cout << "Session destroyed" << std::endl;}
+        LoginSession(const SPrivateSessionType &key);
 
+        //~LoginSession() {std::cout << "Session destroyed" << std::endl;}
+
+        //static std::shared_ptr< Session > Instance();
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket
@@ -39,6 +41,10 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
 
         //get authentication by sending http request to the web server
         bool GetAuthentication(std::shared_ptr<User> userPtr);
+
+        void StartAuthentication(std::shared_ptr<User> userPtr);
+
+        void FinishAuthentication(std::shared_ptr<User> userPtr);
 };
 
 #endif

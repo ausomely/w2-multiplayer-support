@@ -29,20 +29,30 @@ class User: public std::enable_shared_from_this<User>
     friend class Lobby;
     friend class GameRoom;
     protected:
+        boost::asio::io_service& io_service;
         tcp::socket socket;
+        tcp::socket webServerSocket;
         char data[MAX_BUFFER];
         std::string password;
         std::string name; //username associated with session
+        std::string jwt;
         Lobby& lobby; //shared lobby object
         std::weak_ptr<GameRoom> currentRoom;
+        boost::asio::streambuf response;
         std::shared_ptr<Session> currentSession;
         int id; // -1 if not in a room
     public:
-        User(tcp::socket socket_, Lobby& lobby_)
-            : socket(std::move(socket_)), lobby(lobby_), id(-1) {}
+        User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv);
         void InitializeSession();
         void ChangeSession(std::shared_ptr<Session> session);
         void SendFinish();
+        void WriteMatchResult(bool win);
+        void ReadMatchResult();
+        void StartPostMap(std::string input);
+        void FinishPostMap();
+        void Logout();
+        void ConnectToServer();
+
 };
 
 #endif
