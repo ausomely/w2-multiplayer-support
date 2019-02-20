@@ -4,14 +4,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-
 using boost::property_tree::ptree;
 using boost::property_tree::read_json;
 using boost::property_tree::write_json;
 
-
 User::User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv)
-    : socket(std::move(socket_)), lobby(lobby_), id(-1), io_service(io_serv), webServerSocket(io_serv)  {
+    : io_service(io_serv), socket(std::move(socket_)), webServerSocket(io_serv), lobby(lobby_), id(-1) {
 }
 
 void User::InitializeSession() {
@@ -24,22 +22,17 @@ void User::ChangeSession(std::shared_ptr<Session> session) {
     currentSession->Start(shared_from_this());
 }
 
-
 // tell the client its done with updating info
 void User::SendFinish() {
     std::string message = "Finish";
     boost::asio::async_write(socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
-        [this](boost::system::error_code err, std::size_t ) {
+        [](boost::system::error_code err, std::size_t ) {
         if (!err) { }
       }
     );
 }
 
-
-
-
-
-void User::WriteMatchResult(bool win){
+void User::WriteMatchResult(bool win) {
       // Function to write results to the web server after the match has ended
       // Currently there is a problem with the response -- whether or not this is a problem here or with the web server is unknown
 
@@ -143,7 +136,6 @@ void User::StartPostMap(std::string input){
 void User::FinishPostMap(){
 }
 
-
 //Establish a connection to server with user's web socket
 void User::ConnectToServer() {
      // Get a list of endpoints corresponding to the server name.
@@ -151,6 +143,7 @@ void User::ConnectToServer() {
     tcp::resolver::query query("ecs160.herokuapp.com", "http");
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
+    // This should be async_connect
     // Try each endpoint until we successfully establish a connection.
     boost::asio::connect(webServerSocket, endpoint_iterator);
 }

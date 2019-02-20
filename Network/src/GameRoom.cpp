@@ -15,7 +15,6 @@ void GameRoom::CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
     roomInfo.CopyFrom(roomInformation);
 }
 
-
 void GameRoom::join(std::shared_ptr<User> user) {
     size++;
     user->id = size;
@@ -24,7 +23,6 @@ void GameRoom::join(std::shared_ptr<User> user) {
     roomInfo.set_types(size, 1);
     roomInfo.set_ready(size, false);
     roomInfo.set_size(size);
-
 
     UpdateRoomInfo();
 }

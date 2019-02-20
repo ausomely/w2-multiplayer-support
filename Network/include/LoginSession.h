@@ -20,11 +20,8 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         static std::shared_ptr< Session > DLoginSessionPointer;
     public:
 
-        LoginSession(const SPrivateSessionType &key);
+        explicit LoginSession(const SPrivateSessionType &key);
 
-        //~LoginSession() {std::cout << "Session destroyed" << std::endl;}
-
-        //static std::shared_ptr< Session > Instance();
         static std::shared_ptr< Session > Instance();
 
         //read data from current session's socket

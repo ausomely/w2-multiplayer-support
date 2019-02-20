@@ -120,14 +120,14 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
     request_stream << "Content-Length: " << json.length() << "\r\n";
     request_stream << "Connection: close\r\n\r\n";  //NOTE THE Double line feed
     request_stream << json;
-    
+
     userPtr->ConnectToServer();
 
-    boost::asio::async_write(userPtr->webServerSocket,  request,
+    boost::asio::async_write(userPtr->webServerSocket, request,
         [this, userPtr](boost::system::error_code err, std::size_t ) {
         //if no error, continue trying to read from socket
         if (!err) {
-            std::cout << "No error" << std::endl;
+            std::cout << "Sending log in request" << std::endl;
             FinishAuthentication(userPtr);
         }
     });
@@ -139,7 +139,6 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
 
   boost::asio::async_read_until(userPtr->webServerSocket, userPtr->response, "\r\n",
       [this, userPtr](boost::system::error_code err, std::size_t length) {
-      std::cout << "Reading" << std::endl;
       if (!err) {
           std::istream response_stream(&userPtr->response);
           std::string http_version;
@@ -154,31 +153,34 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
             std::cout << "Invalid response\n";
             Restart(userPtr);
           }
-          if (status_code != 200)
+          else if (status_code != 200)
           {
             std::cout << "Response returned with status code " << status_code << "\n";
             Restart(userPtr);
           }
 
-          std::string header;
-          //read header information until authorization line
-          while (std::getline(response_stream, header) && header != "\r") {
-            if (strncmp(header.c_str(), "Authorization", 13) == 0) {
-              //extract jwt from authorization line
-              userPtr->jwt = header.substr(22);
-                
-              //remove carriage return and newline in extracted substr
-              userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
-              userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
-              break;
-            }
+          // else it is a sucess in logging in 
+          else {
+              std::string header;
+              //read header information until authorization line
+              while (std::getline(response_stream, header) && header != "\r") {
+                if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+                  //extract jwt from authorization line
+                  userPtr->jwt = header.substr(22);
 
+                  //remove carriage return and newline in extracted substr
+                  userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
+                  userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
+                  break;
+                }
+
+              }
+              userPtr->lobby.join(userPtr);
+
+              //close the user's connection to web server
+              userPtr->webServerSocket.close();
+              DoWrite(userPtr);
           }
-          userPtr->lobby.join(userPtr);
-
-          //close the user's connection to web server
-          userPtr->webServerSocket.close();
-          DoWrite(userPtr);
       }
   });
 

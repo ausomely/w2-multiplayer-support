@@ -32,6 +32,7 @@ void AcceptedSession::DoRead(std::shared_ptr<User> userPtr) {
 
             // goes back to main menu and log out
             else if(strcmp(userPtr->data, "Back") == 0) {
+                userPtr->Logout();
                 userPtr->lobby.leave(userPtr);
                 // do log out
             }
@@ -62,6 +63,5 @@ void AcceptedSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void AcceptedSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined Accepted session" << std::endl;
-    //userPtr->WriteMatchResult(true);
     DoRead(userPtr);
 }
