@@ -134,49 +134,60 @@ void LoginSession::StartAuthentication(std::shared_ptr<User> userPtr){
 }
 
 void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
-  boost::asio::async_read_until(userPtr->webServerSocket, userPtr->response, "\r\n",
-      [this, userPtr](boost::system::error_code err, std::size_t length) {
-      if (!err) {
-          std::istream response_stream(&userPtr->response);
-          std::string http_version;
-          response_stream >> http_version;
-          unsigned int status_code;
-          response_stream >> status_code;
-          std::string status_message;
+    //read until the end of the response header
+    boost::asio::async_read_until(userPtr->webServerSocket, userPtr->response, "\r\n\r\n",
+        [this, userPtr](boost::system::error_code err, std::size_t length) {
+        if (!err) {
+            std::istream response_stream(&userPtr->response);
+            std::string http_version;
+            response_stream >> http_version;
+            unsigned int status_code;
+            response_stream >> status_code;
+            std::string status_message;
 
-          std::getline(response_stream, status_message);
-          if (!response_stream || http_version.substr(0, 5) != "HTTP/")
-          {
-            std::cout << "Invalid response\n";
-            Restart(userPtr);
-          }
-          else if (status_code != 200)
-          {
-            std::cout << "Response returned with status code " << status_code << "\n";
-            Restart(userPtr);
-          }
+            std::getline(response_stream, status_message);
+            if (!response_stream || http_version.substr(0, 5) != "HTTP/")
+            {
+                std::cout << "Invalid response\n";
+                Restart(userPtr);
+            }
+            else if (status_code != 200)
+            {
+                std::cout << "Response returned with status code " << status_code << "\n";
+                Restart(userPtr);
+            }
 
-          // else it is a sucess in logging in
-          else {
-              std::string header;
-              //read header information until authorization line
-              while (std::getline(response_stream, header) && header != "\r") {
-                if (strncmp(header.c_str(), "Authorization", 13) == 0) {
-                  //extract jwt from authorization line
-                  userPtr->jwt = header.substr(22);
+            // else it is a sucesss in logging in
+            else {
+                std::string header;
+                //read header information until authorization line
+                while (std::getline(response_stream, header)) {// && header != "\r") {
+                    //std::cout << header << std::endl;
+                    if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+                        //extract jwt from authorization line
+                        userPtr->jwt = header.substr(22);
 
-                  //remove carriage return and newline in extracted substr
-                  userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
-                  userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
-                  break;
+                        //remove carriage return and newline in extracted substr
+                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
+                        userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
+                    }
                 }
 
-              }
-              userPtr->lobby.join(userPtr);
+                //clear json response synchronously for now, should be low latency
+                //but when getting ELO later on will fix
+                boost::system::error_code error;
+                bzero(userPtr->data, MAX_BUFFER);
+                userPtr->webServerSocket.read_some(boost::asio::buffer(userPtr->data, MAX_BUFFER));
 
-              //close the user's connection to web server
-              userPtr->webServerSocket.close();
-              DoWrite(userPtr);
+                //below is the full json response, the first half is parsed in the first read somehow
+                //so the data read using read some is appended to the end of last data
+                //header += userPtr->data;
+
+                userPtr->lobby.join(userPtr);
+
+                //close the user's connection to web server
+                userPtr->webServerSocket.close();
+                DoWrite(userPtr);
           }
       }
   });
