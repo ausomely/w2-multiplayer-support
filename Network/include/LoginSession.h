@@ -37,8 +37,6 @@ class LoginSession : public Session, public std::enable_shared_from_this<LoginSe
         void Restart(std::shared_ptr<User> userPtr);
 
         //get authentication by sending http request to the web server
-        bool GetAuthentication(std::shared_ptr<User> userPtr);
-
         void StartAuthentication(std::shared_ptr<User> userPtr);
 
         void FinishAuthentication(std::shared_ptr<User> userPtr);

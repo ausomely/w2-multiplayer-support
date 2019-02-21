@@ -107,13 +107,27 @@ void GameRoom::UpdateRoomInfo() {
 
     for(auto &It: players) {
         // sending notification to other players in the room to update room info
-        boost::asio::async_write(It->socket, stream_buffer,
-            [It](boost::system::error_code err, std::size_t ) {
+        if(It->currentSession == InRoomSession::Instance()) {
+            boost::asio::async_write(It->socket, stream_buffer,
+                [It](boost::system::error_code err, std::size_t ) {
 
-            if (!err) {
-            }
-        });
+                if (!err) {
+                }
+            });
+        }
     }
+}
+
+void GameRoom::SendRoomInfo(std::shared_ptr<User> user) {
+    boost::asio::streambuf stream_buffer;
+    std::ostream output_stream(&stream_buffer);
+    roomInfo.SerializeToOstream(&output_stream);
+    boost::asio::async_write(user->socket, stream_buffer,
+        [user](boost::system::error_code err, std::size_t ) {
+
+        if (!err) {
+        }
+    });
 }
 
 void GameRoom::UpdateRoomList(std::shared_ptr<User> user) {
@@ -122,7 +136,7 @@ void GameRoom::UpdateRoomList(std::shared_ptr<User> user) {
     std::ostream output_stream(&stream_buffer);
     RoomInfo::RoomInfoPackage roomList = user->lobby.GetRoomList();
     roomList.SerializeToOstream(&output_stream);
-    for(auto &It : user->lobby.users) {
+    for(auto &It: user->lobby.users) {
        // sending notification to those in find game session to update room list
        if(It->currentSession == FindGameSession::Instance()) {
            boost::asio::async_write(It->socket, stream_buffer,
@@ -149,7 +163,26 @@ const GameInfo::PlayerCommandPackage GameRoom::GetPlayerCommandPackage() const {
 }
 
 void GameRoom::InitializeGame() {
-    for (int i = 0; i < size; i++) {
+    roomInfo.set_active(true);
+    for(int i = 0; i < size; i++) {
         playerCommandPackage.add_dplayercommand();
+    }
+    // set tcp_no_delay for sending game play data
+    for(auto& It: players) {
+        boost::asio::ip::tcp::no_delay option(true);
+        It->socket.set_option(option);
+    }
+}
+
+void GameRoom::EndGame() {
+    roomInfo.set_active(false);
+    playerCommandPackage.Clear();
+    for(int i = 2; i <= size; i++) {
+        roomInfo.set_ready(i, false);
+    }
+    for(auto& It: players) {
+        // set tcp_no_delay false
+        boost::asio::ip::tcp::no_delay option(false);
+        It->socket.set_option(option);
     }
 }

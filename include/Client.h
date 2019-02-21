@@ -31,10 +31,10 @@ class Client: public std::enable_shared_from_this<Client>
         bool SendLoginInfo(std::shared_ptr<CApplicationData> context);
         void SendGameInfo(std::shared_ptr<CApplicationData> context);
         void SendRoomInfo(std::shared_ptr<CApplicationData> context);
+        void GetRoomInfo(std::shared_ptr<CApplicationData> context);
         void UpdateRoomList(std::shared_ptr<CApplicationData> context);
         void UpdateRoomInfo(std::shared_ptr<CApplicationData> context);
         void SendMessage(std::string message);
-        RoomInfo::RoomInformation GetRoomInfo();
         void GetGameInfo(std::shared_ptr<CApplicationData> context);
         void StartUpdateRoomList(std::shared_ptr<CApplicationData> context);
         void StartUpdateRoomInfo(std::shared_ptr<CApplicationData> context);

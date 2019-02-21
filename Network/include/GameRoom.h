@@ -36,10 +36,12 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         void OrganizeRoomInfo(int index);
         void BroadcastStartGame();
         void UpdateRoomInfo();
+        void SendRoomInfo(std::shared_ptr<User> user);
         void UpdateRoomList(std::shared_ptr<User> user);
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
         const RoomInfo::RoomInformation& GetRoomInfo() const;
         void InitializeGame();
+        void EndGame();
         const GameInfo::PlayerCommandPackage GetPlayerCommandPackage() const;
 };
 

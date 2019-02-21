@@ -86,16 +86,6 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
 
     playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
 
-    // write package to ostream: a file
-    /*std::ofstream outfile;
-
-    outfile.open("LocalStreamCommand.bin", std::ios_base::app | std::ios::binary);
-
-    playerCommandRequest.SerializeToOstream(&outfile);
-    //outfile << playerCommandRequest.DebugString();
-
-    outfile.close();*/
-
     // send package to server
     boost::system::error_code err;
     boost::asio::streambuf stream_buffer;
@@ -126,6 +116,29 @@ void Client::SendRoomInfo(std::shared_ptr<CApplicationData> context) {
     }
 
     return;
+}
+
+void Client::GetRoomInfo(std::shared_ptr<CApplicationData> context) {
+    bzero(data, BUFFER_SIZE);
+    boost::system::error_code err;
+    size_t length = socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
+    if(!err) {
+        context->roomInfo.ParseFromArray(data, length);
+        // update DPlayerNumber if someone before you left
+        while(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
+            context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
+        }
+        // copy over room info
+        for(int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++) {
+            context->DLoadingPlayerTypes[Index] = static_cast <CApplicationData::EPlayerType> (context->roomInfo.types(Index));
+            context->DPlayerNames[Index] = context->roomInfo.players(Index);
+            context->DReadyPlayers[Index] = context->roomInfo.ready(Index);
+            context->DLoadingPlayerColors[Index] = static_cast <EPlayerColor> (context->roomInfo.colors(Index));
+        }
+    }
+    else {
+        std::cout << "Error Reading" << std::endl;
+    }
 }
 
 void Client::UpdateRoomList(std::shared_ptr<CApplicationData> context) {
@@ -174,7 +187,7 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
                 std::cout << context->roomInfo.DebugString() << std::endl;
 
                 // update DPlayerNumber if someone before you left
-                if(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
+                while(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
                     context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
                 }
                 // copy over room info
@@ -190,31 +203,15 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
                 std::cout << "Update roominfo Finish" << std::endl;
             }
         }
-
         else {
            std::cerr << "ERROR reading" << std::endl;
         }
     });
 }
 
-RoomInfo::RoomInformation Client::GetRoomInfo() {
-    bzero(data, BUFFER_SIZE);
-    RoomInfo::RoomInformation roomInfo;
-    boost::system::error_code err;
-    size_t length = boost::asio::read(socket, boost::asio::buffer(data, BUFFER_SIZE), err);
-    if(!err) {
-        roomInfo.ParseFromArray(data, length);
-    }
-    else {
-        std::cout << "Error Reading" << std::endl;
-        return roomInfo;
-    }
-}
-
 // send the server a message
 void Client::SendMessage(std::string message) {
     boost::system::error_code err;
-
     boost::asio::write(socket, boost::asio::buffer(message.c_str(), strlen(message.c_str())), err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
@@ -224,7 +221,6 @@ void Client::SendMessage(std::string message) {
 }
 
 void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
-
     bzero(data, BUFFER_SIZE);
     boost::system::error_code err;
     size_t length = socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
@@ -251,17 +247,7 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
               }
               context->DPlayerCommands[playerNumber].DActors = DActors;
         }
-
-
     }
-
-        //context->
-      /*  context->DPlayerCommands[playerCommandRequest.playernum()].DAction = (EAssetCapabilityType)(playerCommandRequest.daction());
-        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetNumber = (EPlayerNumber)(playerCommandRequest.dtargetnumber());
-        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetType = (EAssetType)(playerCommandRequest.dtargettype());
-        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetXFromTile(playerCommandRequest.mutable_dtargetlocation()->dx());
-        context->DPlayerCommands[playerCommandRequest.playernum()].DTargetLocation.SetYFromTile(playerCommandRequest.mutable_dtargetlocation()->dy());
-      */
 }
 
 void Client::StartUpdateRoomList(std::shared_ptr<CApplicationData> context) {

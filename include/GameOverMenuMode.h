@@ -15,6 +15,8 @@ class CGameOverMenuMode : public CButtonMenuMode
         std::shared_ptr<CApplicationData> context);
     static void ExitGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
+    static void ReturnRoomButtonCallback(
+        std::shared_ptr<CApplicationData> context);
 
     CGameOverMenuMode(const CGameOverMenuMode &) = delete;
     const CGameOverMenuMode &operator=(const CGameOverMenuMode &) = delete;

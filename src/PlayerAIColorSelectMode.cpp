@@ -120,8 +120,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
 void CPlayerAIColorSelectMode::PlayGameButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
-    // Testing exchanging commands
-    // context->ClientPointer->SendMessage("Test");
     context->ChangeApplicationMode(CBattleMode::Instance());
 }
 
@@ -168,6 +166,7 @@ std::shared_ptr<CApplicationData> context)
     if (CApplicationData::gstSinglePlayer != context->DGameSessionType)
     {
         context->roomList.Clear();
+        context->roomInfo.Clear();
         // Notify game server
         context->ClientPointer->SendMessage("Leave");
         context->ClientPointer->io_service.run();

@@ -27,9 +27,9 @@ void User::SendFinish() {
     std::string message = "Finish";
     boost::asio::async_write(socket, boost::asio::buffer(message.c_str(), MAX_BUFFER),
         [](boost::system::error_code err, std::size_t ) {
-        if (!err) { }
-      }
-    );
+        if (!err) {
+        }
+    });
 }
 
 void User::WriteMatchResult(bool win) {
@@ -65,12 +65,12 @@ void User::WriteMatchResult(bool win) {
       request_stream << json;
 
       // Write to socket
-      boost::asio::async_write(webServerSocket,  request,
+      boost::asio::async_write(webServerSocket, request,
           [this](boost::system::error_code err, std::size_t ) {
           //if no error, continue trying to read from socket
           if (!err) {
-            std::cout << "No error with writing result to web server" << std::endl;
-            ReadMatchResult();
+              std::cout << "No error with writing result to web server" << std::endl;
+              ReadMatchResult();
           }
       });
 }
@@ -166,7 +166,7 @@ void User::Logout() {
     request_stream << "Connection: close\r\n\r\n";  //NOTE THE Double line feed
 
     //write delete request to web server
-    boost::asio::async_write(webServerSocket,  request,
+    boost::asio::async_write(webServerSocket, request,
         [](boost::system::error_code err, std::size_t ) {
         if (!err) {
             std::cout << "No error on logout" << std::endl;

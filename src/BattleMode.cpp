@@ -928,6 +928,12 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
         context->DSoundLibraryMixer->PlaySong(game_over_song,
                                               context->DMusicVolume);
         context->DActiveGame = false;
+
+        // if it is a host send end game signal to server
+        if(context->DGameSessionType == CApplicationData::gstMultiPlayerHost) {
+            context->ClientPointer->SendMessage("End");
+        }
+
         context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
 

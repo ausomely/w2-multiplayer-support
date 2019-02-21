@@ -20,28 +20,39 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
         [this, userPtr](boost::system::error_code err, std::size_t length) {
 
         if (!err) {
-            GameInfo::PlayerCommandRequest playerCommandRequest;
-
-            playerCommandRequest.ParseFromArray(userPtr->data, length);
-
-
-            /*std::ofstream outfile;
-            outfile.open("RemoteStreamCommand.bin", std::ios_base::app | std::ios::binary);
-
-            playerCommandRequest.SerializeToOstream(&outfile);*/
-
-            //outfile.close();
-            userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, (userPtr->id) - 1);
-            //WriteToAll(userPtr, playerCommandRequest);
-            DoWrite(userPtr);
+            // game over, go back to room
+            if(strcmp(userPtr->data, "Back") == 0) {
+                userPtr->currentRoom.lock()->SendRoomInfo(userPtr);
+                userPtr->ChangeSession(InRoomSession::Instance());
+            }
+            // end the game
+            else if(strcmp(userPtr->data, "End") == 0) {
+                userPtr->currentRoom.lock()->EndGame();
+                DoRead(userPtr);
+            }
+            // game over, leave and log out
+            else if(strcmp(userPtr->data, "Leave") == 0) {
+                // leave the room
+                userPtr->currentRoom.lock()->leave(userPtr);
+                // find username in Lobby clients and remove data
+                userPtr->Logout();
+                userPtr->lobby.leave(userPtr);
+            }
+            else {
+                GameInfo::PlayerCommandRequest playerCommandRequest;
+                playerCommandRequest.ParseFromArray(userPtr->data, length);
+                userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, (userPtr->id) - 1);
+                DoWrite(userPtr);
+            }
         }
 
         //end of connection
         else if ((boost::asio::error::eof == err) ||
                 (boost::asio::error::connection_reset == err)) {
-            //find username in Lobby clients and remove data
+            // leave the room
+            userPtr->currentRoom.lock()->leave(userPtr);
+            // find username in Lobby clients and remove data
             userPtr->Logout();
-
             userPtr->lobby.leave(userPtr);
         }
     });
@@ -96,8 +107,5 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined in game session" << std::endl;
-    // set tcp_no_delay for sending data
-    boost::asio::ip::tcp::no_delay option(true);
-    userPtr->socket.set_option(option);
     DoRead(userPtr);
 }
