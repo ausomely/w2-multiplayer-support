@@ -875,9 +875,8 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
         context->ChangeApplicationMode(CInGameMenuMode::Instance());
     }
 
-    bool PlayerAlive = false;    //!< Human player
     int AIAlive = 0;             //!< AI player(s)
-    int RemotePlayersAlive = 0;  //!< Remote players on the network
+    int PlayersAlive = 0;  //players in total
 
     /*! Check if every potentially possible player is alive
      * Every round of game play iterates over the whole enum EPlayerColor to
@@ -898,25 +897,24 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
                 context->DPlayerCommands[Index]);
         }
 
-        //! TODO: Check for remote players that are alive
-
         //! Check if human player is alive
         if (context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
                 ->IsAlive() &&
             !(context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
                   ->IsAI()))
         {
-            PlayerAlive = true;  //! Human player is alive
+            PlayersAlive++;
         }
     }
 
     //! Game is over when human player is dead or no AI players alive
-    if (!PlayerAlive || 0 == AIAlive)
+    if (context->DGameSessionType == CApplicationData::gstSinglePlayer &&
+        (0 == PlayersAlive || 0 == AIAlive))
     {
         int game_over_song;
         context->DSoundLibraryMixer->StopSong();
 
-        if (!PlayerAlive)
+        if (0 == PlayersAlive)
         {
             game_over_song = context->DSoundLibraryMixer->FindSong("lose");
         }
@@ -929,12 +927,36 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
                                               context->DMusicVolume);
         context->DActiveGame = false;
 
-        // if it is a host send end game signal to server
-        if(context->DGameSessionType == CApplicationData::gstMultiPlayerHost) {
-            context->ClientPointer->SendMessage("End");
-        }
-
         context->ChangeApplicationMode(CGameOverMenuMode::Instance());
+    }
+
+    // multiplaye game end game condition
+    else if(context->DGameSessionType != CApplicationData::gstSinglePlayer &&
+        (1 == PlayersAlive && 0 == AIAlive)) {
+          int game_over_song;
+          context->DSoundLibraryMixer->StopSong();
+
+          if (!context->DGameModel->Player(context->DPlayerNumber)->IsAlive())
+          {
+              game_over_song = context->DSoundLibraryMixer->FindSong("lose");
+              // send lose to server
+          }
+          else
+          {
+              game_over_song = context->DSoundLibraryMixer->FindSong("win");
+              // send win to server
+          }
+
+          context->DSoundLibraryMixer->PlaySong(game_over_song,
+                                                context->DMusicVolume);
+          context->DActiveGame = false;
+
+          // if it is a host send end game signal to server
+          if(context->DGameSessionType == CApplicationData::gstMultiPlayerHost) {
+              context->ClientPointer->SendMessage("End");
+          }
+
+          context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
 
     /*! Check every player to enact its moves
