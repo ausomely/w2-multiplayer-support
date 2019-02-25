@@ -165,7 +165,18 @@ const GameInfo::PlayerCommandPackage GameRoom::GetPlayerCommandPackage() const {
 void GameRoom::InitializeGame() {
     roomInfo.set_active(true);
     for(int i = 0; i < size; i++) {
-        playerCommandPackage.add_dplayercommand();
+        GameInfo::PlayerCommandRequest playerCommandRequest;
+        playerCommandRequest.set_playernum(i + 1);
+        playerCommandRequest.set_daction(0);
+        playerCommandRequest.set_dtargetnumber(0);
+        playerCommandRequest.set_dtargettype(0);
+
+        GameInfo::PlayerCommandRequest::CPixelPosition* pixelPosition = new GameInfo::PlayerCommandRequest::CPixelPosition();
+        pixelPosition->set_dx(0);
+        pixelPosition->set_dy(0);
+
+        playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
+        playerCommandPackage.add_dplayercommand()->CopyFrom(playerCommandRequest);
     }
     // set tcp_no_delay for sending game play data
     for(auto& It: players) {

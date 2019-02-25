@@ -32,8 +32,6 @@ class InGameSession : public Session, public std::enable_shared_from_this<InGame
 
         //start reading from connection
         void Start(std::shared_ptr<User> userPtr);
-
-        void WriteToAll(std::shared_ptr<User> userPtr, GameInfo::PlayerCommandRequest playerCommandRequest);
 };
 
 
