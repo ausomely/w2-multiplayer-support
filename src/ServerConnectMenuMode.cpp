@@ -59,7 +59,8 @@ void CServerConnectMenuMode::JoinButtonCallback(
 {
     // cannot join when room is full
     if(context->roomList.roominfo()[context->DSelectedRoomNumber].size() !=
-        context->roomList.roominfo()[context->DSelectedRoomNumber].capacity()) {
+        context->roomList.roominfo()[context->DSelectedRoomNumber].capacity()
+        && !context->roomList.roominfo()[context->DSelectedRoomNumber].active()) {
         context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
         context->ClientPointer->io_service.run();
 

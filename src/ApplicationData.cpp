@@ -1066,6 +1066,15 @@ CApplicationData::EUIComponentType CApplicationData::FindUIComponentType(
     int DescrWidth, DescrHeight;
     int ActWidth, ActHeight;
 
+    int OverlayWidth = DOverlaySurface->Width();
+    int OverlayHeight = DOverlaySurface->Height();
+
+    // When overlay is active, it's the only valid UI element
+    if (DOverlayActive)
+    {
+        return uictOverlay;
+    }
+
     ViewWidth = DViewportSurface->Width();
     ViewHeight = DViewportSurface->Height();
 
@@ -1427,6 +1436,11 @@ void CApplicationData::LoadGameMap(int index)
     DMenuButtonYOffset = (DViewportYOffset - DOuterBevel->Width()) / 2 -
                          DMenuButtonRenderer->Height() / 2;
 
+    // Find X, Y offsets to center overlay surface over the viewport
+    DOverlayXOffset = static_cast<int>(DViewportXOffset + 0.5*DViewportSurface->Width() -
+                      0.5*DOverlaySurface->Width());
+    DOverlayYOffset = DViewportYOffset + DInnerBevel->Width() * 6;
+
     int CurWidth, CurHeight;
 
     CurWidth = DViewportSurface->Width();
@@ -1640,6 +1654,54 @@ void CApplicationData::ResizeCanvases()
             ViewportWidth, DBorderWidth,
             CGraphicSurface::ESurfaceFormat::ARGB32);
     }
+    // Overlay surface dimensions are scaled down from the viewport
+    float OverlayXScale = 0.95;
+    float OverlayYScale = 0.75;
+
+    // Overlay surface background color
+    uint32_t OverlayColor = 0x172f4e;
+
+    // Overlay surface
+    if (nullptr != DOverlaySurface)
+    {
+        int CurWidth, CurHeight;
+
+        CurWidth = static_cast<int>(OverlayXScale * DViewportSurface->Width());
+        CurHeight = static_cast<int>(OverlayYScale * DViewportSurface->Height());
+
+        // Make sure surface dimensions are as requested
+        if ((OverlayXScale * ViewportWidth != CurWidth) ||
+            OverlayYScale * ViewportHeight != CurHeight)
+        {
+            DOverlaySurface = nullptr;
+        }
+        else
+        {
+            auto ResourceContext = DOverlaySurface->CreateResourceContext();
+            ResourceContext->SetSourceRGB(OverlayColor);
+            ResourceContext->Rectangle(0, 0, CurWidth, CurHeight);
+            ResourceContext->Fill();
+        }
+    }
+
+    // Overlay surface
+    if (nullptr == DOverlaySurface)
+    {
+        // Surface width and height
+        int OverlayWidth = static_cast<int>(OverlayXScale * ViewportWidth);
+        int OverlayHeight = static_cast<int>(OverlayYScale * ViewportHeight);
+
+        // Allocate the surface memory
+        DOverlaySurface = CGraphicFactory::CreateSurface(
+        OverlayWidth, OverlayHeight,
+        CGraphicSurface::ESurfaceFormat::ARGB32);
+
+        auto ResourceContext = DOverlaySurface->CreateResourceContext();
+        ResourceContext->SetSourceRGB(OverlayColor);
+        ResourceContext->Rectangle(0, 0, OverlayWidth, OverlayHeight);
+        ResourceContext->Fill();
+
+    }
 
     if (nullptr != DViewportSurface)
     {
@@ -1681,6 +1743,41 @@ void CApplicationData::ResizeCanvases()
                           // ViewportHeight);
     }
     PrintDebug(DEBUG_LOW, "Resizing Complete\n");
+}
+
+bool CApplicationData::MultiPlayer()
+{
+    if (EGameSessionType::gstSinglePlayer != DGameSessionType)
+    {
+        return true;
+    }
+    return false;
+}
+
+void CApplicationData::ToggleOverlay()
+{
+    DOverlayActive ? (DOverlayActive = false) : (DOverlayActive = true);
+}
+
+bool CApplicationData::OverlayActive()
+{
+    return DOverlayActive;
+}
+
+void CApplicationData::LeaveGame()
+{
+    DActiveGame = false;
+
+    if (MultiPlayer())
+    {
+        ClientPointer->SendMessage("Leave");
+        roomInfo.Clear();
+        ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+    }
+    else
+    {
+        ChangeApplicationMode(CMainMenuMode::Instance());
+    }
 }
 
 int CApplicationData::Run(int argc, char *argv[])

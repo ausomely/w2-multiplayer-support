@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include "ApplicationMode.h"
+#include "OverlayManagement.h"
 #include "Rectangle.h"
 
 // using TBattleModeCallbackFunction = void (*)(std::shared_ptr<
@@ -32,6 +33,7 @@ class CBattleMode : public CApplicationMode
     {
     };
     static std::shared_ptr<CBattleMode> DBattleModePointer;
+    std::shared_ptr<COverlayManagement> DOverlayManager;
 
     CBattleMode(const CBattleMode &) = delete;
     const CBattleMode &operator=(const CBattleMode &) = delete;

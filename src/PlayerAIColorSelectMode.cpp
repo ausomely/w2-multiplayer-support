@@ -60,6 +60,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
     {
         case CApplicationData::gstSinglePlayer:
         {
+            std::cout << "you are single" << std::endl;
             DTitle = "Select Colors / Difficulty";
 
             CancelButtonText = "Back";
@@ -181,7 +182,7 @@ std::shared_ptr<CApplicationData> context)
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 {
     // if you become the host!
-    if(context->DPlayerNumber == EPlayerNumber::Player1) {
+    if(context->DPlayerNumber == EPlayerNumber::Player1 && context->MultiPlayer()) {
         context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
         DButtonHovered = false;
         DButtonFunctions.clear();

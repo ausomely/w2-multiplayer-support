@@ -44,7 +44,7 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->DGameSessionType = CApplicationData::gstSinglePlayer;
-
+    
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 

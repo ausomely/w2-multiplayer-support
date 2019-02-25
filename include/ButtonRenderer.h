@@ -56,6 +56,18 @@ class CButtonRenderer
                     std::shared_ptr<CBevel> outerbevel,
                     std::shared_ptr<CFontTileset> font);
 
+    //! Set a initial values for button dimensions
+    void SetBaseDimensions()
+    {
+        DHeight = DWidth = DOuterBevel->Width() * 2;
+    }
+
+    //! Use when the button size is already set
+    void SetButtonText(std::string &text)
+    {
+        DText = text;
+    }
+
     EPlayerColor ButtonColor() const
     {
         return DButtonColor;

@@ -1,12 +1,10 @@
 /*
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
-
     All source material (source code, images, sounds, etc.) have been provided
     to University of California, Davis students of course ECS 160 for educational
     purposes. It may not be distributed beyond those enrolled in the course
     without prior permission from the copyright holder.
-
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
     were found freely available via internet sources and have been labeld as
@@ -29,8 +27,9 @@ CButtonRenderer::CButtonRenderer(std::shared_ptr<CGraphicRecolorMap> colors,
     DButtonColor = EPlayerColor::None;
     DTextOffsetX = 0;
     DTextOffsetY = 0;
-    DWidth = DOuterBevel->Width() * 2;
-    DHeight = DWidth;
+
+    SetBaseDimensions();
+
     DLightIndices.resize(to_underlying(EPlayerColor::Max));
     DDarkIndices.resize(to_underlying(EPlayerColor::Max));
     DDarkIndices[to_underlying(EPlayerColor::None)] =
@@ -114,6 +113,9 @@ int CButtonRenderer::Width(int width)
         DWidth = width;
         DTextOffsetX = DWidth / 2 - TotalWidth / 2;
     }
+    // ZF/MLH: hack to change button width
+    //DWidth = width;
+
     return DWidth;
 }
 
@@ -128,6 +130,9 @@ int CButtonRenderer::Height(int height)
         DHeight = height;
         DTextOffsetY = DHeight / 2 - TotalHeight / 2 - Top;
     }
+    // ZF/MLH: hack to change button height
+    //DHeight = height;
+
     return DHeight;
 }
 

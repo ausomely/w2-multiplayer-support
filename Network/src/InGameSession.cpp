@@ -30,8 +30,17 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->currentRoom.lock()->EndGame();
                 DoRead(userPtr);
             }
-            // game over, leave and log out
+
+            // leave the room
             else if(strcmp(userPtr->data, "Leave") == 0) {
+                // leave the room
+                userPtr->currentRoom.lock()->leave(userPtr);
+                // go back to accepted session
+                userPtr->ChangeSession(AcceptedSession::Instance());
+            }
+
+            // game over, leave and log out
+            else if(strcmp(userPtr->data, "Exit") == 0) {
                 // leave the room
                 userPtr->currentRoom.lock()->leave(userPtr);
                 // find username in Lobby clients and remove data

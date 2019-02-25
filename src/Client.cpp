@@ -227,7 +227,7 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
     if(!err) {
         GameInfo::PlayerCommandPackage playerCommandPackage;
         playerCommandPackage.ParseFromArray(data,length);
-        std::cout << playerCommandPackage.DebugString() << std::endl;
+        //std::cout << playerCommandPackage.DebugString() << std::endl;
 
         // set player commands
         for(int Index = 1; Index <= context->roomInfo.size(); Index++) {

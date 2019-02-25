@@ -36,6 +36,7 @@
 #include "ButtonDescriptionRenderer.h"
 #include "NotificationRenderer.h"
 #include "UnitGrouping.h"
+#include "MultiPlayerOptionsMenuMode.h"
 #include "RoomInfo.pb.h"
 #include "Client.h"
 
@@ -58,6 +59,10 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     friend class CMapSelectionMode;
     friend class CPlayerAIColorSelectMode;
     friend class CBattleMode;
+    friend class CButtonAlignment;
+    friend class CVerticalButtonAlignment;
+    friend class COverlayManagement;
+    friend class CInGameMenuOverlay;
 
     //friend Client class
     friend class Client;
@@ -91,7 +96,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
         uictMiniMap,
         uictUserDescription,
         uictUserAction,
-        uictMenuButton
+        uictMenuButton,
+        uictOverlay
     } EUIComponentType,
         *EUIComponentTypeRef;
 
@@ -138,6 +144,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CGraphicSurface> DResourceSurface;
     std::shared_ptr<CGraphicSurface> DMapSelectListViewSurface;
     std::shared_ptr<CGraphicSurface> DButtonDescriptionSurface;
+    //! Allocate the in-game overlay surface
+    std::shared_ptr<CGraphicSurface> DOverlaySurface;
     std::shared_ptr<CGraphicSurface> DNotificationRendererSurface;
     uint32_t DMiniMapViewportColor;
 
@@ -146,6 +154,10 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     int DViewportXOffset, DViewportYOffset;
     int DMiniMapXOffset, DMiniMapYOffset;
     int DUnitDescriptionXOffset, DUnitDescriptionYOffset;
+    //! X, Y offsets for in-game overlay surface
+    int DOverlayXOffset, DOverlayYOffset;
+    //! Used to check if overlay surface is currently being drawn
+    bool DOverlayActive;
     int DUnitActionXOffset, DUnitActionYOffset;
     int DMenuButtonXOffset, DMenuButtonYOffset;
     int DMapSelectListViewXOffset, DMapSelectListViewYOffset;
@@ -248,7 +260,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     bool DLeftDown;
     bool DRightDown;
     CButtonRenderer::EButtonState DMenuButtonState;
-    std::shared_ptr<CUnitGrouping> DUnitGroups; 
+    std::shared_ptr<CUnitGrouping> DUnitGroups;
 
     static void ActivateCallback(TGUICalldata data);
     static bool TimeoutCallback(TGUICalldata data);
@@ -318,6 +330,12 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     void LoadGameMap(int index);
     void ResetPlayerColors();
     void ResizeCanvases();
+
+    bool MultiPlayer();
+    void ToggleOverlay();
+    bool OverlayActive();
+
+    void LeaveGame();
 
   public:
     explicit CApplicationData(const std::string &appname,

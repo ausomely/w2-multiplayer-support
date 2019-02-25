@@ -45,6 +45,8 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/Bevel.o                          \
     $(OBJ_DIR)/BuildCapabilities.o              \
     $(OBJ_DIR)/BuildingUpgradeCapabilities.o    \
+		$(OBJ_DIR)/Button.o							            \
+    $(OBJ_DIR)/ButtonAlignment.o                \
     $(OBJ_DIR)/ButtonMenuMode.o                 \
     $(OBJ_DIR)/ButtonRenderer.o                 \
     $(OBJ_DIR)/CommentSkipLineDataSource.o      \
@@ -65,6 +67,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/GraphicTileset.o                 \
     $(OBJ_DIR)/GUIFactoryGTK3.o                 \
 		$(OBJ_DIR)/InGameMenuMode.o                 \
+		$(OBJ_DIR)/InGameMenuOverlay.o              \
     $(OBJ_DIR)/IOFactoryGlib.o                  \
     $(OBJ_DIR)/LineDataSource.o                 \
     $(OBJ_DIR)/ListViewRenderer.o               \
@@ -77,6 +80,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/NetworkOptionsMode.o             \
 		$(OBJ_DIR)/NotificationRenderer.o           \
     $(OBJ_DIR)/OptionsMenuMode.o                \
+		$(OBJ_DIR)/OverlayManagement.o              \
     $(OBJ_DIR)/Path.o                           \
     $(OBJ_DIR)/PeriodicTimeout.o                \
     $(OBJ_DIR)/PixelType.o                      \
@@ -99,6 +103,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
 		$(OBJ_DIR)/UnitGrouping.o                   \
 		$(OBJ_DIR)/ButtonDescriptionRenderer.o      \
     $(OBJ_DIR)/ViewportRenderer.o               \
+		$(OBJ_DIR)/VerticalButtonAlignment.o        \
     $(OBJ_DIR)/VisibilityMap.o									\
 		$(OBJ_DIR)/LoginInfo.pb.o                   \
 		$(OBJ_DIR)/GameInfo.pb.o                    \

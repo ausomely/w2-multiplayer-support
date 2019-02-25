@@ -2,6 +2,7 @@
 #include "ApplicationData.h"
 #include "MainMenuMode.h"
 #include "PlayerAIColorSelectMode.h"
+#include "MultiPlayerOptionsMenuMode.h"
 #include "MemoryDataSource.h"
 
 std::shared_ptr<CApplicationMode> CGameOverMenuMode::DGameOverMenuPointer;
@@ -9,8 +10,8 @@ std::shared_ptr<CApplicationMode> CGameOverMenuMode::DGameOverMenuPointer;
 CGameOverMenuMode::CGameOverMenuMode(const SPrivateConstructorType &key)
 {
     DTitle = "Game over";
-    DButtonTexts.push_back("Main Menu");
-    DButtonFunctions.push_back(MainMenuButtonCallback);
+    DButtonTexts.push_back("Leave Room");
+    DButtonFunctions.push_back(LeaveRoomButtonCallback);
     DButtonTexts.push_back("Return Room");
     DButtonFunctions.push_back(ReturnRoomButtonCallback);
     DButtonTexts.push_back("Exit Game");
@@ -18,7 +19,7 @@ CGameOverMenuMode::CGameOverMenuMode(const SPrivateConstructorType &key)
 }
 
 //! @brief Return to Main menu of the game
-void CGameOverMenuMode::MainMenuButtonCallback(
+void CGameOverMenuMode::LeaveRoomButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->DSoundLibraryMixer->StopSong();
@@ -29,8 +30,12 @@ void CGameOverMenuMode::MainMenuButtonCallback(
     if(context->DGameSessionType != CApplicationData::gstSinglePlayer) {
         context->ClientPointer->SendMessage("Leave");
         context->roomInfo.Clear();
+        context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
-    context->ChangeApplicationMode(CMainMenuMode::Instance());
+
+    else {
+        context->ChangeApplicationMode(CMainMenuMode::Instance());
+    }
 }
 
 //! @brief return to the same room
@@ -55,7 +60,7 @@ void CGameOverMenuMode::ExitGameButtonCallback(
 {
     // set log out message
     if(context->DGameSessionType != CApplicationData::gstSinglePlayer) {
-        context->ClientPointer->SendMessage("Leave");
+        context->ClientPointer->SendMessage("Exit");
     }
     context->DMainWindow->Close();
 }
