@@ -18,7 +18,7 @@ https://github.com/protocolbuffers/protobuf.git
 
 After cloning this repository, navigate to the protobuf directory and run the following commands to install it to usr:
 
-./configure —-prefix=/usr
+./configure --prefix=/usr
 
 make
 
