@@ -190,6 +190,7 @@ void GameRoom::IncreaseEndNum() {
     endNum++;
     if(endNum == size) {
       EndGame();
+      endNum = 0;
     }
 }
 

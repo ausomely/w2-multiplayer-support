@@ -11,7 +11,7 @@ Peasant
 # Size
 1
 # Speed
-10
+50
 # Gold Cost
 400
 # Lumber Cost
@@ -25,7 +25,7 @@ Peasant
 # Reload Steps
 0
 # Basic Damage
-3
+30
 # Piercing Damage
 2
 # Range
