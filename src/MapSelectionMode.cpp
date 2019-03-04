@@ -1,12 +1,10 @@
 /*
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
-
     All source material (source code, images, sounds, etc.) have been provided
     to University of California, Davis students of course ECS 160 for educational
     purposes. It may not be distributed beyond those enrolled in the course
     without prior permission from the copyright holder.
-
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
     were found freely available via internet sources and have been labeld as
@@ -40,11 +38,15 @@ void CMapSelectionMode::SelectMapButtonCallback(
     for (int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++)
     {
         context->DLoadingPlayerTypes[Index] = CApplicationData::ptNone;
+        context->DPlayerNames[Index] = "None";
+        context->DReadyPlayers[Index] = true;
         if (Index)
         {
             if (1 == Index)
             {
                 context->DLoadingPlayerTypes[Index] = CApplicationData::ptHuman;
+                context->DPlayerNames[Index] = context->DUsername;
+                context->DReadyPlayers[Index] = false;
             }
             else if (Index <= context->DSelectedMap->PlayerCount())
             {
@@ -53,11 +55,51 @@ void CMapSelectionMode::SelectMapButtonCallback(
                             context->DGameSessionType
                         ? CApplicationData::ptHuman
                         : CApplicationData::ptAIEasy;
+                context->DPlayerNames[Index] =
+                    CApplicationData::gstMultiPlayerHost ==
+                            context->DGameSessionType
+                        ? "None"
+                        : "AIEasy";
+                context->DReadyPlayers[Index] =
+                    CApplicationData::gstMultiPlayerHost ==
+                            context->DGameSessionType
+                        ? false
+                        : true;
             }
         }
     }
     context->DPlayerNumber = EPlayerNumber::Player1;
 
+    if (CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
+    {
+        context->roomInfo.Clear();
+        // configure room info
+        context->roomInfo.set_host(context->DUsername);
+        context->roomInfo.set_active(false);
+
+        for(auto &It: context->DLoadingPlayerTypes) {
+            context->roomInfo.add_types(to_underlying(It));
+        }
+
+        for(auto &It: context->DLoadingPlayerColors) {
+            context->roomInfo.add_colors(to_underlying(It));
+        }
+
+        for(auto &It: context->DPlayerNames) {
+            context->roomInfo.add_players(It);
+        }
+
+        for(auto &It: context->DReadyPlayers) {
+            context->roomInfo.add_ready(It);
+        }
+
+        context->roomInfo.set_map(context->DSelectedMap->MapName());
+        context->roomInfo.set_size(1);
+        context->roomInfo.set_capacity(context->DSelectedMap->PlayerCount());
+
+        // send room info
+        context->ClientPointer->SendRoomInfo(context);
+    }
     context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
 }
 
@@ -67,6 +109,7 @@ void CMapSelectionMode::BackButtonCallback(
 {
     if (CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
     {
+        context->ClientPointer->SendMessage("Back");
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
     else
@@ -346,4 +389,3 @@ std::shared_ptr<CApplicationMode> CMapSelectionMode::Instance()
             std::make_shared<CMapSelectionMode>(SPrivateConstructorType());
     }
     return DMapSelectionModePointer;
-}

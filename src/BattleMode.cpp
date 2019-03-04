@@ -19,6 +19,7 @@
 #include "GameOverMenuMode.h"
 #include "InGameMenuMode.h"
 #include "PixelType.h"
+#include "Client.h"
 
 #define PAN_SPEED_MAX 0x100
 #define PAN_SPEED_SHIFT 1
@@ -518,7 +519,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         else if (CPixelType::EAssetTerrainType::GoldMine ==
                                  PixelType.Type())
                         {
-                            
+
                             request.DTargetNumber = PixelType.Number();
                             request.DAction = EAssetCapabilityType::Mine;
                             request.DTargetType = EAssetType::GoldMine;
@@ -945,6 +946,12 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
         }
     }
 
+    // communicate with server if this is a multiplayer game
+    if (context->MultiPlayer() && context->DActiveGame) {
+        context->ClientPointer->SendGameInfo(context);
+        context->ClientPointer->GetGameInfo(context);
+    }
+
     // Check leave game flag. If set, change application mode according to
     // settings in CApplicationData::LeaveGame()
     if (context->CheckLeaveGameFlag())
@@ -956,53 +963,88 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
 {
-    bool PlayerAlive = false;    //!< Human player
     int AIAlive = 0;             //!< AI player(s)
-    int RemotePlayersAlive = 0;  //!< Remote players on the network
+    int PlayersAlive = 0;  //players in total
 
     /*! Check if every potentially possible player is alive
      * Every round of game play iterates over the whole enum EPlayerColor to
      * see which players are alive.
      */
-    for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++) {
+    for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++)
+    {
         //! Check if AI player is alive
         if (context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
-            ->IsAlive() &&
+                ->IsAlive() &&
             context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
-            ->IsAI()) {
+                ->IsAI())
+        {
             AIAlive++;  //! This AI is alive
 
             //! Ask AI to calculate its moves
             context->DAIPlayers[Index]->CalculateCommand(
-            context->DPlayerCommands[Index]);
+                context->DPlayerCommands[Index]);
         }
-
-        //! TODO: Check for remote players that are alive
 
         //! Check if human player is alive
         if (context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
-            ->IsAlive() &&
+                ->IsAlive() &&
             !(context->DGameModel->Player(static_cast<EPlayerNumber>(Index))
-            ->IsAI())) {
-            PlayerAlive = true;  //! Human player is alive
+                  ->IsAI()))
+        {
+            PlayersAlive++;
         }
     }
 
     //! Game is over when human player is dead or no AI players alive
-    if (!PlayerAlive || 0 == AIAlive) {
+    if (context->DGameSessionType == CApplicationData::gstSinglePlayer &&
+        (0 == PlayersAlive || 0 == AIAlive))
+    {
         int game_over_song;
         context->DSoundLibraryMixer->StopSong();
 
-        if (!PlayerAlive) {
+        if (0 == PlayersAlive)
+        {
             game_over_song = context->DSoundLibraryMixer->FindSong("lose");
-        } else {
+        }
+        else
+        {
             game_over_song = context->DSoundLibraryMixer->FindSong("win");
         }
 
         context->DSoundLibraryMixer->PlaySong(game_over_song,
                                               context->DMusicVolume);
         context->DActiveGame = false;
+
         context->ChangeApplicationMode(CGameOverMenuMode::Instance());
+    }
+
+    // multiplaye game end game condition
+    else if(context->DGameSessionType != CApplicationData::gstSinglePlayer &&
+        (1 == PlayersAlive && 0 == AIAlive)) {
+          int game_over_song;
+          context->DSoundLibraryMixer->StopSong();
+
+          if (!context->DGameModel->Player(context->DPlayerNumber)->IsAlive())
+          {
+              game_over_song = context->DSoundLibraryMixer->FindSong("lose");
+              // send lose to server
+          }
+          else
+          {
+              game_over_song = context->DSoundLibraryMixer->FindSong("win");
+              // send win to server
+          }
+
+          context->DSoundLibraryMixer->PlaySong(game_over_song,
+                                                context->DMusicVolume);
+          context->DActiveGame = false;
+
+          // if it is a host send end game signal to server
+          if(context->DGameSessionType == CApplicationData::gstMultiPlayerHost) {
+              context->ClientPointer->SendMessage("End");
+          }
+
+          context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
 
     /*! Check every player to enact its moves

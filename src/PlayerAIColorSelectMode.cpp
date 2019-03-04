@@ -1,12 +1,10 @@
 /*
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
-
     All source material (source code, images, sounds, etc.) have been provided
     to University of California, Davis students of course ECS 160 for educational
     purposes. It may not be distributed beyond those enrolled in the course
     without prior permission from the copyright holder.
-
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
     were found freely available via internet sources and have been labeld as
@@ -15,18 +13,17 @@
     ownership of this material.
 */
 #include "PlayerAIColorSelectMode.h"
+#include "ServerConnectMenuMode.h"
 #include "ApplicationData.h"
 #include "BattleMode.h"
 #include "MainMenuMode.h"
 #include "MapSelectionMode.h"
 #include "MemoryDataSource.h"
 #include "MultiPlayerOptionsMenuMode.h"
+#include "Client.h"
 
 std::shared_ptr<CPlayerAIColorSelectMode>
     CPlayerAIColorSelectMode::DPlayerAIColorSelectModePointer;
-
-std::array<bool, to_underlying(EPlayerNumber::Max)>
-    CPlayerAIColorSelectMode::DReadyPlayers;
 
 int CPlayerAIColorSelectMode::DCountdownTimer = 0;
 
@@ -54,6 +51,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
     DButtonHovered = false;
     DButtonFunctions.clear();
     DButtonLocations.clear();
+    DButtonTexts.clear();
     DColorButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
 
@@ -62,6 +60,7 @@ void CPlayerAIColorSelectMode::InitializeChange(
     {
         case CApplicationData::gstSinglePlayer:
         {
+            std::cout << "you are single" << std::endl;
             DTitle = "Select Colors / Difficulty";
 
             CancelButtonText = "Back";
@@ -77,26 +76,38 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
-
-            // Reset ready players array anytime this mode is entered
-            DReadyPlayers.fill(false);
-            // Neutral player and the host are always marked as ready
-            DReadyPlayers[to_underlying(EPlayerNumber::Neutral)] = true;
-            DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
-
+            // start updating roominfo
+            context->ClientPointer->StartUpdateRoomInfo(context);
         }
         break;
         case CApplicationData::gstMultiPlayerClient:
         {
             DTitle = "Are You Ready?!?";
-
-            // Query game server for player number
-            // context->DPlayerNumber = context->ClientPointer // something
-
             CancelButtonText = "Leave Server";
             DButtonTexts.push_back("I'm Ready!");
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
 
+            // start updating roominfo
+            context->ClientPointer->StartUpdateRoomInfo(context);
+
+            context->DSelectedMapIndex = 0;
+            context->DSelectedMap = CAssetDecoratedMap::DuplicateMap(0);
+            context->DMapRenderer = std::make_shared<CMapRenderer>(
+                std::make_shared<CMemoryDataSource>(
+                    context->DMapRendererConfigurationData),
+                context->DTerrainTileset, context->DSelectedMap);
+            context->DAssetRenderer = std::make_shared<CAssetRenderer>(
+                context->DAssetRecolorMap, context->DAssetTilesets,
+                context->DMarkerTileset, context->DCorpseTileset,
+                context->DFireTilesets, context->DBuildingDeathTileset,
+                context->DArrowTileset, nullptr, context->DSelectedMap);
+            context->DMiniMapRenderer = std::make_shared<CMiniMapRenderer>(
+                context->DMapRenderer, context->DAssetRenderer, nullptr, nullptr,
+                context->DDoubleBufferSurface->Format());
+
+            *context->DSelectedMap =
+                *CAssetDecoratedMap::GetMap(CAssetDecoratedMap::FindMapIndex(context->roomInfo.map()));
+            context->DSelectedMapIndex = CAssetDecoratedMap::FindMapIndex(context->roomInfo.map());
         }
     }
 
@@ -116,65 +127,79 @@ std::shared_ptr<CApplicationData> context)
 void CPlayerAIColorSelectMode::MPHostPlayGameButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
-    // Get player count from game server
-    int PlayerCount = 0; // set to 0 as a place holder
-    if (2 >= PlayerCount)
-    {
-        // No other players. Set countdown timer for warning message
-        DCountdownTimer = 40;
-        return;
-    }
-
-    // Check for empty player spaces
-    // Indices 0 and 1 are Neutral player and the host
-    for (int Index = 2; Index < context->DSelectedMap->PlayerCount(); Index++)
-    {
-        if (false == DReadyPlayers[Index])
-        {
-            context->DLoadingPlayerTypes[Index] = CApplicationData::ptNone;
+    for(int Index = 2; Index <= context->roomInfo.capacity();Index++) {
+        if(!context->roomInfo.ready(Index)) {
+            // One player is not ready. Set countdown timer for warning message
+            DCountdownTimer = 40;
+            return;
         }
     }
 
-    // send player types and colors to game server
-
-    context->ChangeApplicationMode(CBattleMode::Instance());
+    // send ready game start message to server
+    context->ClientPointer->SendMessage("StartGame");
 }
 
 void CPlayerAIColorSelectMode::MPClientReadyButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
     // Toggle player ready status
-    if (DReadyPlayers[to_underlying(context->DPlayerNumber)])
+    if (context->DReadyPlayers[to_underlying(context->DPlayerNumber)])
     {
-        DReadyPlayers[to_underlying(context->DPlayerNumber)] = false;
+        context->DReadyPlayers[to_underlying(context->DPlayerNumber)] = false;
     }
     else
     {
-        DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
+        context->DReadyPlayers[to_underlying(context->DPlayerNumber)] = true;
     }
 
+    // send ready information
+    for (int Index = 2; Index < to_underlying(EPlayerColor::Max); Index++)
+    {
+        context->roomInfo.set_ready(Index, context->DReadyPlayers[Index]);
+    }
+    context->ClientPointer->SendRoomInfo(context);
 }
 
 
 void CPlayerAIColorSelectMode::CancelButtonCallback(
 std::shared_ptr<CApplicationData> context)
 {
-    if (CApplicationData::gstMultiPlayerClient == context->DGameSessionType)
+    if (CApplicationData::gstSinglePlayer != context->DGameSessionType)
     {
+        context->roomList.Clear();
+        context->roomInfo.Clear();
+        // Notify game server
+        context->ClientPointer->SendMessage("Leave");
+        context->ClientPointer->io_service.run();
         context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
     }
-    else if (CApplicationData::gstMultiPlayerHost == context->DGameSessionType)
+    else
     {
-        // tell game server the game is cancelled
+        context->ChangeApplicationMode(CMapSelectionMode::Instance());
     }
-
-    // Switch to the map selection screen
-    context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
-
 
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 {
+    // if you become the host!
+    if(context->DPlayerNumber == EPlayerNumber::Player1 && context->MultiPlayer()) {
+        context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
+        DButtonHovered = false;
+        DButtonFunctions.clear();
+        DButtonTexts.clear();
+        DTitle = "Select Team Colors / Player Types";
+        std::string CancelButtonText = "Cancel";
+        DButtonTexts.push_back("Play Game");
+        DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
+        DButtonTexts.push_back(CancelButtonText);
+        DButtonFunctions.push_back(CancelButtonCallback);
+    }
+
+    // ready to start game!
+    if(context->roomInfo.active()) {
+        context->ChangeApplicationMode(CBattleMode::Instance());
+    }
+
     int CurrentX, CurrentY;
 
     // Get the X,Y coordinates of the pointer's position
@@ -186,41 +211,64 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
     DPlayerNumberRequesTypeChange = EPlayerNumber::Neutral;
 
     // True if left mouse button is clicked and it has not already been down
-    if (context->DLeftClick && !context->DLeftDown &&
-        (CApplicationData::gstMultiPlayerClient != context->DGameSessionType))
+    if (context->DLeftClick && !context->DLeftDown)
     {
-        // Iterate over all the colored button locations
-        for (int Index = 0; Index < DColorButtonLocations.size(); Index++)
+        if (CApplicationData::gstMultiPlayerClient != context->DGameSessionType)
         {
-            // Each index corresponds to an SRectangle object for a colored
-            // button. The object can check if the pointer is within the bounds
-            // of the button.
-            if (DColorButtonLocations[Index].PointInside(CurrentX, CurrentY))
+            // Iterate over all the colored button locations
+            for (int Index = 0; Index < DColorButtonLocations.size(); Index++)
             {
-                int PlayerSelecting =
-                    1 + (Index / (to_underlying(EPlayerNumber::Max) - 1));
-                int ColorSelecting =
-                    1 + (Index % (to_underlying(EPlayerColor::Max) - 1));
-
-                // Coordinating selecting colors between all players while
-                // in a non-multiplayer session
-                if ((PlayerSelecting == to_underlying(context->DPlayerNumber)) ||
-                    (CApplicationData::gstMultiPlayerClient !=
-                     context->DGameSessionType))
+                // Each index corresponds to an SRectangle object for a colored
+                // button. The object can check if the pointer is within the bounds
+                // of the button.
+                if (DColorButtonLocations[Index].PointInside(CurrentX, CurrentY))
                 {
-                    if ((PlayerSelecting ==
-                         to_underlying(context->DPlayerNumber)) ||
-                        (CApplicationData::ptHuman !=
-                         context->DLoadingPlayerTypes[PlayerSelecting]))
-                    {
-                        // Track which player number is requesting the color change
-                        DPlayerNumberRequestingChange =
-                            static_cast<EPlayerNumber>(PlayerSelecting);
+                    int PlayerSelecting =
+                        1 + (Index / (to_underlying(EPlayerNumber::Max) - 1));
+                    int ColorSelecting =
+                        1 + (Index % (to_underlying(EPlayerColor::Max) - 1));
 
-                        // Track the color change request
-                        DPlayerColorChangeRequest =
-                            static_cast<EPlayerColor>(ColorSelecting);
+                    // Coordinating selecting colors between all players while
+                    // in a non-multiplayer session
+                    if ((PlayerSelecting == to_underlying(context->DPlayerNumber)) ||
+                        (CApplicationData::gstMultiPlayerClient !=
+                         context->DGameSessionType))
+                    {
+                        /*
+                        if ((PlayerSelecting ==
+                             to_underlying(context->DPlayerNumber)) ||
+                            (CApplicationData::ptHuman !=
+                             context->DLoadingPlayerTypes[PlayerSelecting]))
+                        {
+                        */
+                            // Track which player number is requesting the color change
+                            DPlayerNumberRequestingChange =
+                                static_cast<EPlayerNumber>(PlayerSelecting);
+
+                            // Track the color change request
+                            DPlayerColorChangeRequest =
+                                static_cast<EPlayerColor>(ColorSelecting);
+                        //}
                     }
+                }
+            }
+
+            // Iterate over player type buttons, these can be the AI difficulty
+            // level settings.
+            for (int Index = 0; Index < DPlayerTypeButtonLocations.size(); Index++)
+            {
+
+                // If a pointer is over a button's location, then set a flag for
+                // calculate() where the difficulty level is changed.
+                // when a player has joiend it shouldn't change the type for that player
+                if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX, CurrentY) &&
+                      (context->DLoadingPlayerTypes[Index + 2] != CApplicationData::ptHuman ||
+                       (context->DLoadingPlayerTypes[Index + 2] == CApplicationData::ptHuman &&
+                       context->DPlayerNames[Index + 2] == "None")))
+                {
+                    DPlayerNumberRequesTypeChange =
+                        static_cast<EPlayerNumber>(Index + 2);
+                    break;
                 }
             }
         }
@@ -234,22 +282,6 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
             if (DButtonLocations[Index].PointInside(CurrentX, CurrentY))
             {
                 DButtonFunctions[Index](context);
-            }
-        }
-
-        // Iterate over player type buttons, these can be the AI difficulty
-        // level settings.
-        for (int Index = 0; Index < DPlayerTypeButtonLocations.size(); Index++)
-        {
-
-            // If a pointer is over a button's location, then set a flag for
-            // calculate() where the difficulty level is changed.
-            if (DPlayerTypeButtonLocations[Index].PointInside(CurrentX,
-                                                              CurrentY))
-            {
-                DPlayerNumberRequesTypeChange =
-                    static_cast<EPlayerNumber>(Index + 2);
-                break;
             }
         }
     }
@@ -313,11 +345,11 @@ void CPlayerAIColorSelectMode::Calculate(
         // Sync color change to server
         if (context->DGameSessionType == CApplicationData::gstMultiPlayerHost)
         {
-            // send data
-        }
-        else if (context->DGameSessionType == CApplicationData::gstMultiPlayerClient)
-        {
-            // get data
+            for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++)
+            {
+                context->roomInfo.set_colors(Index, to_underlying(context->DLoadingPlayerColors[Index]));
+            }
+            context->ClientPointer->SendRoomInfo(context);
         }
     }
 
@@ -370,6 +402,8 @@ void CPlayerAIColorSelectMode::Calculate(
                     context->DLoadingPlayerTypes[to_underlying(
                         DPlayerNumberRequesTypeChange)] =
                         CApplicationData::ptAIEasy;
+                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequesTypeChange),
+                        true);
                     break;
 
                 // Current type is AIEasy, get set to AIMedium
@@ -391,6 +425,7 @@ void CPlayerAIColorSelectMode::Calculate(
                     context->DLoadingPlayerTypes[to_underlying(
                         DPlayerNumberRequesTypeChange)] =
                         CApplicationData::ptNone;
+                    context->roomInfo.set_capacity(context->roomInfo.capacity() - 1);
                     break;
                 // For all types that don't have a case, set that player type
                 // to a Human
@@ -398,14 +433,29 @@ void CPlayerAIColorSelectMode::Calculate(
                     context->DLoadingPlayerTypes[to_underlying(
                         DPlayerNumberRequesTypeChange)] =
                         CApplicationData::ptHuman;
+                    context->roomInfo.set_capacity(context->roomInfo.capacity() + 1);
+                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequesTypeChange),
+                        false);
                     break;
             }
+
+            // send over player types changes for a AI
+            for (int Index = 2; Index <= context->DSelectedMap->PlayerCount(); Index++)
+            {
+                context->roomInfo.set_types(Index, to_underlying(context->DLoadingPlayerTypes[Index]));
+            }
+            context->ClientPointer->SendRoomInfo(context);
         }
     }
 }
 
 void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 {
+    // check the io_service event list to get update on room info
+    if(CApplicationData::gstSinglePlayer != context->DGameSessionType) {
+        context->ClientPointer->io_service.poll();
+    }
+
     int CurrentX, CurrentY;
     int BufferWidth, BufferHeight;
     int TitleHeight;
@@ -413,7 +463,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     int ColumnWidth, RowHeight;
     int MiniMapWidth, MiniMapHeight, MiniMapCenter, MiniMapLeft;
     int TextTop, ButtonLeft, ButtonTop, AIButtonLeft, ColorButtonHeight;
-    int GoldColor, WhiteColor, ShadowColor;
+    int GoldColor, WhiteColor, ShadowColor, RedColor;
     std::string TempString;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> PlayerNames;
     CButtonRenderer::EButtonState ButtonState =
@@ -441,6 +491,10 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     context
     ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
     ->FindColor("black");
+    RedColor =
+    context
+    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
+    ->FindColor("red");
 
     // Get the width and the height of the mini map
     MiniMapWidth = context->DMiniMapSurface->Width();
@@ -516,10 +570,16 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
             PlayerNames[Index] = TempString = std::to_string(Index) + ". You";
         }
         else if (CApplicationData::ptHuman !=
+                 context->DLoadingPlayerTypes[Index] && CApplicationData::ptNone !=
                  context->DLoadingPlayerTypes[Index])
         {
             PlayerNames[Index] = TempString =
-            std::to_string(Index) + ". Player " + std::to_string(Index);
+            std::to_string(Index) + ". AI";
+        }
+        else if (CApplicationData::ptHuman ==
+                 context->DLoadingPlayerTypes[Index] && "None" != context->DPlayerNames[Index])
+        {
+            PlayerNames[Index] = TempString = std::to_string(Index) + ". " + context->DPlayerNames[Index];
         }
         context
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
@@ -548,6 +608,27 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     // Draw rows of color buttons for each player in the game
     for (int Index = 1; Index <= context->DSelectedMap->PlayerCount(); Index++)
     {
+        int ActivationColor;
+        int PlayerNumber = to_underlying(context->DPlayerNumber);
+
+        // First check is for multiplayer
+        // If player has committed to the game, use activation color for name
+        if (context->DReadyPlayers[Index] && context->DLoadingPlayerTypes[Index] ==
+            CApplicationData::ptHuman)
+        {
+            ActivationColor = RedColor;
+        }
+        // Otherwise, color the current player's name to stand out from others
+        else if (Index == PlayerNumber)
+        {
+            ActivationColor = GoldColor;
+        }
+        // Color all other players generically
+        else
+        {
+            ActivationColor = WhiteColor;
+        }
+
         TempString = PlayerNames[Index];
         context
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
@@ -556,9 +637,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
         ->DrawTextWithShadow(
         context->DWorkingBufferSurface, context->DBorderWidth, TextTop,
-        Index == to_underlying(context->DPlayerNumber) ? GoldColor
-                                                       : WhiteColor,
-        ShadowColor, 1, TempString);
+        ActivationColor, ShadowColor, 1, TempString);
 
         // Iterate over all the possible player colors
         for (int ColorIndex = 1; ColorIndex < to_underlying(EPlayerColor::Max);
@@ -710,7 +789,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         break;
         case CApplicationData::gstMultiPlayerClient:
         {
-            if (DReadyPlayers[to_underlying(context->DPlayerNumber)]) {
+            if (context->DReadyPlayers[to_underlying(context->DPlayerNumber)]) {
                 TempString = "Waiting for Host!";
             }
         }
@@ -723,7 +802,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
     ->DrawTextWithShadow(
     context->DWorkingBufferSurface, ButtonLeft + 7, ButtonTop - 50,
-    GoldColor, ShadowColor, 1, TempString);
+    RedColor, ShadowColor, 1, TempString);
 
 
     // Set initial button state

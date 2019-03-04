@@ -20,6 +20,7 @@
 #include "ApplicationMode.h"
 #include "ButtonRenderer.h"
 #include "Rectangle.h"
+#include "RoomInfo.pb.h"
 
 using TServerConnectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
@@ -60,6 +61,7 @@ class CServerConnectMenuMode : public CApplicationMode
 			CButtonRenderer::EButtonState ButtonState);
 
     static void BackButtonCallback(std::shared_ptr<CApplicationData> context);
+    static void JoinButtonCallback(std::shared_ptr<CApplicationData> context);
 
     CServerConnectMenuMode(const CServerConnectMenuMode &) = delete;
     const CServerConnectMenuMode &operator=(const CServerConnectMenuMode &) = delete;

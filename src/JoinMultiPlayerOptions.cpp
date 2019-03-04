@@ -7,6 +7,7 @@
 #include "MultiPlayerOptionsMenuMode.h"
 #include "ServerConnectMenuMode.h"
 #include "SoundOptionsMode.h"
+#include "Client.h"
 
 std::shared_ptr<CApplicationMode>
     CJoinMultiPlayerOptions::DJoinMultiPlayerOptionsPointer;
@@ -35,6 +36,7 @@ void CJoinMultiPlayerOptions::DirectConnectionButtonCallback(
 void CJoinMultiPlayerOptions::ServerConnectionButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
+    context->ClientPointer->SendMessage("Join");
     context->ChangeApplicationMode(CServerConnectMenuMode::Instance());
 }
 

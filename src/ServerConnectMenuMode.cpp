@@ -18,6 +18,7 @@
 #include "JoinMultiPlayerOptions.h"
 #include "MainMenuMode.h"
 #include "MemoryDataSource.h"
+#include "PlayerAIColorSelectMode.h"
 #include "Rectangle.h"
 
 std::shared_ptr<CServerConnectMenuMode>
@@ -46,7 +47,29 @@ std::shared_ptr<CApplicationMode> CServerConnectMenuMode::Instance()
 void CServerConnectMenuMode::BackButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
+    context->ClientPointer->SendMessage("Back");
+    context->ClientPointer->io_service.run();
+
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
+}
+
+// join button call back
+void CServerConnectMenuMode::JoinButtonCallback(
+    std::shared_ptr<CApplicationData> context)
+{
+    // cannot join when room is full
+    if(context->roomList.roominfo()[context->DSelectedRoomNumber].size() !=
+        context->roomList.roominfo()[context->DSelectedRoomNumber].capacity()
+        && !context->roomList.roominfo()[context->DSelectedRoomNumber].active()) {
+        context->ClientPointer->SendMessage(std::to_string(context->DSelectedRoomNumber));
+        context->ClientPointer->io_service.run();
+
+        context->roomInfo = context->roomList.roominfo()[context->DSelectedRoomNumber];
+        // set DPlayerNumber
+        context->DPlayerNumber = static_cast <EPlayerNumber> (context->roomInfo.size() + 1);
+
+        context->ChangeApplicationMode(CPlayerAIColorSelectMode::Instance());
+    }
 }
 
 // TODO: Complete this later
@@ -66,7 +89,9 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
             if (DJoinButtonLocations[Index].PointInside(CurrentX, CurrentY))
             {
                 // MLH: Need to wire up join buttons to a callback function
-                //DJoinButtonFunctions[Index](context);
+                context->DSelectedRoomNumber = Index;
+
+                DJoinButtonFunctions[Index](context);
             }
         }
 
@@ -76,6 +101,8 @@ void CServerConnectMenuMode::Input(std::shared_ptr<CApplicationData> context) {
             DButtonFunctions[0](context);
         }
     }
+
+    context->ClientPointer->io_service.poll();
 }
 
 void CServerConnectMenuMode::Calculate(std::shared_ptr<CApplicationData> context)
@@ -89,13 +116,20 @@ void CServerConnectMenuMode::InitializeChange(
     DButtonLocations.clear();
     DJoinButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
+    context->roomList.Clear();
+
+    // start updating room list
+    context->ClientPointer->StartUpdateRoomList(context);
 }
 
 // Handle rendering of the game server information and join buttons
 void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 {
-    CButtonRenderer::EButtonState ButtonState;
+    // clear vector first !
+    DJoinButtonLocations.clear();
+    DJoinButtonFunctions.clear();
 
+    CButtonRenderer::EButtonState ButtonState;
     std::string TempString;
 
     LargeFontSize = to_underlying(CUnitDescriptionRenderer::EFontSize::Large);
@@ -138,26 +172,24 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
     TempString = "Players";
     DrawText(context, TempString, XPosCol4, YPosColumnHeader, WhiteColor);
 
-    // Remove Join buttons before repainting them
-    DJoinButtonLocations.clear();
-
     // Each game server gets a row of info and a join button
     // Need some way to get the total number of game servers
-    int game_servers = 5;
-    for (int i = 1, YPosDataRow = YPosRowStart; i < game_servers; i++)
+    int game_servers = context->roomList.roominfo().size();
+    for (int i = 0, YPosDataRow = YPosRowStart; i < game_servers; i++)
     {
-        std::string num_str = std::to_string(i);
+        std::string num_str = std::to_string(i + 1);
         std::string game = "Game ";
         DrawText(context, game + num_str, XPosCol1, YPosDataRow,
                  GoldColor);
-        std::string name = "Player ";
-        DrawText(context, name + num_str, XPosCol2, YPosDataRow,
+
+        DrawText(context, context->roomList.roominfo()[i].host(), XPosCol2, YPosDataRow,
                  GoldColor);
-        std::string map = "Map ";
-        DrawText(context, map + num_str, XPosCol3, YPosDataRow,
+
+        DrawText(context, context->roomList.roominfo()[i].map(), XPosCol3, YPosDataRow,
                  GoldColor);
-        std::string player_count = " / 6";
-        DrawText(context, num_str + player_count, XPosCol4, YPosDataRow,
+        std::string player_count = std::to_string(context->roomList.roominfo()[i].size()) + " / "
+                 + std::to_string(context->roomList.roominfo()[i].capacity());
+        DrawText(context, player_count, XPosCol4, YPosDataRow,
                  GoldColor);
 
         context->DButtonRenderer->Text("Join", true);
@@ -168,7 +200,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
         ButtonState = CButtonRenderer::EButtonState::None;
         if ((YPosDataRow <= CurrentY) &&
             (YPosDataRow + JoinButtonHeight > CurrentY) &&
-            (XPosCol5 <= CurrentX) && 
+            (XPosCol5 <= CurrentX) &&
             (XPosCol5 + JoinButtonWidth > CurrentX))
         {
             // Set to pressed if left mouse button down
@@ -189,6 +221,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
         // Push button dimensions onto vector of button locations
         DJoinButtonLocations.push_back(
             SRectangle({XPosCol5, YPosDataRow, JoinButtonWidth, JoinButtonHeight}));
+        DJoinButtonFunctions.push_back(JoinButtonCallback);
 
         // Set Y coordinate of next row of data
         YPosDataRow += YOffsetDataRows;
@@ -199,7 +232,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     // Renders the Back button on the screen
     RenderBackButton(context, ButtonState);
-    
+
     // If the button has not been previously hovered and it's currently hovered
     if (!DButtonHovered && ButtonHovered)
     {
@@ -220,6 +253,7 @@ void CServerConnectMenuMode::Render(std::shared_ptr<CApplicationData> context)
 
     // Keep track of the button hovered state
     DButtonHovered = ButtonHovered;
+
 }
 
 void CServerConnectMenuMode::DrawText(std::shared_ptr<CApplicationData> context,
@@ -232,7 +266,7 @@ void CServerConnectMenuMode::DrawText(std::shared_ptr<CApplicationData> context,
         text);
 }
 
-void CServerConnectMenuMode::RenderBackButton(std::shared_ptr<CApplicationData> context, 
+void CServerConnectMenuMode::RenderBackButton(std::shared_ptr<CApplicationData> context,
                                             CButtonRenderer::EButtonState ButtonState)
 {
     // USEFULL NOTE: Always put the hover button code then Draw the button
@@ -252,7 +286,7 @@ void CServerConnectMenuMode::RenderBackButton(std::shared_ptr<CApplicationData> 
     ButtonState = CButtonRenderer::EButtonState::None;
     if ((BackButtonLeft <= CurrentX) &&
         (BackButtonLeft + context->DButtonRenderer->Width() > CurrentX)
-        && (BackButtonTop <= CurrentY) 
+        && (BackButtonTop <= CurrentY)
         && ((BackButtonTop + context->DButtonRenderer->Height() > CurrentY)))
     {
         // Set to pressed if left mouse button down

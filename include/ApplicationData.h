@@ -36,6 +36,9 @@
 #include "ViewportRenderer.h"
 #include "NotificationRenderer.h"
 #include "UnitGrouping.h"
+#include "MultiPlayerOptionsMenuMode.h"
+#include "RoomInfo.pb.h"
+#include "Client.h"
 #include "TriggerController.h"
 #include "ServerConnectMenuMode.h"
 
@@ -70,6 +73,9 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     friend class COverlayManagement;
     friend class CInGameMenuOverlay;
     friend class CSoundOptionsOverlay;
+
+    // friend Client class
+    friend class Client;
 
     struct SPrivateApplicationType
     {
@@ -233,6 +239,11 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CListViewRenderer> DMapSelectListViewRenderer;
     std::shared_ptr<CEditRenderer> DOptionsEditRenderer;
 
+    // add shared_ptr to Client
+    std::shared_ptr< Client > ClientPointer;
+    // selected room number
+    int DSelectedRoomNumber;
+
     // Model
     EPlayerNumber DPlayerNumber;
     std::shared_ptr<CGameModel> DGameModel;
@@ -245,6 +256,10 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::array<EPlayerColor, to_underlying(EPlayerNumber::Max)>
         DLoadingPlayerColors;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> DPlayerNames;
+    std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
+
+    RoomInfo::RoomInformation roomInfo;
+    RoomInfo::RoomInfoPackage roomList;
 
     std::shared_ptr<CApplicationMode> DApplicationMode;
     std::shared_ptr<CApplicationMode> DNextApplicationMode;
@@ -264,7 +279,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     bool DLeftDown;
     bool DRightDown;
     CButtonRenderer::EButtonState DMenuButtonState;
-    std::shared_ptr<CUnitGrouping> DUnitGroups; 
+    std::shared_ptr<CUnitGrouping> DUnitGroups;
 
     static void ActivateCallback(TGUICalldata data);
     static bool TimeoutCallback(TGUICalldata data);
