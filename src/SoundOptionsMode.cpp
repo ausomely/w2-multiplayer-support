@@ -27,7 +27,6 @@ std::shared_ptr<CSoundOptionsMode> CSoundOptionsMode::DSoundOptionsModePointer;
 
 CSoundOptionsMode::CSoundOptionsMode(const SPrivateConstructorType &key)
 {
-    DTitle = "Sound Options";
     DButtonTexts.push_back("OK");
     DButtonFunctions.push_back(SoundOptionsUpdateButtonCallback);
     DButtonTexts.push_back("Cancel");
@@ -77,25 +76,21 @@ void CSoundOptionsMode::SoundOptionsUpdateButtonCallback(
             return;
         }
     }
-    context->DSoundVolume =
-        std::stof(DSoundOptionsModePointer->DEditText[0]) / 100.0;
-    context->DMusicVolume =
-        std::stof(DSoundOptionsModePointer->DEditText[1]) / 100.0;
 
-    context->DSoundLibraryMixer->PlaySong(
-        context->DSoundLibraryMixer->FindSong("menu"), context->DMusicVolume);
+    context->SetFXVolume(std::stof(DSoundOptionsModePointer->DEditText[0]) / 100.0);
+    context->SetMusicVolume(std::stof(DSoundOptionsModePointer->DEditText[1]) / 100.0);
 
-    //! Check for active game
+    //! Switch back to battle mode if there's an active game
     if (context->DActiveGame)
     {
-        //! Set in-game sound FX volume
-        context->DSoundEventRenderer->Volume(context->DSoundVolume);
         context->ChangeApplicationMode(CBattleMode::Instance());
     }
+    // Otherwise return to the main menu
     else
     {
         context->ChangeApplicationMode(COptionsMenuMode::Instance());
     }
+
     SaveSettings(context->DSoundVolume, context->DMusicVolume);
 }
 

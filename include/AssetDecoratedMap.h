@@ -36,6 +36,7 @@ class CAssetDecoratedMap : public CTerrainMap
     typedef struct
     {
         EPlayerNumber DNumber;
+        int DStone;
         int DGold;
         int DLumber;
     } SResourceInitialization, *SResourceInitializationRef;
@@ -46,6 +47,7 @@ class CAssetDecoratedMap : public CTerrainMap
     std::list<SResourceInitialization> DResourceInitializationList;
     std::vector<std::vector<int> > DSearchMap;
     std::vector<std::vector<int> > DLumberAvailable;
+    std::vector<std::vector<int> > DStoneAvailable;
 
     static std::map<std::string, int> DMapNameTranslation;
     static std::vector<std::shared_ptr<CAssetDecoratedMap> > DAllMaps;
@@ -79,6 +81,8 @@ class CAssetDecoratedMap : public CTerrainMap
                                      const CTilePosition &nexttiletarget);
 
     void RemoveLumber(const CTilePosition &pos, const CTilePosition &from,
+                      int amount);
+    void RemoveStone(const CTilePosition &pos, const CTilePosition &from,
                       int amount);
 
     bool LoadMap(std::shared_ptr<CDataSource> source);

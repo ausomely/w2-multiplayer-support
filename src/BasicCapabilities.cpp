@@ -200,7 +200,7 @@ bool CPlayerCapabilityMineHarvest::CanInitiate(
 {
     return actor->HasCapability(EAssetCapabilityType::Mine);
 }
-
+// This function checks if clicked area is mine, forest or stone
 bool CPlayerCapabilityMineHarvest::CanApply(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata,
@@ -210,7 +210,7 @@ bool CPlayerCapabilityMineHarvest::CanApply(
     {
         return false;
     }
-    if (actor->Lumber() || actor->Gold())
+    if (actor->Lumber() || actor->Gold() || actor->Stone())
     {
         return false;
     }
@@ -221,6 +221,11 @@ bool CPlayerCapabilityMineHarvest::CanApply(
     if (EAssetType::None != target->Type())
     {
         return false;
+    }
+    if (CTerrainMap::ETileType::Rock ==
+        playerdata->PlayerMap()->TileType(target->TilePosition()))
+    {
+        return true;
     }
     return CTerrainMap::ETileType::Forest ==
            playerdata->PlayerMap()->TileType(target->TilePosition());
@@ -271,9 +276,17 @@ bool CPlayerCapabilityMineHarvest::CActivatedCapability::IncrementStep()
     {
         AssetCommand.DAction = EAssetAction::MineGold;
     }
+    // Permit both rock and tree mining depending on pixel type selected via left or right click
     else
     {
-        AssetCommand.DAction = EAssetAction::HarvestLumber;
+        if (IsRock)
+        {
+            AssetCommand.DAction = EAssetAction::HarvestStone;
+        }
+        else
+        {
+            AssetCommand.DAction = EAssetAction::HarvestLumber;
+        }
     }
     DActor->ClearCommand();
     DActor->PushCommand(AssetCommand);
@@ -605,14 +618,14 @@ bool CPlayerCapabilityConvey::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return actor->Speed() > 0 && (actor->Lumber() || actor->Gold());
+    return actor->Speed() > 0 && (actor->Lumber() || actor->Gold() || actor->Stone());
 }
 
 bool CPlayerCapabilityConvey::CanApply(std::shared_ptr<CPlayerAsset> actor,
                                        std::shared_ptr<CPlayerData> playerdata,
                                        std::shared_ptr<CPlayerAsset> target)
 {
-    if (actor->Speed() && (actor->Lumber() || actor->Gold()))
+    if (actor->Speed() && (actor->Lumber() || actor->Gold() || actor->Stone()))
     {
         if (EAssetAction::Construct == target->Action())
         {
@@ -676,6 +689,15 @@ bool CPlayerCapabilityConvey::CActivatedCapability::IncrementStep()
     if (DActor->Lumber())
     {
         AssetCommand.DAction = EAssetAction::ConveyLumber;
+        AssetCommand.DAssetTarget = DTarget;
+        DActor->PushCommand(AssetCommand);
+        AssetCommand.DAction = EAssetAction::Walk;
+        DActor->PushCommand(AssetCommand);
+        DActor->ResetStep();
+    }
+    else if (DActor->Stone())
+    {
+        AssetCommand.DAction = EAssetAction::ConveyStone;
         AssetCommand.DAssetTarget = DTarget;
         DActor->PushCommand(AssetCommand);
         AssetCommand.DAction = EAssetAction::Walk;
@@ -1021,7 +1043,7 @@ bool CPlayerCapabilityRepair::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return (actor->Speed() > 0) && playerdata->Gold() && playerdata->Lumber();
+    return (actor->Speed() > 0) && playerdata->Gold() && playerdata->Lumber() && playerdata->Stone();
 }
 
 bool CPlayerCapabilityRepair::CanApply(std::shared_ptr<CPlayerAsset> actor,

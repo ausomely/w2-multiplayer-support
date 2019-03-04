@@ -30,26 +30,25 @@ class CInGameMenuOverlay : public COverlayMode
     friend class CButton;
 
   protected:
-    struct SPrivateConstructorType {};
+    std::shared_ptr<COverlayManagement> DOverlayManager;
+    std::shared_ptr<CApplicationData> DContext;
 
-    static std::shared_ptr<CInGameMenuOverlay> DInGameMenuOverlayPointer;
+    struct SPrivateConstructorType
+    {
+    };
+
     std::string DTitle;
     std::vector<std::string> DButtonTexts;
 //    std::vector<TOverlayCallbackFunction> DButtonFunctions;
     std::shared_ptr<CVerticalButtonAlignment> DButtonStack;
 
-    static std::shared_ptr<COverlayManagement> DOverlayManager;
-    static std::shared_ptr<CApplicationData> DContext;
-
-    CInGameMenuOverlay(const CInGameMenuOverlay &) = delete;
-    const CInGameMenuOverlay &operator=(const CInGameMenuOverlay &) = delete;
-
   public:
-    ~CInGameMenuOverlay(){};
-    explicit CInGameMenuOverlay(const SPrivateConstructorType &key);
-    virtual void Input() override;
-    virtual void Draw(int x, int y, bool clicked) override;
-    static std::shared_ptr<COverlayMode> Initialize();
+    ~CInGameMenuOverlay()
+    {
+    };
+    explicit CInGameMenuOverlay(std::shared_ptr<COverlayManagement> manager);
+    void Input(int x, int y, bool clicked) override;
+    void Draw(int x, int y, bool clicked) override;
 };
 
 #endif

@@ -80,6 +80,8 @@ CPlayerCapabilityBuildNormal::CRegistrant::CRegistrant()
         new CPlayerCapabilityBuildNormal("Blacksmith")));
     CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityBuildNormal>(
         new CPlayerCapabilityBuildNormal("ScoutTower")));
+   // CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityBuildNormal>(
+   //     new CPlayerCapabilityBuildNormal("GoldMine")));
 }
 
 CPlayerCapabilityBuildNormal::CPlayerCapabilityBuildNormal(
@@ -108,6 +110,10 @@ bool CPlayerCapabilityBuildNormal::CanInitiate(
         {
             return false;
         }
+        // if (AssetType->StoneCost() > playerdata->Stone())
+        // {
+        //     return false;
+        // }
     }
 
     return true;
@@ -137,6 +143,7 @@ bool CPlayerCapabilityBuildNormal::CanApply(
         {
             return false;
         }
+
         if (!playerdata->PlayerMap()->CanPlaceAsset(target->TilePosition(),
                                                     AssetType->Size(), actor))
         {

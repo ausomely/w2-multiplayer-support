@@ -19,30 +19,66 @@
 #include "Button.h"
 #include "Debug.h"
 
-CButtonAlignment::CButtonAlignment(EPosition placement)
+CButtonAlignment::CButtonAlignment(std::shared_ptr<CApplicationData> context,
+    EPosition placement)
 {
+    DContext = context;
     DPlacement = placement;
+    DButtonHovered = false;
+    DButtonPressedInStack = false;
 }
 
-void CButtonAlignment::DrawStack(int x, int y, bool clicked)
+// Measure the button texts so all buttons are consistently sized
+void CButtonAlignment::MeasureButtons(std::vector<std::string> texts)
+{
+    DContext->DButtonRenderer->SetBaseDimensions(); // Set to minimum size
+
+    for (auto &text : texts)
+    {
+        int Width;
+        int Height;
+
+        // false tells Text() not to shrink to size of text
+        DContext->DButtonRenderer->Text(text, false);
+
+        // Find maximum width of buttons
+        Width = DContext->DButtonRenderer->Width();
+        if (Width > DMaxWidth)
+        {
+            DMaxWidth = Width;
+        }
+
+        // Find maximum height of buttons
+        Height = DContext->DButtonRenderer->Height();
+        if (Height > DMaxHeight)
+        {
+            DMaxHeight = Height;
+        }
+    }
+
+}
+
+void
+CButtonAlignment::DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int y,
+    bool clicked)
 {
     DButtonHovered = false;
     DButtonPressedInStack = false;
     DContext->DButtonRenderer->SetBaseDimensions();
 
-    for (auto &Button : DButtons)
+    for (int Index = 0; Index < DButtons.size(); ++Index)
     {
-        if (Button->Update(x, y, clicked))
+        if (DButtons[Index]->Update(x, y, clicked))
         {
             DButtonHovered = true;
         }
-        DContext->DButtonRenderer->Text(Button->Text(), false);
+        DContext->DButtonRenderer->Text(DButtons[Index]->Text());
         DContext->DButtonRenderer->Width(DMaxWidth);
         DContext->DButtonRenderer->Height(DMaxHeight);
-        DContext->DButtonRenderer->DrawButton(DContext->DOverlaySurface,
-            Button->XPosition(), Button->YPosition(), Button->State());
+        DContext->DButtonRenderer->DrawButton(surface, DButtons[Index]->XPosition(),
+                    DButtons[Index]->YPosition(), DButtons[Index]->State());
 
-        if (Button->Pressed())
+        if (DButtons[Index]->Pressed())
         {
             DButtonPressedInStack = true;
         }
@@ -54,7 +90,7 @@ int CButtonAlignment::ButtonPressedIndex()
 {
     if (ButtonPressedInStack())
     {
-        for (size_t Index = 0; Index < DButtons.size(); Index++)
+        for (int Index = 0; Index < DButtons.size(); ++Index)
         {
             if (DButtons[Index]->Pressed())
             {
@@ -63,10 +99,28 @@ int CButtonAlignment::ButtonPressedIndex()
         }
     }
 
+    // No buttons pressed
     return -1;
 }
 
-bool CButtonAlignment::PointerHovering()
+// Mark a button inactive within the stack at the given index
+void CButtonAlignment::MarkInactiveButton(int index)
 {
-    return DButtonHovered;
+    // Fail silently if index is outside range
+
+    if (index < DButtons.size())
+    {
+        DButtons[index]->MarkInactive();
+    }
+}
+
+// Clear inactive button setting
+void CButtonAlignment::ClearInactiveButton(int index)
+{
+    // Fail silently if index is outside range
+
+    if (index < DButtons.size())
+    {
+        DButtons[index]->ClearInactive();
+    }
 }

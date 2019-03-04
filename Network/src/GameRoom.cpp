@@ -9,6 +9,7 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     roomInfo.CopyFrom(roomInformation);
     players.push_back(owner);
     host->id = 1;
+    endNum = 0;
 }
 
 void GameRoom::CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
@@ -182,6 +183,13 @@ void GameRoom::InitializeGame() {
     for(auto& It: players) {
         boost::asio::ip::tcp::no_delay option(true);
         It->socket.set_option(option);
+    }
+}
+
+void GameRoom::IncreaseEndNum() {
+    endNum++;
+    if(endNum == size) {
+      EndGame();
     }
 }
 

@@ -48,6 +48,7 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     bool DButtonHovered;
     int DMapOffset;
 
+
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void MPHostPlayGameButtonCallback(
@@ -55,6 +56,7 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     static void PlayGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void CancelButtonCallback(std::shared_ptr<CApplicationData> context);
+
     CPlayerAIColorSelectMode(const CPlayerAIColorSelectMode &) = delete;
     const CPlayerAIColorSelectMode &operator=(
         const CPlayerAIColorSelectMode &) = delete;

@@ -15,8 +15,8 @@
     ownership of this material.
 */
 #include "MultiPlayerOptionsMenuMode.h"
-#include "JoinMultiPlayerOptions.h"
 #include "ApplicationData.h"
+#include "JoinMultiPlayerOptions.h"
 #include "MainMenuMode.h"
 #include "MapSelectionMode.h"
 #include "Client.h"
@@ -53,6 +53,7 @@ void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->DGameSessionType = CApplicationData::gstMultiPlayerClient;
+
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 

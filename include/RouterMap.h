@@ -40,7 +40,7 @@ class CRouterMap
 
   public:
     EDirection FindRoute(const CAssetDecoratedMap &resmap,
-                         const CPlayerAsset &resource,
+                        CPlayerAsset &resource,
                          const CPixelPosition &target);
 };
 

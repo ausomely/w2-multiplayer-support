@@ -22,13 +22,25 @@ CButton::CButton(std::string &text, int x, int y, int width, int height)
     : DShape(new SRectangle({x, y, width, height}))
 {
     DState = CButtonRenderer::EButtonState::None;
+    DInactive = false;
     DText = text;
 }
 
+void CButton::State(CButtonRenderer::EButtonState state)
+{
+    DState = state;
+}
 
 // Update the button's state given the current x, y, and clicked values
 bool CButton::Update(int x, int y, bool clicked)
 {
+    // Set state to inactive if the button is marked inactive
+    if (Inactive())
+    {
+        State(CButtonRenderer::EButtonState::Inactive);
+        return false;
+    }
+
     // Check if pointer is within button coordinates
     if (DShape->PointInside(x, y))
     {
@@ -48,12 +60,22 @@ bool CButton::Update(int x, int y, bool clicked)
     }
     // Current pointer location is outside the button
     // Reset the button's state
-    else if (CButtonRenderer::EButtonState::Pressed == State() ||
-        CButtonRenderer::EButtonState::Hover == State())
+    else if (CButtonRenderer::EButtonState::Inactive != State())
     {
         State(CButtonRenderer::EButtonState::None);
     }
 
     // Signal the pointer is not over the button
     return false;
+}
+
+void CButton::MarkInactive()
+{
+    DInactive = true;
+}
+
+void CButton::ClearInactive()
+{
+    DInactive = false;
+    State(CButtonRenderer::EButtonState::None);
 }

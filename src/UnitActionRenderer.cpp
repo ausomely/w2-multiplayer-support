@@ -43,6 +43,8 @@ CUnitActionRenderer::CUnitActionRenderer(std::shared_ptr<CBevel> bevel,
         DIconTileset->FindTile("archer");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildRanger)] =
         DIconTileset->FindTile("ranger");
+    DCommandIndices[to_underlying(EAssetCapabilityType::BuildGoldMine)] =
+        DIconTileset->FindTile("gold-mine");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildFarm)] =
         DIconTileset->FindTile("chicken-farm");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildTownHall)] =
@@ -105,6 +107,8 @@ CUnitActionRenderer::CUnitActionRenderer(std::shared_ptr<CBevel> bevel,
         DIconTileset->FindTile("human-armor-3");
     DCommandIndices[to_underlying(EAssetCapabilityType::Longbow)] =
         DIconTileset->FindTile("longbow");
+    DCommandIndices[to_underlying(EAssetCapabilityType::RangerTracking)] =
+        DIconTileset->FindTile("ranger-tracking");
     DCommandIndices[to_underlying(EAssetCapabilityType::RangerScouting)] =
         DIconTileset->FindTile("ranger-scouting");
     DCommandIndices[to_underlying(EAssetCapabilityType::Marksmanship)] =
@@ -174,7 +178,7 @@ void CUnitActionRenderer::DrawUnitAction(
             {
                 AllSame = false;
             }
-            if (Asset->Lumber() || Asset->Gold())
+            if (Asset->Lumber() || Asset->Gold() || Asset->Stone())
             {
                 HasCargo = true;
             }
@@ -248,7 +252,8 @@ void CUnitActionRenderer::DrawUnitAction(
                                     EAssetCapabilityType::BuildCastle,
                                     EAssetCapabilityType::BuildScoutTower,
                                     EAssetCapabilityType::BuildGuardTower,
-                                    EAssetCapabilityType::BuildCannonTower})
+                                    EAssetCapabilityType::BuildCannonTower,
+                                    EAssetCapabilityType::BuildGoldMine})
             {
                 if (Asset->HasCapability(Capability))
                 {

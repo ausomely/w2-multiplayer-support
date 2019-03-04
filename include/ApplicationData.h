@@ -32,16 +32,20 @@
 #include "SoundEventRenderer.h"
 #include "UnitActionRenderer.h"
 #include "UnitDescriptionRenderer.h"
-#include "ViewportRenderer.h"
 #include "ButtonDescriptionRenderer.h"
+#include "ViewportRenderer.h"
 #include "NotificationRenderer.h"
 #include "UnitGrouping.h"
 #include "MultiPlayerOptionsMenuMode.h"
 #include "RoomInfo.pb.h"
 #include "Client.h"
+#include "TriggerController.h"
+#include "ServerConnectMenuMode.h"
 
 typedef void (*TButtonCallbackFunction)(void *calldata);
 typedef bool (*TEditTextValidationCallbackFunction)(const std::string &text);
+
+class CTriggerController;
 
 class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 {
@@ -59,13 +63,20 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     friend class CMapSelectionMode;
     friend class CPlayerAIColorSelectMode;
     friend class CBattleMode;
+    friend class CContextRetrieval;
+    friend class CTriggerController;
+    friend class CTriger;
+    friend class CEffects;
     friend class CButtonAlignment;
+    friend class CHorizontalButtonAlignment;
     friend class CVerticalButtonAlignment;
     friend class COverlayManagement;
     friend class CInGameMenuOverlay;
+    friend class CSoundOptionsOverlay;
 
-    //friend Client class
+    // friend Client class
     friend class Client;
+
     struct SPrivateApplicationType
     {
     };
@@ -143,21 +154,27 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CGraphicSurface> DUnitActionSurface;
     std::shared_ptr<CGraphicSurface> DResourceSurface;
     std::shared_ptr<CGraphicSurface> DMapSelectListViewSurface;
+
     std::shared_ptr<CGraphicSurface> DButtonDescriptionSurface;
-    //! Allocate the in-game overlay surface
-    std::shared_ptr<CGraphicSurface> DOverlaySurface;
     std::shared_ptr<CGraphicSurface> DNotificationRendererSurface;
-    uint32_t DMiniMapViewportColor;
+
+    // Overlay surface
+    std::shared_ptr<CGraphicSurface> DOverlaySurface;
+    int DOverlayXOffset, DOverlayYOffset;
+
+
+
+  uint32_t DMiniMapViewportColor;
+
+    // Flags
+    bool DOverlayActive;
+    bool DLeaveGame;
 
     int DBorderWidth;
     int DPanningSpeed;
     int DViewportXOffset, DViewportYOffset;
     int DMiniMapXOffset, DMiniMapYOffset;
     int DUnitDescriptionXOffset, DUnitDescriptionYOffset;
-    //! X, Y offsets for in-game overlay surface
-    int DOverlayXOffset, DOverlayYOffset;
-    //! Used to check if overlay surface is currently being drawn
-    bool DOverlayActive;
     int DUnitActionXOffset, DUnitActionYOffset;
     int DMenuButtonXOffset, DMenuButtonYOffset;
     int DMapSelectListViewXOffset, DMapSelectListViewYOffset;
@@ -170,6 +187,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::vector<std::string> DOptionsEditText;
     std::vector<TEditTextValidationCallbackFunction>
         DOptionsEditValidationFunctions;
+    std::shared_ptr<CTriggerController> DTriggerController;
 
     std::shared_ptr<CMapRenderer> DMapRenderer;
     std::shared_ptr<CCursorSet> DCursorSet;
@@ -214,8 +232,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::shared_ptr<CNotificationRenderer> DNotificationRenderer;
     std::shared_ptr<CUnitDescriptionRenderer> DUnitDescriptionRenderer;
     std::shared_ptr<CUnitActionRenderer> DUnitActionRenderer;
-    std::shared_ptr<CButtonDescriptionRenderer> DButtonDescriptionRenderer;
     std::shared_ptr<CResourceRenderer> DResourceRenderer;
+    std::shared_ptr<CButtonDescriptionRenderer> DButtonDescriptionRenderer;
     std::shared_ptr<CButtonRenderer> DMenuButtonRenderer;
     std::shared_ptr<CButtonRenderer> DButtonRenderer;
     std::shared_ptr<CListViewRenderer> DMapSelectListViewRenderer;
@@ -239,6 +257,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
         DLoadingPlayerColors;
     std::array<std::string, to_underlying(EPlayerNumber::Max)> DPlayerNames;
     std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
+
     RoomInfo::RoomInformation roomInfo;
     RoomInfo::RoomInfoPackage roomList;
 
@@ -319,6 +338,13 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     CPixelPosition MiniMapToDetailedMap(const CPixelPosition &pos);
 
     // Output
+    void DrawBackground(std::shared_ptr<CGraphicSurface> surface,
+        int &pagewidth, int &pageheight);
+    void DrawInnerBevel(std::shared_ptr<CGraphicSurface> surface,
+        int &pagewidth, int &pageheight);
+    void DrawOuterBevel(std::shared_ptr<CGraphicSurface> surface,
+        int &pagewidth, int &pageheight);
+
     void RenderMenuTitle(const std::string &title, int &titlebottomy,
                          int &pagewidth, int &pageheight);
     void RenderSplashStep();
@@ -332,10 +358,28 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     void ResizeCanvases();
 
     bool MultiPlayer();
+    void DeactivateOverlay();
+    void ActivateOverlay();
     void ToggleOverlay();
     bool OverlayActive();
 
+    int FindClipID(const std::string &name);
+    void StartPlayingClip(const std::string &name);
+    int FindSongID(const std::string &name);
+    void StopPlayingMusic();
+    void StartPlayingMusic(const std::string &song);
+    void SetFXVolume(float fx_vol);
+    void SetMusicVolume(float music_vol);
+
+    //! Quit active game and exit to a menu
     void LeaveGame();
+    void SetLeaveGameFlag(bool flag);
+    bool CheckLeaveGameFlag();
+
+    //! Procedure to cleanly shutdown game before exiting
+    void ShutdownGame();
+    void ClearMouseButtonState();
+
 
   public:
     explicit CApplicationData(const std::string &appname,

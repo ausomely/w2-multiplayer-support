@@ -1,7 +1,7 @@
 # Path to frames
 ./Icons.png
 # Number of frames
-179
+180
 # Frame names
 peasant
 peon
@@ -77,6 +77,7 @@ castle-2
 fortress-2
 aviary
 roost
+gold-vein
 gold-mine
 human-guard-tower
 human-cannon-tower
@@ -124,7 +125,7 @@ human-weapon-2
 human-weapon-3
 orc-weapon-1
 orc-weapon-2
-orc-weapon-3
+orc-weapon-3ai
 breed-wolf-1
 breed-wolf-2
 human-arrow-1
@@ -136,6 +137,7 @@ orc-axe-3
 breed-horse-1
 breed-horse-2
 longbow
+ranger-tracking
 ranger-scouting
 marksmanship
 lighter-axe

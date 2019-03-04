@@ -5,7 +5,7 @@ GoldMine
 # Armor
 0
 # Sight
-1
+0
 # Sight during construction
 0
 # Size
@@ -15,7 +15,7 @@ GoldMine
 # Gold Cost
 0
 # Lumber Cost
-0
+100
 # Food Consumption (Negative Production)
 0
 # Build Time (s)

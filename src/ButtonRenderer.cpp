@@ -75,6 +75,18 @@ CButtonRenderer::CButtonRenderer(std::shared_ptr<CGraphicRecolorMap> colors,
                DWhiteIndex, DGoldIndex, DBlackIndex);
 }
 
+//! Set a initial values for button dimensions
+void CButtonRenderer::SetBaseDimensions()
+{
+    DHeight = DWidth = DOuterBevel->Width() * 2;
+}
+
+//! Use when the button size is already set
+void CButtonRenderer::SetButtonText(std::string &text)
+{
+    DText = text;
+}
+
 std::string CButtonRenderer::Text(const std::string &text, bool minimize)
 {
     int TotalWidth, TotalHeight, Top, Bottom;

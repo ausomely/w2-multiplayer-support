@@ -49,6 +49,7 @@ class CAssetRenderer
     std::vector<std::vector<int> > DAttackIndices;
     std::vector<std::vector<int> > DCarryGoldIndices;
     std::vector<std::vector<int> > DCarryLumberIndices;
+    std::vector<std::vector<int> > DCarryStoneIndices;
     std::vector<std::vector<int> > DDeathIndices;
     std::vector<std::vector<int> > DPlaceIndices;
 

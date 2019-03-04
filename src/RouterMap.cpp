@@ -44,9 +44,10 @@ bool CRouterMap::MovingAway(EDirection dir1, EDirection dir2)
 }
 
 EDirection CRouterMap::FindRoute(const CAssetDecoratedMap &resmap,
-                                 const CPlayerAsset &asset,
+                                CPlayerAsset &assetNC,
                                  const CPixelPosition &target)
 {
+    const CPlayerAsset asset = assetNC;
     int MapWidth = resmap.Width();
     int MapHeight = resmap.Height();
     int StartX = asset.TilePositionX();
@@ -147,6 +148,7 @@ EDirection CRouterMap::FindRoute(const CAssetDecoratedMap &resmap,
                     if ((asset.Number() != Res->Number()) ||
                         ((EAssetAction::ConveyGold != Res->Action()) &&
                          (EAssetAction::ConveyLumber != Res->Action()) &&
+                         (EAssetAction::ConveyStone != Res->Action()) &&
                          (EAssetAction::MineGold != Res->Action())))
                     {
                         for (int YOff = 0; YOff < Res->Size(); YOff++)
@@ -210,7 +212,8 @@ EDirection CRouterMap::FindRoute(const CAssetDecoratedMap &resmap,
                 // CurTileType)||(CTerrainMap::ETileType::Stump ==
                 // CurTileType)||(CTerrainMap::ETileType::Rubble ==
                 // CurTileType)||(CTerrainMap::ETileType::None == CurTileType)){
-                if (CTerrainMap::IsTraversable(CurTileType))
+                bool AssetOnTree = resmap.TileType(asset.TilePositionX(),asset.TilePositionY()) == CTerrainMap::ETileType::Forest;
+                if (CTerrainMap::IsTraversable(CurTileType, assetNC,AssetOnTree))
                 {
                     TempSearch.DX = TempTile.X();
                     TempSearch.DY = TempTile.Y();
@@ -258,7 +261,9 @@ EDirection CRouterMap::FindRoute(const CAssetDecoratedMap &resmap,
         // CurTileType)||(CTerrainMap::ETileType::Stump ==
         // CurTileType)||(CTerrainMap::ETileType::Rubble ==
         // CurTileType)||(CTerrainMap::ETileType::None == CurTileType)){
-        if (CTerrainMap::IsTraversable(CurTileType))
+        bool AssetOnTree = resmap.TileType(asset.TilePositionX(),asset.TilePositionY()) == CTerrainMap::ETileType::Forest;
+           
+        if (CTerrainMap::IsTraversable(CurTileType, assetNC,AssetOnTree))
         {
             int Sum = to_underlying(LastInDirection) +
                       to_underlying(DirectionBeforeLast);

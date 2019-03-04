@@ -39,6 +39,7 @@ class CPixelType
         Footman,
         Archer,
         Ranger,
+        GoldVein,
         GoldMine,
         TownHall,
         Keep,

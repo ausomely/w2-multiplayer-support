@@ -1,7 +1,10 @@
 # Path to frames
 ./GoldMine.png
 # Number of frames
-2
+5
 # Frame names
+construct-0
+construct-1
 inactive
 active
+place

@@ -27,12 +27,14 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             }
             // end the game
             else if(strcmp(userPtr->data, "End") == 0) {
-                userPtr->currentRoom.lock()->EndGame();
+                userPtr->currentRoom.lock()->IncreaseEndNum();
                 DoRead(userPtr);
             }
 
             // leave the room
             else if(strcmp(userPtr->data, "Leave") == 0) {
+                boost::asio::ip::tcp::no_delay option(false);
+                userPtr->socket.set_option(option);
                 // leave the room
                 userPtr->currentRoom.lock()->leave(userPtr);
                 // go back to accepted session
@@ -89,7 +91,7 @@ void InGameSession::DoWrite(std::shared_ptr<User> userPtr) {
         }
     });
  }
- 
+
 //start reading from connection
 void InGameSession::Start(std::shared_ptr<User> userPtr) {
     std::cout << userPtr->name << " has joined in game session" << std::endl;

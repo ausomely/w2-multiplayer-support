@@ -1,10 +1,12 @@
 /*
     Copyright (c) 2015, Christopher Nitta
     All rights reserved.
+
     All source material (source code, images, sounds, etc.) have been provided
     to University of California, Davis students of course ECS 160 for educational
     purposes. It may not be distributed beyond those enrolled in the course
     without prior permission from the copyright holder.
+
     All sound files, sound fonts, midi files, and images that have been included
     that were extracted from original Warcraft II by Blizzard Entertainment
     were found freely available via internet sources and have been labeld as
@@ -41,6 +43,7 @@ CPlayerData::CPlayerData(std::shared_ptr<CAssetDecoratedMap> map,
     DVisibilityMap = DActualMap->CreateVisibilityMap();
     DGold = 0;
     DLumber = 0;
+    DStone = 0;
 
     DUpgrades.resize(to_underlying(EAssetCapabilityType::Max));
     for (int Index = 0; Index < DUpgrades.size(); Index++)
@@ -53,6 +56,7 @@ CPlayerData::CPlayerData(std::shared_ptr<CAssetDecoratedMap> map,
         {
             DGold = ResourceInit.DGold;
             DLumber = ResourceInit.DLumber;
+            DStone = ResourceInit.DStone;
         }
     }
     for (auto &AssetInit : DActualMap->AssetInitializationList())
@@ -66,7 +70,7 @@ CPlayerData::CPlayerData(std::shared_ptr<CAssetDecoratedMap> map,
             std::shared_ptr<CPlayerAsset> InitAsset =
                 CreateAsset(AssetInit.DType);
             InitAsset->TilePosition(AssetInit.DTilePosition);
-            if (EAssetType::GoldMine ==
+            if (EAssetType::GoldVein ==
                 CPlayerAssetType::NameToType(AssetInit.DType))
             {
                 InitAsset->Gold(DGold);
@@ -84,8 +88,8 @@ int CPlayerData::FoodConsumption() const
         if (auto Asset = WeakAsset.lock())
         {
             int AssetConsumption = Asset->FoodConsumption();
-            if (0 < AssetConsumption)
-            {
+            if (0 < AssetConsumption){
+
                 TotalConsumption += AssetConsumption;
             }
         }
@@ -140,15 +144,12 @@ std::shared_ptr<CPlayerAsset> CPlayerData::CreateAsset(
     DAssets.push_back(CreatedAsset);
     DActualMap->AddAsset(CreatedAsset);
 
-    //Adds and asset ID to each created player asset.
+    //Adds an asset ID to each created player asset.
     CreatedAsset->SetId(CreatedAsset->GetIdCounter());
     umap[CreatedAsset->Id()] = CreatedAsset;
-    //std::cout << "Found " << umap.find(CreatedAsset->Id())->first << "\n";
-    //std::cout << umap.find(CreatedAsset->Id())->second->Name() << "\n";
 
     CreatedAsset->IncIdCounter();
 
-    //std::cout << CreatedAsset->GetIdCounter() << "\n";
 
     return CreatedAsset;
 }
@@ -422,6 +423,7 @@ std::weak_ptr<CPlayerAsset> CPlayerData::FindNearestEnemy(
             }
             if ((EAssetAction::ConveyGold != Command.DAction) &&
                 (EAssetAction::ConveyLumber != Command.DAction) &&
+                (EAssetAction::ConveyStone != Command.DAction) &&
                 (EAssetAction::MineGold != Command.DAction))
             {
                 int CurrentDistance =
@@ -585,6 +587,21 @@ int CPlayerData::PlayerAssetCount(EAssetType type)
     return Count;
 }
 
+int CPlayerData::PlayerMovingAssetCount(EPlayerNumber number)
+{
+    int Count = 0;
+
+    for (auto Asset : DPlayerMap->Assets())
+    {
+        if ((number == Asset->Number()) && 0 < Asset->Speed())
+        {
+            Count++;
+        }
+    }
+
+    return Count;
+}
+
 int CPlayerData::FoundAssetCount(EAssetType type)
 {
     int Count = 0;
@@ -655,6 +672,7 @@ CGameModel::CGameModel(
     DDecayTime = 4;
     DDecaySteps = CPlayerAsset::UpdateFrequency() * DDecayTime;
     DLumberPerHarvest = 100;
+    DStonePerHarvest = 100;
     DGoldPerMining = 100;
 
     DRandomNumberGenerator.Seed(seed);
@@ -701,6 +719,47 @@ std::shared_ptr<CPlayerData> CGameModel::Player(EPlayerNumber number) const
     return DPlayers.at(to_underlying(number));
 }
 
+void CGameModel::HealUnits()
+{
+    for (int PlayerIndex = 1; PlayerIndex < to_underlying(EPlayerColor::Max);
+         PlayerIndex++)
+    {
+        int unitCount = DPlayers.at(PlayerIndex)->PlayerMovingAssetCount(static_cast<EPlayerNumber>(PlayerIndex));
+        int excessFood = DPlayers.at(PlayerIndex)->FoodProduction() - DPlayers.at(PlayerIndex)->FoodConsumption();
+        int period = std::min(((unitCount*unitCount)/2*excessFood), 4);
+
+        for(auto it = DAssetHealingPeriod.cbegin(); it != DAssetHealingPeriod.cend(); ++it)
+        {
+            std::shared_ptr<CPlayerAsset> Asset = it->first;
+            int lastHeal = it->second;
+
+            // Find the Asset being attacked
+            std::shared_ptr<CPlayerAsset> AttackedAsset = Asset->GetAttackedTargets();
+            if(AttackedAsset != nullptr) {
+
+                DAssetHealingPeriod[AttackedAsset] = -5.0;
+            }
+
+            // Only heal if out of combat
+            if (EAssetAction::Attack != Asset->Action() && EAssetAction::Death != Asset->Action() &&
+                EAssetAction::None == Asset->Action() && EAssetAction::Decay != Asset->Action()) {
+                if (period < lastHeal && Asset->HitPoints() < Asset->MaxHitPoints() ) {
+                    Asset->HitPoints(Asset->HitPoints() + 1);
+                    DAssetHealingPeriod[Asset] = 0.0;
+                }
+                else {
+                    DAssetHealingPeriod[Asset]+= 1.0/150.0;
+                }
+            }
+            // Else reset the healing counter and wait until asset healed again
+            else if (EAssetAction::Attack == Asset->Action())
+            {
+                DAssetHealingPeriod[Asset] = 0.0;
+            }
+        }
+    }
+}
+
 // Clear all player assets in evaluation list
 void CGameModel::ClearAssetsEvalList()
 {
@@ -714,9 +773,31 @@ void CGameModel::CreateAssetsEvalList()
     {
         Asset->SetRandomId(DAssetsRandomNumberGenerator.Random());
         DSortedAssets.push_back(Asset);
+
+        // If Asset not in the map
+        if ( DAssetHealingPeriod.find(Asset) == DAssetHealingPeriod.end() && 0 < Asset->Speed() )
+        {
+            DTotalAssetCount++;
+            DAssetHealingPeriod[Asset] = 0;
+        }
     }
 
     std::sort(DSortedAssets.begin(), DSortedAssets.end(), SortAssets);
+}
+
+int CGameModel::TotalMovingAssetCount()
+{
+    int Count = 0;
+
+    for (auto Asset : DActualMap->Assets())
+    {
+        if (0 < Asset->Speed())
+        {
+            Count++;
+        }
+    }
+
+    return Count;
 }
 
 // Comparison function to sort assets
@@ -746,10 +827,50 @@ bool CGameModel::SortAssets(const std::shared_ptr<CPlayerAsset> &a,
     }
 }
 
+void CGameModel::ChangeAssetOwner(EPlayerNumber prevOwner, EPlayerNumber newOwner, std::shared_ptr<CPlayerAsset> asset)
+{
+    auto PrevOwner = Player(prevOwner);
+    auto NewOwner = Player(newOwner);
+
+    auto PrevAssets = PrevOwner->Assets();
+    auto NewAssets = NewOwner->Assets();
+
+    auto Iterator = PrevAssets.begin();
+
+    NewAssets.push_back(asset);
+
+    auto assetType = asset->AssetType();
+
+    while (Iterator != PrevAssets.end())
+    {
+        if (Iterator->lock() == asset)
+        {
+            PrevAssets.erase(Iterator);
+            break;
+        }
+        Iterator++;
+    }
+
+    asset->ChangeOwner(NewOwner->Number(),NewOwner->Color());
+
+}
+
+void CGameModel::ChangeGoldMineOwner(){
+    for(auto asset : DActualMap->Assets())
+    {
+        if(asset->Type() == EAssetType::GoldMine && asset->Number() != EPlayerNumber::Neutral && asset->HitPoints() == 25500)
+        {
+            ChangeAssetOwner(asset->Number(), EPlayerNumber::Neutral, asset);
+        }
+    }
+}
+
 void CGameModel::Timestep()
 {
     std::vector<SGameEvent> CurrentEvents;
     SGameEvent TempEvent;
+
+    int healingPeriod;
 
     for (auto &Row : DAssetOccupancyMap)
     {
@@ -771,6 +892,7 @@ void CGameModel::Timestep()
     {
         if ((EAssetAction::ConveyGold != Asset->Action()) &&
             (EAssetAction::ConveyLumber != Asset->Action()) &&
+            (EAssetAction::ConveyStone != Asset->Action()) &&
             (EAssetAction::MineGold != Asset->Action()))
         {
             DAssetOccupancyMap[Asset->TilePositionY()][Asset->TilePositionX()] =
@@ -790,10 +912,14 @@ void CGameModel::Timestep()
     // Create randomized asset evaluation list
     CreateAssetsEvalList();
 
+    // Heal units not in combat
+    HealUnits();
+
     // Put player assets into action
     auto AllAssets = AssetsEvalList();
     for (auto &Asset : AllAssets)
     {
+
         if (EAssetAction::None == Asset->Action())
         {
             Asset->PopCommand();
@@ -804,6 +930,14 @@ void CGameModel::Timestep()
             SAssetCommand Command = Asset->CurrentCommand();
             if (Command.DActivatedCapability)
             {
+                if (IsRock)
+                {
+                    Command.DActivatedCapability->IsRock = IsRock;
+                }
+                else
+                {
+                    Command.DActivatedCapability->IsRock = false;
+                }
                 if (Command.DActivatedCapability->IncrementStep())
                 {
                     // All Done
@@ -914,6 +1048,93 @@ void CGameModel::Timestep()
                 }
             }
         }
+    // stone update
+        else if (EAssetAction::HarvestStone == Asset->Action())
+        {
+            SAssetCommand Command = Asset->CurrentCommand();
+            CTilePosition TilePosition = Command.DAssetTarget->TilePosition();
+            EDirection HarvestDirection =
+                    Asset->TilePosition().AdjacentTileDirection(TilePosition);
+
+            if (CTerrainMap::ETileType::Rock !=
+                DActualMap->TileType(TilePosition))
+            {
+                HarvestDirection = EDirection::Max;
+                TilePosition = Asset->TilePosition();
+            }
+            if (EDirection::Max == HarvestDirection)
+            {
+                if (TilePosition == Asset->TilePosition())
+                {
+                    CTilePosition TilePosition =
+                            DPlayers.at(to_underlying(Asset->Number()))
+                                    ->PlayerMap()
+                                    ->FindNearestReachableTileType(
+                                            Asset->TilePosition(),
+                                            CTerrainMap::ETileType::Rock);
+
+                    Asset->PopCommand();
+                    if (0 <= TilePosition.X())
+                    {
+                        CPixelPosition NewPosition;
+                        NewPosition.SetFromTile(TilePosition);
+                        Command.DAssetTarget =
+                                DPlayers.at(to_underlying(Asset->Number()))
+                                        ->CreateMarker(NewPosition, false);
+                        Asset->PushCommand(Command);
+                        Command.DAction = EAssetAction::Walk;
+                        Asset->PushCommand(Command);
+                        Asset->ResetStep();
+                    }
+                }
+                else
+                {
+                    SAssetCommand NewCommand = Command;
+
+                    NewCommand.DAction = EAssetAction::Walk;
+                    Asset->PushCommand(NewCommand);
+                    Asset->ResetStep();
+                }
+            }
+            else
+            {
+                TempEvent.DType = EEventType::Harvest;
+                TempEvent.DAsset = Asset;
+                CurrentEvents.push_back(TempEvent);
+                Asset->Direction(HarvestDirection);
+                Asset->IncrementStep();
+                if (DHarvestSteps <= Asset->Step())
+                {
+                    std::weak_ptr<CPlayerAsset> NearestRepository =
+                            DPlayers.at(to_underlying(Asset->Number()))
+                                    ->FindNearestOwnedAsset(
+                                            Asset->Position(),
+                                            {EAssetType::TownHall, EAssetType::Keep,
+                                             EAssetType::Castle});
+
+                    DActualMap->RemoveStone(
+                            TilePosition, Asset->TilePosition(), DStonePerHarvest);
+
+                    if (!NearestRepository.expired())
+                    {
+                        Command.DAction = EAssetAction::ConveyStone;
+                        Command.DAssetTarget = NearestRepository.lock();
+                        Asset->PushCommand(Command);
+                        Command.DAction = EAssetAction::Walk;
+                        Asset->PushCommand(Command);
+                        Asset->Stone(DStonePerHarvest);
+                        Asset->ResetStep();
+                    }
+                    else
+                    {
+                        Asset->PopCommand();
+                        Asset->Stone(DStonePerHarvest);
+                        Asset->ResetStep();
+                    }
+                }
+            }
+        }
+
         else if (EAssetAction::MineGold == Asset->Action())
         {
             SAssetCommand Command = Asset->CurrentCommand();
@@ -1156,6 +1377,8 @@ void CGameModel::Timestep()
                             if ((EAssetAction::ConveyGold ==
                                  TargetCommand.DAction) ||
                                 (EAssetAction::ConveyLumber ==
+                                 TargetCommand.DAction) ||
+                                 (EAssetAction::ConveyStone ==
                                  TargetCommand.DAction))
                             {
                                 // Damage the target
@@ -1355,6 +1578,7 @@ void CGameModel::Timestep()
                         AttackDirection; DivX = 0 > DivX ? -DivX : DivX; DivY =
                         0 > DivY ? -DivY : DivY; Div = DivX > DivY ? DivX :
                         DivY;
+
                         if(Div){
                             DeltaPosition.X(DeltaPosition.X() / Div);
                             DeltaPosition.Y(DeltaPosition.Y() / Div);
@@ -1471,6 +1695,7 @@ void CGameModel::Timestep()
             }
         }
         else if ((EAssetAction::ConveyLumber == Asset->Action()) ||
+                 (EAssetAction::ConveyStone == Asset->Action()) ||
                  (EAssetAction::ConveyGold == Asset->Action()))
         {
             Asset->IncrementStep();
@@ -1491,8 +1716,11 @@ void CGameModel::Timestep()
                     ->IncrementGold(Asset->Gold());
                 DPlayers.at(to_underlying(Asset->Number()))
                     ->IncrementLumber(Asset->Lumber());
+                DPlayers.at(to_underlying(Asset->Number()))
+                        ->IncrementStone(Asset->Stone());
                 Asset->Gold(0);
                 Asset->Lumber(0);
+                Asset->Stone(0);
                 Asset->PopCommand();
                 Asset->ResetStep();
                 if (EAssetAction::None != Asset->Action())
@@ -1512,6 +1740,14 @@ void CGameModel::Timestep()
             SAssetCommand Command = Asset->CurrentCommand();
             if (Command.DActivatedCapability)
             {
+                if (IsRock)
+                {
+                    Command.DActivatedCapability->IsRock = IsRock;
+                }
+                else
+                {
+                    Command.DActivatedCapability->IsRock = false;
+                }
                 if (Command.DActivatedCapability->IncrementStep())
                 {
                     // All Done
@@ -1618,6 +1854,34 @@ void CGameModel::Timestep()
                             continue;
                         }
                     }
+
+                    else if (EAssetAction::HarvestStone == NextCommand.DAction)
+                    {
+                        TilePosition =
+                                DPlayers.at(to_underlying(Asset->Number()))
+                                        ->PlayerMap()
+                                        ->FindNearestReachableTileType(
+                                                Asset->TilePosition(),
+                                                CTerrainMap::ETileType::Rock);
+
+                        Asset->PopCommand();
+                        Asset->PopCommand();
+                        if (0 <= TilePosition.X())
+                        {
+                            CPixelPosition NewPosition;
+                            NewPosition.SetFromTile(TilePosition);
+                            Command.DAction = EAssetAction::HarvestStone;
+                            Command.DAssetTarget =
+                                    DPlayers.at(to_underlying(Asset->Number()))
+                                            ->CreateMarker(NewPosition, false);
+                            Asset->PushCommand(Command);
+                            Command.DAction = EAssetAction::Walk;
+                            Asset->PushCommand(Command);
+                            Asset->ResetStep();
+                            continue;
+                        }
+                    }
+
                     else
                     {
                         Command.DAction = EAssetAction::None;

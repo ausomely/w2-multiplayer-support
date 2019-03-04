@@ -25,8 +25,7 @@ class COverlayMode
 {
   public:
     virtual ~COverlayMode(){};
-    virtual void Input() = 0;
-    //virtual void Input(int x, int y, bool clicked) = 0;
+    virtual void Input(int x, int y, bool clicked) = 0;
     virtual void Draw(int x, int y, bool clicked) = 0;
 };
 

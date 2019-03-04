@@ -35,6 +35,7 @@ class CPlayerCapabilityTrainNormal : public CPlayerCapability
         int DTotalSteps;
         int DLumber;
         int DGold;
+        int DStone;
 
       public:
         CActivatedCapability(std::shared_ptr<CPlayerAsset> actor,
@@ -100,6 +101,10 @@ bool CPlayerCapabilityTrainNormal::CanInitiate(
         {
             return false;
         }
+        // if (AssetType->StoneCost() > playerdata->Stone())
+        // {
+        //     return false;
+        // }
         if ((AssetType->FoodConsumption() + playerdata->FoodConsumption()) >
             playerdata->FoodProduction())
         {

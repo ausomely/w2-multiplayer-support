@@ -12,13 +12,12 @@
     purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
+#include "TriggerController.h"
 #include "BattleMode.h"
 #include "ApplicationData.h"
 #include "Debug.h"
 #include "GameOverMenuMode.h"
 #include "InGameMenuMode.h"
-#include "InGameMenuOverlay.h"
-#include "OverlayManagement.h"
 #include "PixelType.h"
 #include "Client.h"
 
@@ -53,9 +52,18 @@ void CBattleMode::InitializeChange(std::shared_ptr<CApplicationData> context)
         if (nullptr == DOverlayManager)
         {
             DOverlayManager = COverlayManagement::Initialize(context);
+            DOverlayManager->SetMode(EOverlay::InGameMenu);
+        }
+
+
+        if (context->EGameSessionType::gstSinglePlayer == context->DGameSessionType)
+        {
+            context->DTriggerController =
+                CTriggerController::Instance(context);
+
+            DScenarioTimmer = 0;
         }
     }
-
     context->DSoundLibraryMixer->StopSong();
     context->DSoundLibraryMixer->PlaySong(
         context->DSoundLibraryMixer->FindSong("game1"), context->DMusicVolume);
@@ -73,107 +81,137 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     CurrentY = context->DCurrentY;
 
     SPlayerCommandRequest& request = context->DPlayerCommands[to_underlying(context->DPlayerNumber)];
-
-    if (false == context->OverlayActive()) {
+    if (!context->OverlayActive())
+    {
         //! Does things based on current keyboard input
         context->DGameModel->ClearGameEvents();
-        for (auto Key : context->DPressedKeys) {
-            if (SGUIKeyType::UpArrow == Key) {
+        for (auto Key : context->DPressedKeys)
+        {
+            if (SGUIKeyType::UpArrow == Key)
+            {
                 PanningDirection = EDirection::North;
                 Panning = true;
-            } else if (SGUIKeyType::DownArrow == Key) {
+            }
+            else if (SGUIKeyType::DownArrow == Key)
+            {
                 PanningDirection = EDirection::South;
                 Panning = true;
-            } else if (SGUIKeyType::LeftArrow == Key) {
+            }
+            else if (SGUIKeyType::LeftArrow == Key)
+            {
                 PanningDirection = EDirection::West;
                 Panning = true;
-            } else if (SGUIKeyType::RightArrow == Key) {
+            }
+            else if (SGUIKeyType::RightArrow == Key)
+            {
                 PanningDirection = EDirection::East;
                 Panning = true;
-            } else if ((SGUIKeyType::LeftShift == Key) ||
-                       (SGUIKeyType::RightShift == Key)) {
+            }
+            else if ((SGUIKeyType::LeftShift == Key) ||
+                     (SGUIKeyType::RightShift == Key))
+            {
                 ShiftPressed = true;
             }
         }
 
-        for (auto Key : context->DReleasedKeys) {
+        for (auto Key : context->DReleasedKeys)
+        {
             // Handle releases
-            if (context->DSelectedPlayerAssets.size()) {
+            if (context->DSelectedPlayerAssets.size())
+            {
                 bool CanMove = true;
-                for (auto &Asset : context->DSelectedPlayerAssets) {
-                    if (auto LockedAsset = Asset.lock()) {
-                        if (0 == LockedAsset->Speed()) {
+                for (auto &Asset : context->DSelectedPlayerAssets)
+                {
+                    if (auto LockedAsset = Asset.lock())
+                    {
+                        if (0 == LockedAsset->Speed())
+                        {
                             CanMove = false;
                             break;
                         }
                     }
                 }
 
-                if (SGUIKeyType::Escape == Key) {
+                if (SGUIKeyType::Escape == Key)
+                {
                     context->DCurrentAssetCapability = EAssetCapabilityType::None;
                 }
 
                 if (EAssetCapabilityType::BuildSimple ==
-                    context->DCurrentAssetCapability) {
+                    context->DCurrentAssetCapability)
+                {
                     auto KeyLookup = context->DBuildHotKeyMap.find(Key);
                     // check build
-                    if (KeyLookup != context->DBuildHotKeyMap.end()) {
+                    if (KeyLookup != context->DBuildHotKeyMap.end())
+                    {
                         auto PlayerCapability =
-                        CPlayerCapability::FindCapability(KeyLookup->second);
+                            CPlayerCapability::FindCapability(KeyLookup->second);
 
-                        if (PlayerCapability) {
+                        if (PlayerCapability)
+                        {
                             auto ActorTarget =
-                            context->DSelectedPlayerAssets.front().lock();
+                                context->DSelectedPlayerAssets.front().lock();
 
                             if (PlayerCapability->CanInitiate(
-                            ActorTarget, context->DGameModel->Player(
-                            context->DPlayerNumber))) {
+                                    ActorTarget, context->DGameModel->Player(
+                                                     context->DPlayerNumber)))
+                            {
                                 SGameEvent TempEvent;
                                 TempEvent.DType = EEventType::ButtonTick;
                                 context->DGameModel->Player(context->DPlayerNumber)
-                                ->AddGameEvent(TempEvent);
+                                    ->AddGameEvent(TempEvent);
 
                                 context->DCurrentAssetCapability =
-                                KeyLookup->second;
+                                    KeyLookup->second;
                             }
                         }
                     }
-                } else if (CanMove) {
+                }
+                else if (CanMove)
+                {
                     auto KeyLookup = context->DUnitHotKeyMap.find(Key);
 
-                    if (KeyLookup != context->DUnitHotKeyMap.end()) {
+                    if (KeyLookup != context->DUnitHotKeyMap.end())
+                    {
                         bool HasCapability = true;
-                        for (auto &Asset : context->DSelectedPlayerAssets) {
-                            if (auto LockedAsset = Asset.lock()) {
-                                if (!LockedAsset->HasCapability(KeyLookup->second)) {
+                        for (auto &Asset : context->DSelectedPlayerAssets)
+                        {
+                            if (auto LockedAsset = Asset.lock())
+                            {
+                                if (!LockedAsset->HasCapability(KeyLookup->second))
+                                {
                                     HasCapability = false;
                                     break;
                                 }
                             }
                         }
-                        if (HasCapability) {
+                        if (HasCapability)
+                        {
                             auto PlayerCapability =
-                            CPlayerCapability::FindCapability(
-                            KeyLookup->second);
+                                CPlayerCapability::FindCapability(
+                                    KeyLookup->second);
                             SGameEvent TempEvent;
                             TempEvent.DType = EEventType::ButtonTick;
                             context->DGameModel->Player(context->DPlayerNumber)
-                            ->AddGameEvent(TempEvent);
+                                ->AddGameEvent(TempEvent);
 
-                            if (PlayerCapability) {
+                            if (PlayerCapability)
+                            {
                                 if ((CPlayerCapability::ETargetType::None ==
                                      PlayerCapability->TargetType()) ||
                                     (CPlayerCapability::ETargetType::Player ==
-                                     PlayerCapability->TargetType())) {
+                                     PlayerCapability->TargetType()))
+                                {
                                     auto ActorTarget =
-                                    context->DSelectedPlayerAssets.front()
-                                    .lock();
+                                        context->DSelectedPlayerAssets.front()
+                                            .lock();
 
                                     if (PlayerCapability->CanApply(
-                                    ActorTarget,
-                                    context->DGameModel->Player(
-                                    context->DPlayerNumber),
-                                    ActorTarget)) {
+                                            ActorTarget,
+                                            context->DGameModel->Player(
+                                                context->DPlayerNumber),
+                                            ActorTarget))
+                                    {
                                         request.DAction = KeyLookup->second;
                                         request.DActors = context->DSelectedPlayerAssets;
                                         request.DTargetNumber = EPlayerNumber::Neutral;
@@ -181,50 +219,64 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                         request.DTargetLocation = ActorTarget->Position();
                                         context->DCurrentAssetCapability = EAssetCapabilityType::None;
                                     }
-                                } else {
+                                }
+                                else
+                                {
                                     context->DCurrentAssetCapability = KeyLookup->second;
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 context->DCurrentAssetCapability = KeyLookup->second;
                             }
                         }
                     }
-                } else {
+                }
+                else
+                {
                     auto KeyLookup = context->DTrainHotKeyMap.find(Key);
 
-                    if (KeyLookup != context->DTrainHotKeyMap.end()) {
+                    if (KeyLookup != context->DTrainHotKeyMap.end())
+                    {
                         bool HasCapability = true;
-                        for (auto &Asset : context->DSelectedPlayerAssets) {
-                            if (auto LockedAsset = Asset.lock()) {
-                                if (!LockedAsset->HasCapability(KeyLookup->second)) {
+                        for (auto &Asset : context->DSelectedPlayerAssets)
+                        {
+                            if (auto LockedAsset = Asset.lock())
+                            {
+                                if (!LockedAsset->HasCapability(KeyLookup->second))
+                                {
                                     HasCapability = false;
                                     break;
                                 }
                             }
                         }
-                        if (HasCapability) {
+                        if (HasCapability)
+                        {
                             auto PlayerCapability =
-                            CPlayerCapability::FindCapability(
-                            KeyLookup->second);
+                                CPlayerCapability::FindCapability(
+                                    KeyLookup->second);
                             SGameEvent TempEvent;
                             TempEvent.DType = EEventType::ButtonTick;
                             context->DGameModel->Player(context->DPlayerNumber)
-                            ->AddGameEvent(TempEvent);
+                                ->AddGameEvent(TempEvent);
 
-                            if (PlayerCapability) {
+                            if (PlayerCapability)
+                            {
                                 if ((CPlayerCapability::ETargetType::None ==
                                      PlayerCapability->TargetType()) ||
                                     (CPlayerCapability::ETargetType::Player ==
-                                     PlayerCapability->TargetType())) {
+                                     PlayerCapability->TargetType()))
+                                {
                                     auto ActorTarget =
-                                    context->DSelectedPlayerAssets.front()
-                                    .lock();
+                                        context->DSelectedPlayerAssets.front()
+                                            .lock();
 
                                     if (PlayerCapability->CanApply(
-                                    ActorTarget,
-                                    context->DGameModel->Player(
-                                    context->DPlayerNumber),
-                                    ActorTarget)) {
+                                            ActorTarget,
+                                            context->DGameModel->Player(
+                                                context->DPlayerNumber),
+                                            ActorTarget))
+                                    {
                                         request.DAction = KeyLookup->second;
                                         request.DActors = context->DSelectedPlayerAssets;
                                         request.DTargetNumber = EPlayerNumber::Neutral;
@@ -232,10 +284,14 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                         request.DTargetLocation = ActorTarget->Position();
                                         context->DCurrentAssetCapability = EAssetCapabilityType::None;
                                     }
-                                } else {
+                                }
+                                else
+                                {
                                     context->DCurrentAssetCapability = KeyLookup->second;
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 context->DCurrentAssetCapability = KeyLookup->second;
                             }
                         }
@@ -256,9 +312,17 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
      * menu button, etc. are selected. Set properties for that UI element's
      * state
      */
+
     if (CApplicationData::uictOverlay == ComponentType)
     {
-        DOverlayManager->ProcessInput();
+        int X = CurrentX;
+        int Y = CurrentY;
+
+        // Given X,Y coordinates on working buffer surface, this function will
+        // adjust the X,Y values with respect to the overlay surface.
+        PixelPositionOnOverlay(X, Y);
+
+        DOverlayManager->ProcessInput(X, Y, context->DLeftDown);
     }
     else if (CApplicationData::uictViewport == ComponentType)
     {
@@ -287,7 +351,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
             }
             if (CanMove)
             {
-                if (EPlayerNumber::Neutral != PixelType.Number())
+                if (EPlayerNumber::Neutral != PixelType.Number() && CPixelType::EAssetTerrainType::GoldMine != PixelType.Type())
                 {
                     //! Command is either walk/deliver, repair, or attack
                     request.DAction = EAssetCapabilityType::Move;
@@ -299,6 +363,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                     {
                         bool HaveLumber = false;
                         bool HaveGold = false;
+                        bool HaveStone = false;
 
                         for (auto &Asset : context->DSelectedPlayerAssets)
                         {
@@ -312,26 +377,40 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                 {
                                     HaveGold = true;
                                 }
+                                if (LockedAsset->Stone())
+                                {
+                                    HaveStone = true;
+                                }
                             }
                         }
                         if (HaveGold)
                         {
-                            if ((EAssetType::TownHall == request.DTargetType) ||
-                                (EAssetType::Keep == request.DTargetType) ||
-                                (EAssetType::Castle == request.DTargetType))
-                            {
-                                request.DAction = EAssetCapabilityType::Convey;
-                            }
+                          if ((EAssetType::TownHall == request.DTargetType) ||
+                              (EAssetType::Keep == request.DTargetType) ||
+                              (EAssetType::Castle == request.DTargetType))
+                          {
+                              request.DAction = EAssetCapabilityType::Convey;
+                          }
                         }
                         else if (HaveLumber)
                         {
-                            if ((EAssetType::TownHall == request.DTargetType) ||
-                                (EAssetType::Keep == request.DTargetType) ||
-                                (EAssetType::Castle == request.DTargetType) ||
-                                (EAssetType::LumberMill == request.DTargetType))
-                            {
-                                request.DAction = EAssetCapabilityType::Convey;
-                            }
+                          if ((EAssetType::TownHall == request.DTargetType) ||
+                              (EAssetType::Keep == request.DTargetType) ||
+                              (EAssetType::Castle == request.DTargetType) ||
+                              (EAssetType::LumberMill == request.DTargetType))
+                          {
+                              request.DAction = EAssetCapabilityType::Convey;
+                          }
+                        }
+                        else if (HaveStone)
+                        {
+                          if ((EAssetType::TownHall == request.DTargetType) ||
+                              (EAssetType::Keep == request.DTargetType) ||
+                              (EAssetType::Castle == request.DTargetType) ||
+                              (EAssetType::LumberMill == request.DTargetType))
+                          {
+                              request.DAction = EAssetCapabilityType::Convey;
+                          }
                         }
                         else
                         {
@@ -355,7 +434,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                     }
                     context->DCurrentAssetCapability = EAssetCapabilityType::None;
                 }
-                else
+                else if(EPlayerNumber::Neutral == PixelType.Number() || CPixelType::EAssetTerrainType::GoldMine == PixelType.Type())
                 {
                     // Command is either walk, mine, harvest
                     CPixelPosition TempPosition(context->ScreenToDetailedMap(
@@ -387,6 +466,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         {
                             CTilePosition TempTilePosition;
 
+                            context->DGameModel->IsRock = false;
                             request.DAction = EAssetCapabilityType::Mine;
                             TempTilePosition.SetFromPixel(request.DTargetLocation);
                             if (CTerrainMap::ETileType::Forest !=
@@ -403,6 +483,35 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                         ->PlayerMap()
                                         ->TileType(TempTilePosition))
                                 {
+                                    // Still allow harvesting of lumber
+                                    context->DGameModel->IsRock = false;
+                                    request.DTargetLocation.SetFromTile(TempTilePosition);
+                                }
+                            }
+                        }
+                        else if (CPixelType::EAssetTerrainType::Rock ==
+                            PixelType.Type())
+                        {
+                            CTilePosition TempTilePosition;
+                            context->DGameModel->IsRock = true;
+                            request.DAction = EAssetCapabilityType::Mine;
+                            TempTilePosition.SetFromPixel(request.DTargetLocation);
+                            if (CTerrainMap::ETileType::Rock !=
+                                context->DGameModel
+                                        ->Player(context->DPlayerNumber)
+                                        ->PlayerMap()
+                                        ->TileType(TempTilePosition))
+                            {
+                                // Could be rock pixel, but tops of next row
+                                TempTilePosition.IncrementY(1);
+                                if (CTerrainMap::ETileType::Rock ==
+                                    context->DGameModel
+                                            ->Player(context->DPlayerNumber)
+                                            ->PlayerMap()
+                                            ->TileType(TempTilePosition))
+                                {
+                                    // Still allow mining of rock
+                                    context->DGameModel->IsRock = true;
                                     request.DTargetLocation.SetFromTile(TempTilePosition);
                                 }
                             }
@@ -410,6 +519,8 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         else if (CPixelType::EAssetTerrainType::GoldMine ==
                                  PixelType.Type())
                         {
+
+                            request.DTargetNumber = PixelType.Number();
                             request.DAction = EAssetCapabilityType::Mine;
                             request.DTargetType = EAssetType::GoldMine;
                         }
@@ -569,6 +680,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                             context->DCurrentAssetCapability = EAssetCapabilityType::None;
                         }
                     }
+                    //This checks for whether the clikced thing is terrain
                     else if (((CPlayerCapability::ETargetType::Terrain ==
                                PlayerCapability->TargetType()) ||
                               (CPlayerCapability::ETargetType::TerrainOrAsset ==
@@ -579,7 +691,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                         auto NewTarget =
                             context->DGameModel->Player(context->DPlayerNumber)
                                 ->CreateMarker(TempPosition, false);
-
+                        //This part calls canapply to check whether, in this case, the clicked area can be mined
                         if (PlayerCapability->CanApply(
                                 context->DSelectedPlayerAssets.front().lock(),
                                 context->DGameModel->Player(
@@ -598,6 +710,16 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                             request.DTargetType = EAssetType::None;
                             request.DTargetLocation = TempPosition;
                             context->DCurrentAssetCapability = EAssetCapabilityType::None;
+
+                            // Differentiate between rock and tree
+                            if (PixelType.Type() == CPixelType::EAssetTerrainType::Rock)
+                            {
+                                context->DGameModel->IsRock = true;
+                            }
+                            else
+                            {
+                                context->DGameModel->IsRock = false;
+                            }
                         }
                     }
                     else
@@ -829,6 +951,14 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
         context->ClientPointer->SendGameInfo(context);
         context->ClientPointer->GetGameInfo(context);
     }
+
+    // Check leave game flag. If set, change application mode according to
+    // settings in CApplicationData::LeaveGame()
+    if (context->CheckLeaveGameFlag())
+    {
+        context->LeaveGame();
+    }
+
 }
 
 void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
@@ -908,11 +1038,8 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
           context->DSoundLibraryMixer->PlaySong(game_over_song,
                                                 context->DMusicVolume);
           context->DActiveGame = false;
-
-          // if it is a host send end game signal to server
-          if(context->DGameSessionType == CApplicationData::gstMultiPlayerHost) {
-              context->ClientPointer->SendMessage("End");
-          }
+          
+          context->ClientPointer->SendMessage("End");
 
           context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
@@ -922,70 +1049,60 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
      * Even though every player is checked, only the ones still alive will
      * have commands to process.
      */
-    for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++)
-    {
+    for (int Index = 1; Index < to_underlying(EPlayerColor::Max); Index++) {
         if (EAssetCapabilityType::None !=
-            context->DPlayerCommands[Index].DAction)
-        {
+            context->DPlayerCommands[Index].DAction) {
             auto PlayerCapability = CPlayerCapability::FindCapability(
-                context->DPlayerCommands[Index].DAction);
-            if (PlayerCapability)
-            {
+            context->DPlayerCommands[Index].DAction);
+            if (PlayerCapability) {
                 std::shared_ptr<CPlayerAsset> NewTarget;
 
                 if ((CPlayerCapability::ETargetType::None !=
                      PlayerCapability->TargetType()) &&
                     (CPlayerCapability::ETargetType::Player !=
-                     PlayerCapability->TargetType()))
-                {
+                     PlayerCapability->TargetType())) {
                     if (EAssetType::None ==
+                        context->DPlayerCommands[Index].DTargetType) {
+                        NewTarget =
+                        context->DGameModel
+                        ->Player(static_cast<EPlayerNumber>(Index))
+                        ->CreateMarker(context->DPlayerCommands[Index]
+                                       .DTargetLocation,
+                                       true);
+                    } else {
+                        NewTarget =
+                        context->DGameModel
+                        ->Player(context->DPlayerCommands[Index]
+                                 .DTargetNumber)
+                        ->SelectAsset(
+                        context->DPlayerCommands[Index]
+                        .DTargetLocation,
                         context->DPlayerCommands[Index].DTargetType)
-                    {
-                        NewTarget =
-                            context->DGameModel
-                                ->Player(static_cast<EPlayerNumber>(Index))
-                                ->CreateMarker(context->DPlayerCommands[Index]
-                                                   .DTargetLocation,
-                                               true);
-                    }
-                    else
-                    {
-                        NewTarget =
-                            context->DGameModel
-                                ->Player(context->DPlayerCommands[Index]
-                                             .DTargetNumber)
-                                ->SelectAsset(
-                                    context->DPlayerCommands[Index]
-                                        .DTargetLocation,
-                                    context->DPlayerCommands[Index].DTargetType)
-                                .lock();
+                        .lock();
                     }
                 }
 
-                for (auto &WeakActor : context->DPlayerCommands[Index].DActors)
-                {
-                    if (auto Actor = WeakActor.lock())
-                    {
+                for (auto &WeakActor : context->DPlayerCommands[Index].DActors) {
+                    if (auto Actor = WeakActor.lock()) {
                         if (PlayerCapability->CanApply(
-                                Actor,
-                                context->DGameModel->Player(
-                                    static_cast<EPlayerNumber>(Index)),
-                                NewTarget) &&
+                        Actor,
+                        context->DGameModel->Player(
+                        static_cast<EPlayerNumber>(Index)),
+                        NewTarget) &&
                             (Actor->Interruptible() ||
                              (EAssetCapabilityType::Cancel ==
-                              context->DPlayerCommands[Index].DAction)))
-                        {
+                              context->DPlayerCommands[Index].DAction))) {
                             PlayerCapability->ApplyCapability(
-                                Actor,
-                                context->DGameModel->Player(
-                                    static_cast<EPlayerNumber>(Index)),
-                                NewTarget);
+                            Actor,
+                            context->DGameModel->Player(
+                            static_cast<EPlayerNumber>(Index)),
+                            NewTarget);
                         }
                     }
                 }
             }
             context->DPlayerCommands[Index].DAction =
-                EAssetCapabilityType::None;
+            EAssetCapabilityType::None;
         }
     }
 
@@ -993,47 +1110,51 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
     context->DGameModel->Timestep();
 
     auto WeakAsset = context->DSelectedPlayerAssets.begin();
-    while (WeakAsset != context->DSelectedPlayerAssets.end())
-    {
-        if (auto Asset = WeakAsset->lock())
-        {
-            if (context->DGameModel->ValidAsset(Asset) && Asset->Alive())
-            {
+    while (WeakAsset != context->DSelectedPlayerAssets.end()) {
+        if (auto Asset = WeakAsset->lock()) {
+            if (context->DGameModel->ValidAsset(Asset) && Asset->Alive()) {
                 if (Asset->Speed() &&
-                    (EAssetAction::Capability == Asset->Action()))
-                {
+                    (EAssetAction::Capability == Asset->Action())) {
                     auto Command = Asset->CurrentCommand();
 
                     if (Command.DAssetTarget &&
                         (EAssetAction::Construct ==
-                         Command.DAssetTarget->Action()))
-                    {
+                         Command.DAssetTarget->Action())) {
                         SGameEvent TempEvent;
 
                         context->DSelectedPlayerAssets.clear();
                         context->DSelectedPlayerAssets.push_back(
-                            Command.DAssetTarget);
+                        Command.DAssetTarget);
 
                         TempEvent.DType = EEventType::Selection;
                         TempEvent.DAsset = Command.DAssetTarget;
                         context->DGameModel->Player(context->DPlayerNumber)
-                            ->AddGameEvent(TempEvent);
+                        ->AddGameEvent(TempEvent);
 
                         break;
                     }
                 }
                 WeakAsset++;
-            }
-            else
-            {
+            } else {
                 WeakAsset = context->DSelectedPlayerAssets.erase(WeakAsset);
             }
-        }
-        else
-        {
+        } else {
             WeakAsset = context->DSelectedPlayerAssets.erase(WeakAsset);
         }
     }
+
+    // Check and Initiate Scenario Triggers
+    if (DScenarioTimmer % 75 == 0 &&
+        context->EGameSessionType::gstSinglePlayer == context->DGameSessionType) {
+        context->DTriggerController->CheckTriggers();
+        DScenarioTimmer = 0;
+
+    }
+    DScenarioTimmer++;
+    //Change who owns gold mine
+
+    //context->DGameModel->ChangeGoldMineOwner();
+
 }
 
 //! @brief Handles displaying of the buttons
@@ -1048,7 +1169,6 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     int ActionWidth, ActionHeight;
     int ResourceWidth, ResourceHeight;
     int ButtonDescriptionWidth, ButtonDescriptionHeight;
-    int OverlayWidth, OverlayHeight, OverlayXOffset, OverlayYOffset;
     std::list<std::weak_ptr<CPlayerAsset> > SelectedAndMarkerAssets =
         context->DSelectedPlayerAssets;
 
@@ -1068,11 +1188,6 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     ResourceHeight = context->DResourceSurface->Height();
     ButtonDescriptionWidth = context->DButtonDescriptionSurface->Width();
     ButtonDescriptionHeight = context->DButtonDescriptionSurface->Height();
-    OverlayWidth = context->DOverlaySurface->Width();
-    OverlayHeight = context->DOverlaySurface->Height();
-    OverlayXOffset = context->DOverlayXOffset;
-    OverlayYOffset = context->DOverlayYOffset;
-
 
     if (context->DLeftDown && 0 < context->DMouseDown.X())
     {
@@ -1189,48 +1304,43 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
     context->DWorkingBufferSurface->Draw(context->DNotificationRendererSurface,context->DViewportXOffset,BufferHeight - (ViewHeight / 4),
         -1,-1,0,0);
 
+
     // Activate the the overlay screen when the in-game menu button is pressed
     if (CButtonRenderer::EButtonState::Pressed == context->DMenuButtonState)
     {
-        context->DOverlayActive = true;
+        // Activate overlay if it's not already active
+        if(!context->OverlayActive())
+        {
+            context->ActivateOverlay();
+        }
     }
 
     switch (context->FindUIComponentType(CPixelPosition(CurrentX, CurrentY)))
     {
         case CApplicationData::uictOverlay:
         {
-            int X, Y;
-            auto &Surface = context->DOverlaySurface;
+            int X = CurrentX;
+            int Y = CurrentY;
+            auto Surface = DOverlayManager->Surface();
+//            int Width = Surface->Width();
+//            int Height = Surface->Height();
+            int Xoffset = DOverlayManager->Xoffset();
+            int Yoffset = DOverlayManager->Yoffset();
 
-            // Always draw the overlay
-            context->DWorkingBufferSurface->Draw(Surface, OverlayXOffset,
-                                                 OverlayYOffset, -1, -1, 0, 0);
-            // Pixel position is within the overlay window
-            if ((OverlayXOffset <= CurrentX) &&
-                (OverlayXOffset + OverlayWidth > CurrentX) &&
-                (OverlayYOffset <= CurrentY) &&
-                (OverlayYOffset + OverlayHeight > CurrentY))
-            {
-                // Pass in coordinates centered on overlay
-                X = CurrentX - OverlayXOffset;
-                Y = CurrentY - OverlayYOffset;
-            }
-            else
-            {
-                // Otherwise pass in coordinates outside overlay just so it draws
-                X = 0;
-                Y = 0;
-            }
+//            context->DWorkingBufferSurface->Draw(Surface, Xoffset,
+//                Yoffset, -1, -1, 0, 0);
 
-            DOverlayManager->Mode(CInGameMenuOverlay::Initialize());
+            PixelPositionOnOverlay(X, Y);
+
+            // Pass input to set state and draw onto the overlay surface
             DOverlayManager->Draw(X, Y, context->DLeftDown);
 
-            // Always draw the overlay
-            context->DWorkingBufferSurface->Draw(Surface, OverlayXOffset,
-                                                 OverlayYOffset, -1, -1, 0, 0);
+            // Draw the overlay surface onto the main screen's surface
+            context->DWorkingBufferSurface->Draw(Surface, Xoffset,
+                Yoffset, -1, -1, 0, 0);
 
+            break;
         }
-        break;
         case CApplicationData::uictUserAction:
         {
             EAssetCapabilityType CapabilityType =
@@ -1255,7 +1365,6 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
 
             }
         }
-        break;
         case CApplicationData::uictViewport:
         {
             CPixelPosition ViewportCursorLocation =
@@ -1365,4 +1474,29 @@ std::shared_ptr<CApplicationMode> CBattleMode::Instance()
             std::make_shared<CBattleMode>(SPrivateConstructorType{});
     }
     return DBattleModePointer;
+}
+
+// Set pixel position of pointer with respect to the overlay
+void CBattleMode::PixelPositionOnOverlay(int &CurrentX, int &CurrentY)
+{
+    int Width = DOverlayManager->Width();
+    int Height = DOverlayManager->Height();
+    int Xoffset = DOverlayManager->Xoffset();
+    int Yoffset = DOverlayManager->Yoffset();
+
+    // Pixel position is within the overlay window
+    if ((Xoffset <= CurrentX) && (Xoffset + Width > CurrentX) &&
+        (Yoffset <= CurrentY) && (Yoffset + Height > CurrentY))
+    {
+        // Pass in coordinates centered on overlay
+        CurrentX = CurrentX - Xoffset;
+        CurrentY = CurrentY - Yoffset;
+    }
+    else
+    {
+        // Otherwise pass in coordinates outside overlay
+        CurrentX = 0;
+        CurrentY = 0;
+    }
+
 }

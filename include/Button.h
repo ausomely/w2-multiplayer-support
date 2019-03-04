@@ -27,8 +27,11 @@ class CButton
     CButtonRenderer::EButtonState DState;
     std::shared_ptr<SRectangle> DShape;
     std::string DText;
+    bool DInactive;
 
-public:
+    void State(CButtonRenderer::EButtonState state);
+
+  public:
 
     ~CButton() = default;
     CButton(std::string &text, int x, int y, int width, int height);
@@ -42,10 +45,6 @@ public:
     CButtonRenderer::EButtonState State()
     {
         return DState;
-    }
-    void State(CButtonRenderer::EButtonState state)
-    {
-        DState = state;
     }
     std::string Text()
     {
@@ -66,6 +65,12 @@ public:
     int Height()
     {
         return DShape->DHeight;
+    }
+    void MarkInactive();
+    void ClearInactive();
+    bool Inactive()
+    {
+        return DInactive;
     }
 
 };

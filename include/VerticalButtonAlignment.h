@@ -19,20 +19,18 @@
 
 #include "ButtonAlignment.h"
 
-class CVerticalButtonAlignment: public CButtonAlignment
+class CVerticalButtonAlignment : public CButtonAlignment
 {
   protected:
 
   public:
     virtual ~CVerticalButtonAlignment() = default;
-    CVerticalButtonAlignment(std::shared_ptr<CApplicationData> &context,
-        std::vector<std::string> &texts,
-        EPosition placement);
+    CVerticalButtonAlignment(std::shared_ptr<CApplicationData> context,
+        std::vector<std::string> texts, EPosition placement, int width, int height);
 
-    void MeasureButtons(std::vector<std::string> &texts) override;
-    void FindXOffset() override;
-    void FindYOffset() override;
-    void CreateButtons(std::vector<std::string> &texts) override;
+    void FindXOffset(int CanvasWidth) override;
+    void FindYOffset(int CanvasHeight) override;
+    void CreateButtons(std::vector<std::string> texts);
 
 
 };

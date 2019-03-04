@@ -18,64 +18,195 @@
 #define OVERLAYMANAGEMENT_H
 
 #include <memory>
+#include "ApplicationData.h"
 #include "ButtonRenderer.h"
 #include "OverlayMode.h"
+#include "InGameMenuOverlay.h"
+#include "SoundOptionsOverlay.h"
+#include "BattleMode.h"
 
 class CApplicationData;
 class CInGameMenuOverlay;
+class CGraphicSurface;
+class CButtonRenderer;
+
+enum class EOverlay
+{
+    None = 0,
+    InGameMenu,
+    SoundOptions
+};
 
 class COverlayManagement
 {
     friend class CInGameMenuOverlay;
+    friend class CSoundOptionsOverlay;
+    friend class CBattleMode;
+
   protected:
-    struct SPrivateConstructorType {};
+    struct SPrivateConstructorType
+    {
+    };
 
     static std::shared_ptr<COverlayManagement> DOverlayManagementPointer;
 
     std::shared_ptr<CApplicationData> DContext;
     std::shared_ptr<CGraphicSurface> DSurface;
+    std::shared_ptr<CButtonRenderer> DButtonRenderer;
     int DBorderWidth;
+    int DWidth;
+    int DHeight;
+    int DXoffset;
+    int DYoffset;
 
-    std::shared_ptr<COverlayMode> DOverlayMode;
+    bool DLeaveGameFlag;
+    bool DExitOverlayManager;
+    bool DChangeOverlay;
+    EOverlay ENextOverlay;
 
-    static std::shared_ptr<COverlayManagement> Manager()
+    std::unique_ptr<COverlayMode> DOverlayMode;
+
+    std::shared_ptr<COverlayManagement> Manager()
     {
         return DOverlayManagementPointer;
     }
 
-    std::shared_ptr<CApplicationData> &Context()
+    int CanvasWidth()
+    {
+        return DSurface->Width();
+    }
+
+    int CanvasHeight()
+    {
+        return DSurface->Height();
+    }
+
+    std::shared_ptr<CApplicationData> Context()
     {
         return DContext;
     }
 
-    std::shared_ptr<CGraphicSurface> &Surface()
+    std::shared_ptr<CGraphicSurface> Surface()
     {
         return DSurface;
     }
+
+    std::shared_ptr<CButtonRenderer> ButtonRenderer()
+    {
+        return DContext->DButtonRenderer;
+    }
+
+    int BorderWidth()
+    {
+        return DBorderWidth;
+    }
+
+    void BuildOverlay(EOverlay mode);
+    void ChangeOverlay();
+    void SetDefaults();
+    void ClearMouseButtonState();
 
     // Delete copy constructor
     COverlayManagement(const COverlayManagement &) = delete;
     const COverlayManagement &operator=(const COverlayManagement &) = delete;
 
   public:
-    virtual ~COverlayManagement(){};
+
+    virtual ~COverlayManagement()
+    {
+    };
 
     explicit COverlayManagement(const SPrivateConstructorType &key,
-        std::shared_ptr<CApplicationData> &context);
-
-    static std::shared_ptr<COverlayManagement> Initialize(
         std::shared_ptr<CApplicationData> context);
 
-    void LeaveGameFunction();
-    void ReturnToGameFunction();
+    static std::shared_ptr<COverlayManagement>
+    Initialize(std::shared_ptr<CApplicationData> context);
+    void DrawBackground();
+    void LeaveGame();
+    void ReturnToGame();
     void Draw(int x, int y, bool clicked);
-    void ProcessInput();
+    void ProcessInput(int x, int y, bool clicked);
 //    void Input(int x, int y, bool clicked);
-    void Mode(std::shared_ptr<COverlayMode> mode)
+    void SetMode(EOverlay mode);
+
+    int Xoffset()
     {
-        DOverlayMode = mode;
+        return DXoffset;
+    }
+    int Yoffset()
+    {
+        return DYoffset;
+    }
+    int Width()
+    {
+        return DWidth;
+    }
+    int Height()
+    {
+        return DHeight;
     }
 
+};
+
+class COverlaySurfaceBuilder
+{
+    std::shared_ptr<CGraphicSurface> DSurface;
+  public:
+    int DXoffset, DYoffset;
+    int DWidth, DHeight;
+  private:
+    float DXscale, DYscale;
+    uint32_t DColor;
+
+    int DVPXoffset, DVPYoffset;
+    int DVPWidth, DVPHeight;
+
+    void AllocateSurface()
+    {
+        DSurface = CGraphicFactory::CreateSurface(
+            DWidth, DHeight, CGraphicSurface::ESurfaceFormat::ARGB32);
+
+        auto ResourceContext = DSurface->CreateResourceContext();
+        ResourceContext->SetSourceRGB(DColor);
+        ResourceContext->Rectangle(0, 0, DWidth, DHeight);
+        ResourceContext->Fill();
+    }
+  public:
+    COverlaySurfaceBuilder(std::shared_ptr<CGraphicSurface> viewport,
+        int vp_x_offset, int vp_y_offset)
+    {
+        // Get viewport's dimensions and X,Y offsets for positioning on
+        // working buffer surface
+        DVPXoffset = vp_x_offset;
+        DVPYoffset = vp_y_offset;
+        DVPWidth = viewport->Width();
+        DVPHeight = viewport->Height();
+
+        // Surface color
+        DColor = 0x666666;
+
+        // Scale size of viewport's dimensions
+        DXscale = 0.7;
+        DYscale = 0.7;
+
+        // Set width and height
+        DWidth = static_cast<int>(DXscale * DVPWidth);
+        DHeight = static_cast<int>(DYscale * DVPHeight);
+
+        // Set X,Y offsets
+        DXoffset = static_cast<int>(DVPXoffset + 0.5*(DVPWidth-DWidth));
+        DYoffset = 3 * DVPYoffset;
+    }
+
+    std::shared_ptr<CGraphicSurface> GetOverlaySurface()
+    {
+        if (nullptr == DSurface)
+        {
+            AllocateSurface();
+        }
+
+        return DSurface;
+    }
 };
 
 #endif
