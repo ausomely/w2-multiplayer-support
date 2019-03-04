@@ -25,6 +25,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         std::shared_ptr<User> owner;
         int capacity;
         int size;
+        int endNum;
         std::string map;
         GameInfo::PlayerCommandPackage playerCommandPackage;
         RoomInfo::RoomInformation roomInfo;
@@ -41,6 +42,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         void SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index);
         const RoomInfo::RoomInformation& GetRoomInfo() const;
         void InitializeGame();
+        void IncreaseEndNum();
         void EndGame();
         const GameInfo::PlayerCommandPackage GetPlayerCommandPackage() const;
 };

@@ -20,7 +20,7 @@
 #include <unordered_map>
 #include "Debug.h"
 #include "UnitGrouping.h"
-static std::unordered_map<int, std::shared_ptr<CPlayerAsset>> umap;
+std::unordered_map<int, std::shared_ptr<CPlayerAsset>> CPlayerData::umap;
 
 int RangeToDistanceSquared(int range)
 {
@@ -732,14 +732,14 @@ void CGameModel::HealUnits()
         {
             std::shared_ptr<CPlayerAsset> Asset = it->first;
             int lastHeal = it->second;
-            
+
             // Find the Asset being attacked
             std::shared_ptr<CPlayerAsset> AttackedAsset = Asset->GetAttackedTargets();
             if(AttackedAsset != nullptr) {
 
                 DAssetHealingPeriod[AttackedAsset] = -5.0;
             }
-            
+
             // Only heal if out of combat
             if (EAssetAction::Attack != Asset->Action() && EAssetAction::Death != Asset->Action() &&
                 EAssetAction::None == Asset->Action() && EAssetAction::Decay != Asset->Action()) {
@@ -840,7 +840,7 @@ void CGameModel::ChangeAssetOwner(EPlayerNumber prevOwner, EPlayerNumber newOwne
     NewAssets.push_back(asset);
 
     auto assetType = asset->AssetType();
-    
+
     while (Iterator != PrevAssets.end())
     {
         if (Iterator->lock() == asset)
@@ -850,9 +850,9 @@ void CGameModel::ChangeAssetOwner(EPlayerNumber prevOwner, EPlayerNumber newOwne
         }
         Iterator++;
     }
-    
+
     asset->ChangeOwner(NewOwner->Number(),NewOwner->Color());
-    
+
 }
 
 void CGameModel::ChangeGoldMineOwner(){

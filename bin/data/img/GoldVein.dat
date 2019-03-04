@@ -1,10 +1,7 @@
 # Path to frames
-./GoldMine.png
+./GoldVein.png
 # Number of frames
-5
+1
 # Frame names
-construct-0
-construct-1
 inactive
-active
-place
+

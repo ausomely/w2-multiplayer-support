@@ -136,18 +136,18 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of players
 2
-# Starting resources Player Gold Lumber
-0 55000 400
-1 2000 1500
-2 2000 1500
+# Starting resources Player Gold Lumber Stone
+0 55000 400 400
+1 2000 1500 1500
+2 2000 1500 1500
 # Number of assets
 8
 # Starting assets Type Owner X Y
-GoldMine 0 0 2
+GoldVein 1 0 2
 Peasant 1 3 7
-GoldMine 0 61 10
-GoldMine 0 3 22
-GoldMine 0 21 33
+GoldVein 1 61 10
+GoldVein 0 3 22
+GoldVein 0 21 33
 Peasant 2 8 50
-GoldMine 0 61 50
-GoldMine 0 5 54
+GoldVein 0 61 50
+GoldVein 0 5 54

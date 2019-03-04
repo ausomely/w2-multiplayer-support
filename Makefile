@@ -51,8 +51,10 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/ButtonRenderer.o                 \
     $(OBJ_DIR)/CommentSkipLineDataSource.o      \
     $(OBJ_DIR)/CursorSet.o                      \
+		$(OBJ_DIR)/ContextRetrieval.o               \
     $(OBJ_DIR)/Debug.o                          \
     $(OBJ_DIR)/EditOptionsMode.o                \
+		$(OBJ_DIR)/Effects.o                        \
     $(OBJ_DIR)/EditRenderer.o                   \
     $(OBJ_DIR)/FileDataContainer.o              \
     $(OBJ_DIR)/FileDataSink.o                   \
@@ -66,6 +68,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/GraphicRecolorMap.o              \
     $(OBJ_DIR)/GraphicTileset.o                 \
     $(OBJ_DIR)/GUIFactoryGTK3.o                 \
+		$(OBJ_DIR)/HorizontalButtonAlignment.o      \
 		$(OBJ_DIR)/InGameMenuMode.o                 \
 		$(OBJ_DIR)/InGameMenuOverlay.o              \
     $(OBJ_DIR)/IOFactoryGlib.o                  \
@@ -92,11 +95,14 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/SoundEventRenderer.o             \
     $(OBJ_DIR)/SoundLibraryMixer.o              \
     $(OBJ_DIR)/SoundOptionsMode.o               \
+		$(OBJ_DIR)/SoundOptionsOverlay.o            \
 		$(OBJ_DIR)/SoundClip.o                      \
     $(OBJ_DIR)/TerrainMap.o                     \
     $(OBJ_DIR)/TextFormatter.o                  \
     $(OBJ_DIR)/Tokenizer.o                      \
     $(OBJ_DIR)/TrainCapabilities.o              \
+		$(OBJ_DIR)/TriggerController.o              \
+		$(OBJ_DIR)/Triggers.o                       \
     $(OBJ_DIR)/UnitActionRenderer.o             \
     $(OBJ_DIR)/UnitDescriptionRenderer.o        \
     $(OBJ_DIR)/UnitUpgradeCapabilities.o        \

@@ -1,23 +1,23 @@
 # Resource Name
-TownHall
+GoldVein
 # Hit Points
-1200
+250
 # Armor
 0
 # Sight
-4
+0
 # Sight during construction
 0
 # Size
-4
+3
 # Speed
 0
 # Gold Cost
-800
+0
 # Lumber Cost
 0
 # Food Consumption (Negative Production)
--5
+0
 # Build Time (s)
 1
 # Attack Steps
@@ -31,10 +31,9 @@ TownHall
 # Range
 0
 # Capability Count
-2
+1
 # Name of Capabilities
-BuildPeasant
-BuildKeep
+BuildGoldMine
 # Requirement Count
 0
 # List of Requirements

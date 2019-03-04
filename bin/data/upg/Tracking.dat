@@ -1,25 +1,24 @@
 # Upgrade Name
-BuildRanger
+RangerTracking
 # Armor Improvement
-0
+500
 # Sight Improvement
-0
+-2
 # Speed Improvement
-0
+-5
 # Basic Damage Improvement
-0
+-3
 # Piercing Damage Improvement
-0
+-6
 # Range Improvement
-0
+-4
 # Gold Cost
 1500
 # Lumber Cost
 0
 # Time (s)
-3
+60
 # Number of Assets
-2
+1
 # Asset Names
-Archer
 Ranger

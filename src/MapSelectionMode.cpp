@@ -389,3 +389,4 @@ std::shared_ptr<CApplicationMode> CMapSelectionMode::Instance()
             std::make_shared<CMapSelectionMode>(SPrivateConstructorType());
     }
     return DMapSelectionModePointer;
+}
