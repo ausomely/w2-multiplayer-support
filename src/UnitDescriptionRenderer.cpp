@@ -71,6 +71,8 @@ CUnitDescriptionRenderer::CUnitDescriptionRenderer(
         DIconTileset->FindTile("archer");
     DAssetIndices[to_underlying(EAssetType::Ranger)] =
         DIconTileset->FindTile("ranger");
+    DAssetIndices[to_underlying(EAssetType::GoldVein)] =
+        DIconTileset->FindTile("gold-vein");
     DAssetIndices[to_underlying(EAssetType::GoldMine)] =
         DIconTileset->FindTile("gold-mine");
     DAssetIndices[to_underlying(EAssetType::TownHall)] =
@@ -116,6 +118,8 @@ CUnitDescriptionRenderer::CUnitDescriptionRenderer(
         DIconTileset->FindTile("human-armor-3");
     DResearchIndices[to_underlying(EAssetCapabilityType::Longbow)] =
         DIconTileset->FindTile("longbow");
+    DResearchIndices[to_underlying(EAssetCapabilityType::RangerTracking)] =
+        DIconTileset->FindTile("ranger-tracking");
     DResearchIndices[to_underlying(EAssetCapabilityType::RangerScouting)] =
         DIconTileset->FindTile("ranger-scouting");
     DResearchIndices[to_underlying(EAssetCapabilityType::Marksmanship)] =

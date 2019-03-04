@@ -509,10 +509,12 @@ bool CAIPlayer::TrainArcher(SPlayerCommandRequest &command)
 
 void CAIPlayer::CalculateCommand(SPlayerCommandRequest &command)
 {
+    
     command.DAction = EAssetCapabilityType::None;
     command.DActors.clear();
     command.DTargetNumber = EPlayerNumber::Neutral;
     command.DTargetType = EAssetType::None;
+    /*
     if ((DCycle % DDownSample) == 0)
     {
         // Do decision
@@ -601,5 +603,6 @@ void CAIPlayer::CalculateCommand(SPlayerCommandRequest &command)
             }
         }
     }
+    */
     DCycle++;
 }

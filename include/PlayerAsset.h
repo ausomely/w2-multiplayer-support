@@ -42,6 +42,7 @@ class CActivatedPlayerCapability
     virtual int PercentComplete(int max) = 0;
     virtual bool IncrementStep() = 0;
     virtual void Cancel() = 0;
+    bool IsRock;
 };
 
 class CPlayerCapability
@@ -126,6 +127,9 @@ class CPlayerUpgrade
         DRegistryByType;
 
   public:
+    
+    bool DUpgradeActive;
+    
     CPlayerUpgrade();
 
     std::string Name() const
@@ -202,7 +206,7 @@ class CPlayerAssetType
     EPlayerNumber DNumber;
     std::vector<bool> DCapabilities;
     std::vector<EAssetType> DAssetRequirements;
-    std::vector<std::shared_ptr<CPlayerUpgrade> > DAssetUpgrades;
+    std::vector<std::shared_ptr<CPlayerUpgrade>> DAssetUpgrades;
     int DHitPoints;
     int DArmor;
     int DSight;
@@ -228,6 +232,13 @@ class CPlayerAssetType
     CPlayerAssetType(std::shared_ptr<CPlayerAssetType> res);
     ~CPlayerAssetType();
 
+    int ArmorUpgrade() const;
+    int SightUpgrade() const;
+    int SpeedUpgrade() const;
+    int BasicDamageUpgrade() const;
+    int PiercingDamageUpgrade() const;
+    int RangeUpgrade() const;
+
     std::string Name() const
     {
         return DName;
@@ -243,10 +254,21 @@ class CPlayerAssetType
         return DColor;
     };
 
+
     EPlayerNumber Number() const
     {
         return DNumber;
     };
+
+    void ChangeOwner(EPlayerNumber num,EPlayerColor color){
+
+        DNumber = num;
+        DColor = color; 
+    }
+
+    std::vector<std::shared_ptr<CPlayerUpgrade>> GetUpgrades(){
+        return DAssetUpgrades;
+    }
 
     int HitPoints() const
     {
@@ -255,12 +277,12 @@ class CPlayerAssetType
 
     int Armor() const
     {
-        return DArmor;
+        return DArmor + ArmorUpgrade();
     };
 
     int Sight() const
     {
-        return DSight;
+        return DSight + SightUpgrade();
     };
 
     int ConstructionSight() const
@@ -275,7 +297,7 @@ class CPlayerAssetType
 
     int Speed() const
     {
-        return DSpeed;
+        return DSpeed + SpeedUpgrade();
     };
 
     int GoldCost() const
@@ -310,25 +332,20 @@ class CPlayerAssetType
 
     int BasicDamage() const
     {
-        return DBasicDamage;
+        return DBasicDamage + BasicDamageUpgrade();
     };
 
     int PiercingDamage() const
     {
-        return DPiercingDamage;
+        return DPiercingDamage + PiercingDamageUpgrade();
     };
 
     int Range() const
     {
-        return DRange;
+        return DRange + RangeUpgrade();
     };
 
-    int ArmorUpgrade() const;
-    int SightUpgrade() const;
-    int SpeedUpgrade() const;
-    int BasicDamageUpgrade() const;
-    int PiercingDamageUpgrade() const;
-    int RangeUpgrade() const;
+
 
     bool HasCapability(EAssetCapabilityType capability) const
     {
@@ -403,6 +420,7 @@ class CPlayerAsset
     int DHitPoints;
     int DGold;
     int DLumber;
+    int DStone;
     uint32_t DRandomId;
     int DStep;
     int DMoveRemainderX;
@@ -417,7 +435,10 @@ class CPlayerAsset
 
   public:
     CPlayerAsset(std::shared_ptr<CPlayerAssetType> type);
+    CPlayerAsset();
     ~CPlayerAsset();
+
+
 
     static int UpdateFrequency()
     {
@@ -425,6 +446,34 @@ class CPlayerAsset
     };
 
     static int UpdateFrequency(int freq);
+
+    //0 for check if it exists, 1 for activate, 2 for deactivate. Returns false if we dont have it. Otherwise true
+    bool RangerTrackingManager(int command){
+        std::vector<std::shared_ptr<CPlayerUpgrade>> Upgrades = DType->GetUpgrades();
+
+        for(auto upgrade : Upgrades)
+        {
+            if(upgrade->Name() == "RangerTracking"){
+                switch(command){
+                    case 0:
+                        return true;
+                        break;
+                    case 1:
+                        upgrade->DUpgradeActive = true;
+                        return true;
+                        break;
+                    case 2:
+                        upgrade->DUpgradeActive = false;
+                        return true;
+                        break;
+                }
+            }
+        }
+        return false;
+        
+    }
+
+    
 
     int Id() const
     {
@@ -548,6 +597,28 @@ class CPlayerAsset
     {
         DLumber -= lumber;
         return DLumber;
+    };
+
+    int Stone() const
+    {
+        return DStone;
+    };
+
+    int Stone(int Stone)
+    {
+        return DStone = Stone;
+    };
+
+    int IncrementStone(int Stone)
+    {
+        DStone += Stone;
+        return DStone;
+    };
+
+    int DecrementStone(int Stone)
+    {
+        DStone -= Stone;
+        return DStone;
     };
 
     int Step() const
@@ -696,6 +767,21 @@ class CPlayerAsset
         return false;
     };
 
+    std::shared_ptr<CPlayerAsset> GetAttackedTargets() const
+    {
+        for (auto Command : DCommands)
+        {
+            if (Command.DCapability == EAssetCapabilityType::Attack)
+            {
+                return Command.DAssetTarget;
+            }
+
+        }
+        return nullptr;
+
+
+    };
+
     bool Interruptible() const;
 
     EDirection Direction() const
@@ -737,6 +823,11 @@ class CPlayerAsset
     {
         return DType->Number();
     };
+
+    void ChangeOwner(EPlayerNumber num, EPlayerColor color)
+    {
+        DType->ChangeOwner(num,color);
+    }
 
     int Armor() const
     {

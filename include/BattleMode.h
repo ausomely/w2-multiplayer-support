@@ -20,8 +20,8 @@
 #include <string>
 #include <vector>
 #include "ApplicationMode.h"
-#include "OverlayManagement.h"
 #include "Rectangle.h"
+#include "OverlayManagement.h"
 
 // using TBattleModeCallbackFunction = void (*)(std::shared_ptr<
 // CApplicationData >);
@@ -38,6 +38,8 @@ class CBattleMode : public CApplicationMode
     CBattleMode(const CBattleMode &) = delete;
     const CBattleMode &operator=(const CBattleMode &) = delete;
 
+    int DScenarioTimmer;
+
   public:
     explicit CBattleMode(const SPrivateConstructorType &key);
     virtual ~CBattleMode(){};
@@ -47,6 +49,7 @@ class CBattleMode : public CApplicationMode
     virtual void Calculate(std::shared_ptr<CApplicationData> context) override;
     virtual void Render(std::shared_ptr<CApplicationData> context) override;
     static std::shared_ptr<CApplicationMode> Instance();
+    void PixelPositionOnOverlay(int &CurrentX, int &CurrentY);
 };
 
 #endif

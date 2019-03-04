@@ -33,6 +33,8 @@ class CResourceRenderer
     int DInsufficientColor;
     int DLastGoldDisplay;
     int DLastLumberDisplay;
+    int DLastStoneDisplay;
+    int DLastDisplay = 0;
 
   public:
     CResourceRenderer(std::shared_ptr<CGraphicTileset> icons,

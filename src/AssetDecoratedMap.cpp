@@ -31,6 +31,7 @@ CAssetDecoratedMap::CAssetDecoratedMap(const CAssetDecoratedMap &map)
 {
     DAssets = map.DAssets;
     DLumberAvailable = map.DLumberAvailable;
+    DStoneAvailable = map.DStoneAvailable;
     DAssetInitializationList = map.DAssetInitializationList;
     DResourceInitializationList = map.DResourceInitializationList;
 }
@@ -44,6 +45,7 @@ CAssetDecoratedMap &CAssetDecoratedMap::operator=(const CAssetDecoratedMap &map)
         CTerrainMap::operator=(map);
         DAssets = map.DAssets;
         DLumberAvailable = map.DLumberAvailable;
+        DStoneAvailable = map.DStoneAvailable;
         DAssetInitializationList = map.DAssetInitializationList;
         DResourceInitializationList = map.DResourceInitializationList;
     }
@@ -131,6 +133,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
 {
     int RightX, BottomY;
 
+    
     for (int YOff = 0; YOff < size; YOff++)
     {
         for (int XOff = 0; XOff < size; XOff++)
@@ -159,7 +162,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
     for (auto Asset : DAssets)
     {
         int Offset = EAssetType::GoldMine == Asset->Type() ? 1 : 0;
-
+      
         if (EAssetType::None == Asset->Type())
         {
             continue;
@@ -436,6 +439,108 @@ void CAssetDecoratedMap::RemoveLumber(const CTilePosition &pos,
     }
 }
 
+void CAssetDecoratedMap::RemoveStone(const CTilePosition &pos,
+                                      const CTilePosition &from, int amount)
+{
+    int Index = 0;
+
+    for (int YOff = 0; YOff < 2; YOff++)
+    {
+        for (int XOff = 0; XOff < 2; XOff++)
+        {
+            int XPos = pos.X() + XOff;
+            int YPos = pos.Y() + YOff;
+            Index |= (ETerrainTileType::Rock == DTerrainMap[YPos][XPos]) &&
+                     DPartials[YPos][XPos]
+                     ? 1 << (YOff * 2 + XOff)
+                     : 0;
+        }
+    }
+    if (Index && (0xF != Index))
+    {
+        switch (Index)
+        {
+            case 1:
+                Index = 0;
+                break;
+            case 2:
+                Index = 1;
+                break;
+            case 3:
+                Index = from.X() > pos.X() ? 1 : 0;
+                break;
+            case 4:
+                Index = 2;
+                break;
+            case 5:
+                Index = from.Y() < pos.Y() ? 0 : 2;
+                break;
+            case 6:
+                Index = from.Y() > pos.Y() ? 2 : 1;
+                break;
+            case 7:
+                Index = 2;
+                break;
+            case 8:
+                Index = 3;
+                break;
+            case 9:
+                Index = from.Y() > pos.Y() ? 0 : 3;
+                break;
+            case 10:
+                Index = from.Y() > pos.Y() ? 3 : 1;
+                break;
+            case 11:
+                Index = 0;
+                break;
+            case 12:
+                Index = from.X() < pos.X() ? 2 : 3;
+                break;
+            case 13:
+                Index = 3;
+                break;
+            case 14:
+                Index = 1;
+                break;
+        }
+        switch (Index)
+        {
+            case 0:
+                DStoneAvailable[pos.Y()][pos.X()] -= amount;
+                if (0 >= DStoneAvailable[pos.Y()][pos.X()])
+                {
+                    DStoneAvailable[pos.Y()][pos.X()] = 0;
+                    ChangeTerrainTilePartial(pos.X(), pos.Y(), 0);
+                }
+                break;
+            case 1:
+                DStoneAvailable[pos.Y()][pos.X() + 1] -= amount;
+                if (0 >= DStoneAvailable[pos.Y()][pos.X() + 1])
+                {
+                    DStoneAvailable[pos.Y()][pos.X() + 1] = 0;
+                    ChangeTerrainTilePartial(pos.X() + 1, pos.Y(), 0);
+                }
+                break;
+            case 2:
+                DStoneAvailable[pos.Y() + 1][pos.X()] -= amount;
+                if (0 >= DStoneAvailable[pos.Y() + 1][pos.X()])
+                {
+                    DStoneAvailable[pos.Y() + 1][pos.X()] = 0;
+                    ChangeTerrainTilePartial(pos.X(), pos.Y() + 1, 0);
+                }
+                break;
+            case 3:
+                DStoneAvailable[pos.Y() + 1][pos.X() + 1] -= amount;
+                if (0 >= DStoneAvailable[pos.Y() + 1][pos.X() + 1])
+                {
+                    DStoneAvailable[pos.Y() + 1][pos.X() + 1] = 0;
+                    ChangeTerrainTilePartial(pos.X() + 1, pos.Y() + 1, 0);
+                }
+                break;
+        }
+    }
+}
+
 bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
 {
     CCommentSkipLineDataSource LineSource(source, '#');
@@ -443,7 +548,7 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
     std::vector<std::string> Tokens;
     SResourceInitialization TempResourceInit;
     SAssetInitialization TempAssetInit;
-    int ResourceCount, AssetCount, InitialLumber = 400;
+    int ResourceCount, AssetCount, InitialLumber, InitialStone = 400;
     bool ReturnStatus = false;
 
     if (!CTerrainMap::LoadMap(source))
@@ -467,7 +572,7 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
                 goto LoadMapExit;
             }
             CTokenizer::Tokenize(Tokens, TempString);
-            if (3 > Tokens.size())
+            if (3 >= Tokens.size())
             {
                 PrintError("Too few tokens for resource %d.\n", Index);
                 goto LoadMapExit;
@@ -483,9 +588,12 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
             }
             TempResourceInit.DGold = std::stoi(Tokens[1]);
             TempResourceInit.DLumber = std::stoi(Tokens[2]);
+            TempResourceInit.DStone = std::stoi(Tokens[3]);
+
             if (EPlayerNumber::Neutral == TempResourceInit.DNumber)
             {
                 InitialLumber = TempResourceInit.DLumber;
+                InitialStone = TempResourceInit.DStone;
             }
 
             DResourceInitializationList.push_back(TempResourceInit);
@@ -551,6 +659,25 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
                 else
                 {
                     DLumberAvailable[RowIndex][ColIndex] = 0;
+                }
+            }
+        }
+
+        DStoneAvailable.resize(DTerrainMap.size());
+        for (int RowIndex = 0; RowIndex < DStoneAvailable.size(); RowIndex++)
+        {
+            DStoneAvailable[RowIndex].resize(DTerrainMap[RowIndex].size());
+            for (int ColIndex = 0; ColIndex < DTerrainMap[RowIndex].size();
+                 ColIndex++)
+            {
+                if (ETerrainTileType::Rock == DTerrainMap[RowIndex][ColIndex])
+                {
+                    DStoneAvailable[RowIndex][ColIndex] =
+                            DPartials[RowIndex][ColIndex] ? InitialStone : 0;
+                }
+                else
+                {
+                    DStoneAvailable[RowIndex][ColIndex] = 0;
                 }
             }
         }
@@ -838,7 +965,10 @@ CTilePosition CAssetDecoratedMap::FindNearestReachableTileType(
                 // CurTileType)||(ETileType::Stump ==
                 // CurTileType)||(ETileType::Rubble ==
                 // CurTileType)||(ETileType::None == CurTileType)){
-                if (IsTraversable(CurTileType))
+                    //RANGERTRACKING
+                CPlayerAsset TempAsset;
+
+                if (IsTraversable(CurTileType, TempAsset,false))
                 {
                     SearchQueue.push(TempSearch);
                 }

@@ -36,7 +36,7 @@ CNetworkOptionsMode::CNetworkOptionsMode(const SPrivateConstructorType &key)
     DEditValidationFunctions.push_back(ValidHostnameCallback);
     DEditTitles.push_back("Remote Hostname:");
     DEditValidationFunctions.push_back(ValidHostnameCallback);
-    DEditTitles.push_back("Remote Port Number:");
+    DEditTitles.push_back("Remote Hostname:");
     DEditValidationFunctions.push_back(ValidPortNumberCallback);
     DEditTitles.push_back("Password: ");
     DEditValidationFunctions.push_back(ValidPasswordCallback);

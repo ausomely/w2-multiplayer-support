@@ -23,6 +23,7 @@ enum class EMiniIconTypes
     Gold = 0,
     Lumber,
     Food,
+    stone,
     Max
 };
 
@@ -40,6 +41,7 @@ CResourceRenderer::CResourceRenderer(std::shared_ptr<CGraphicTileset> icons,
     DInsufficientColor = DFont->FindColor("red");
     DLastGoldDisplay = 0;
     DLastLumberDisplay = 0;
+    DLastStoneDisplay = 0;
 
     DIconIndices.resize(to_underlying(EMiniIconTypes::Max));
     DIconIndices[to_underlying(EMiniIconTypes::Gold)] =
@@ -48,6 +50,8 @@ CResourceRenderer::CResourceRenderer(std::shared_ptr<CGraphicTileset> icons,
         DIconTileset->FindTile("lumber");
     DIconIndices[to_underlying(EMiniIconTypes::Food)] =
         DIconTileset->FindTile("food");
+    DIconIndices[to_underlying(EMiniIconTypes::stone)] =
+            DIconTileset->FindTile("stone");
     DFont->MeasureText("0123456789", Width, DTextHeight);
 }
 
@@ -60,6 +64,8 @@ void CResourceRenderer::DrawResources(std::shared_ptr<CGraphicSurface> surface)
     int WidthSeparation, XOffset;
     int DeltaGold = DPlayer->Gold() - DLastGoldDisplay;
     int DeltaLumber = DPlayer->Lumber() - DLastLumberDisplay;
+    int DeltaStone = DPlayer->Stone() - DLastStoneDisplay;
+
 
     DeltaGold /= 5;
     if ((-3 < DeltaGold) && (3 > DeltaGold))
@@ -78,6 +84,15 @@ void CResourceRenderer::DrawResources(std::shared_ptr<CGraphicSurface> surface)
     else
     {
         DLastLumberDisplay += DeltaLumber;
+    }
+    DeltaStone /= 5;
+    if ((-3 < DeltaStone) && (3 > DeltaStone))
+    {
+        DLastStoneDisplay = DPlayer->Stone();
+    }
+    else
+    {
+        DLastStoneDisplay += DeltaStone;
     }
     Width = surface->Width();
     Height = surface->Height();
@@ -102,6 +117,15 @@ void CResourceRenderer::DrawResources(std::shared_ptr<CGraphicSurface> surface)
         DForegroundColor, DBackgroundColor, 1,
         std::string(" ") +
             CTextFormatter::IntegerToPrettyString(DLastLumberDisplay));
+    XOffset += WidthSeparation;
+
+    DIconTileset->DrawTile(surface, XOffset, ImageYOffset,
+                           DIconIndices[to_underlying(EMiniIconTypes::stone)]);
+    DFont->DrawTextWithShadow(
+            surface, XOffset + DIconTileset->TileWidth(), TextYOffset,
+            DForegroundColor, DBackgroundColor, 1,
+            std::string(" ") +
+            CTextFormatter::IntegerToPrettyString(DLastStoneDisplay));
     XOffset += WidthSeparation;
 
     DIconTileset->DrawTile(surface, XOffset, ImageYOffset,

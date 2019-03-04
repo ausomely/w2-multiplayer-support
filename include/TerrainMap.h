@@ -20,6 +20,7 @@
 #include "DataSource.h"
 #include "GameDataTypes.h"
 #include "Position.h"
+#include "PlayerAsset.h"
 
 class CTerrainMap
 {
@@ -172,7 +173,7 @@ class CTerrainMap
 
     void InitializeLumber(int lumber);
 
-    static bool IsTraversable(ETileType type);
+    static bool IsTraversable(ETileType type, CPlayerAsset &asset, bool AssetOnTree);
     static bool CanPlaceOn(ETileType type);
 
     void RenderTerrain();

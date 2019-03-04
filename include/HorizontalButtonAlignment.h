@@ -14,22 +14,22 @@
     purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
-#ifndef VERTICALBUTTONALIGNMENT_H
-#define VERTICALBUTTONALIGNMENT_H
+#ifndef HORIZONTALBUTTONALIGNMENT_H
+#define HORIZONTALBUTTONALIGNMENT_H
 
 #include "ButtonAlignment.h"
 
-class CVerticalButtonAlignment : public CButtonAlignment
+class CHorizontalButtonAlignment: public CButtonAlignment
 {
   protected:
 
   public:
-    virtual ~CVerticalButtonAlignment() = default;
-    CVerticalButtonAlignment(std::shared_ptr<CApplicationData> context,
+    virtual ~CHorizontalButtonAlignment() = default;
+    CHorizontalButtonAlignment(std::shared_ptr<CApplicationData> context,
         std::vector<std::string> texts, EPosition placement, int width, int height);
 
-    void FindXOffset(int CanvasWidth) override;
-    void FindYOffset(int CanvasHeight) override;
+    void FindXOffset(int Width) override;
+    void FindYOffset(int Height) override;
     void CreateButtons(std::vector<std::string> texts);
 
 

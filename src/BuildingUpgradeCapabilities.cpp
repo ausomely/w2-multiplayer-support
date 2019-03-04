@@ -37,6 +37,7 @@ class CPlayerCapabilityBuildingUpgrade : public CPlayerCapability
         int DTotalSteps;
         int DLumber;
         int DGold;
+        int DStone;
 
       public:
         CActivatedCapability(std::shared_ptr<CPlayerAsset> actor,
@@ -84,6 +85,9 @@ CPlayerCapabilityBuildingUpgrade::CRegistrant::CRegistrant()
     CPlayerCapability::Register(
         std::shared_ptr<CPlayerCapabilityBuildingUpgrade>(
             new CPlayerCapabilityBuildingUpgrade("CannonTower")));
+    CPlayerCapability::Register(
+        std::shared_ptr<CPlayerCapabilityBuildingUpgrade>(
+            new CPlayerCapabilityBuildingUpgrade("GoldMine")));
 }
 
 CPlayerCapabilityBuildingUpgrade::CPlayerCapabilityBuildingUpgrade(
@@ -112,6 +116,10 @@ bool CPlayerCapabilityBuildingUpgrade::CanInitiate(
         {
             return false;
         }
+        // if (Asset->StoneCost() > playerdata->Stone())
+        // {
+        //     return false;
+        // }
         if (!playerdata->AssetRequirementsMet(DBuildingName))
         {
             return false;

@@ -20,37 +20,26 @@
 #include "Debug.h"
 #include "VerticalButtonAlignment.h"
 
-std::shared_ptr<CInGameMenuOverlay> CInGameMenuOverlay::DInGameMenuOverlayPointer;
-std::shared_ptr<COverlayManagement> CInGameMenuOverlay::DOverlayManager;
-std::shared_ptr<CApplicationData> CInGameMenuOverlay::DContext;
 
-CInGameMenuOverlay::CInGameMenuOverlay(const SPrivateConstructorType &key)
+CInGameMenuOverlay::CInGameMenuOverlay(std::shared_ptr<COverlayManagement> manager)
 {
-    DOverlayManager = COverlayManagement::Manager();
+    DOverlayManager = manager;
     DContext = DOverlayManager->Context();
+
+    int CanvasWidth = DOverlayManager->CanvasWidth();
+    int CanvasHeight = DOverlayManager->CanvasWidth();
 
     DButtonTexts.push_back("Sound Options");
     DButtonTexts.push_back("Return to Game");
     DButtonTexts.push_back("Leave Game");
 
-    DButtonStack = std::make_shared<CVerticalButtonAlignment>(DContext,
-        DButtonTexts, EPosition::Center);
-}
+    DButtonStack = std::make_shared<CVerticalButtonAlignment>(DContext, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight);
 
-//! Instantiate
-std::shared_ptr<COverlayMode> CInGameMenuOverlay::Initialize()
-{
-    if (nullptr == DInGameMenuOverlayPointer)
-    {
-        DInGameMenuOverlayPointer =
-            std::make_shared<CInGameMenuOverlay>(SPrivateConstructorType());
-
-    }
-    return DInGameMenuOverlayPointer;
 }
 
 //! Handle inputs
-void CInGameMenuOverlay::Input()
+void CInGameMenuOverlay::Input(int x, int y, bool clicked)
 {
     int ButtonIndex;
 
@@ -59,22 +48,28 @@ void CInGameMenuOverlay::Input()
         switch (DButtonStack->ButtonPressedIndex())
         {
             case 0:
-                //DOverlayManager->ChangeOverlay(CSoundOptionsOverlay::Initialize());
+            {
+                DOverlayManager->SetMode(EOverlay::SoundOptions);
                 break;
+            }
             case 1:
-                DOverlayManager->ReturnToGameFunction();
+            {
+                DOverlayManager->ReturnToGame();
                 break;
+            }
             case 2:
-                DOverlayManager->LeaveGameFunction();
+            {
+                DOverlayManager->LeaveGame();
                 break;
+            }
         }
-
-
+        DOverlayManager->ClearMouseButtonState();
     }
 }
 
 //! Handle drawing
 void CInGameMenuOverlay::Draw(int x, int y, bool clicked)
 {
-    DButtonStack->DrawStack(x, y, clicked);
+    DButtonStack->DrawStack(DOverlayManager->Surface(), x, y, clicked);
 }
+

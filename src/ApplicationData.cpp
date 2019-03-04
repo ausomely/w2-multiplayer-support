@@ -18,12 +18,15 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <memory>
 #include "ApplicationPath.h"
 #include "Debug.h"
 #include "FileDataContainer.h"
 #include "MainMenuMode.h"
 #include "MemoryDataSource.h"
 #include "PixelType.h"
+#include "TriggerController.h"
+#include "ServerConnectMenuMode.h"
 #include "json.hpp"
 
 #define INITIAL_MAP_WIDTH 800
@@ -66,16 +69,21 @@ CApplicationData::CApplicationData(const std::string &appname,
     DMiniMapViewportColor = 0xFFFFFF;
     DDeleted = false;
     DActiveGame = false;  //!< Flag for active game
+    DOverlayActive = false;
+    DLeaveGame = false;
+    DLeftDown = false;
+    DRightDown = false;
+
 
     DCursorType = ctPointer;
 
     DMapSelectListViewXOffset = 0;
     DMapSelectListViewYOffset = 0;
     DSelectedMapIndex = 0;
-    DUsername = "mgcheng";
+    DUsername = "user";
     DRemoteHostname = "localhost";
     DMultiplayerPort = 55107;  // Ascii WC = 0x5743 or'd with 0x8000
-    DPassword = "11051996";
+    DPassword = "";
     DBorderWidth = 32;
     DPanningSpeed = 0;
     for (int Index = 0; Index < to_underlying(EPlayerNumber::Max); Index++)
@@ -119,6 +127,8 @@ CApplicationData::CApplicationData(const std::string &appname,
     DBuildHotKeyMap[SGUIKeyType::Keys] = EAssetCapabilityType::BuildBlacksmith;
     DBuildHotKeyMap[SGUIKeyType::KeyT] = EAssetCapabilityType::BuildScoutTower;
     DBuildHotKeyMap[SGUIKeyType::Keyt] = EAssetCapabilityType::BuildScoutTower;
+   // DBuildHotKeyMap[SGUIKeyType::KeyG] = EAssetCapabilityType::BuildGoldMine;
+   // DBuildHotKeyMap[SGUIKeyType::Keyg] = EAssetCapabilityType::BuildGoldMine;
 
     DTrainHotKeyMap[SGUIKeyType::KeyA] = EAssetCapabilityType::BuildArcher;
     DTrainHotKeyMap[SGUIKeyType::Keya] = EAssetCapabilityType::BuildArcher;
@@ -247,6 +257,7 @@ bool CApplicationData::DrawingAreaMotionNotifyEventCallback(
 void CApplicationData::Activate()
 {
     CPath AppPath = GetApplicationPath().Containing();
+
     // Set data directory path if not set from command line
     if (DDataPath.length() == 0)
     {
@@ -676,6 +687,19 @@ void CApplicationData::Activate()
         PrintError("Failed to load archer tileset.\n");
         return;
     }
+    
+    PrintDebug(DEBUG_LOW, "Loading GoldVein\n");
+    RenderSplashStep();
+    TempDataSource = ImageDirectory->DataSource("GoldVein.dat");
+    DAssetTilesets[to_underlying(EAssetType::GoldVein)] =
+        std::make_shared<CGraphicMulticolorTileset>();
+    if (!DAssetTilesets[to_underlying(EAssetType::GoldVein)]->LoadTileset(
+            DPlayerRecolorMap, TempDataSource))
+    {
+        PrintError("Failed to load gold vein tileset.\n");
+        return;
+    }
+    
     PrintDebug(DEBUG_LOW, "Loading GoldMine\n");
     RenderSplashStep();
     TempDataSource = ImageDirectory->DataSource("GoldMine.dat");
@@ -1066,11 +1090,8 @@ CApplicationData::EUIComponentType CApplicationData::FindUIComponentType(
     int DescrWidth, DescrHeight;
     int ActWidth, ActHeight;
 
-    int OverlayWidth = DOverlaySurface->Width();
-    int OverlayHeight = DOverlaySurface->Height();
-
-    // When overlay is active, it's the only valid UI element
-    if (DOverlayActive)
+    // When overlay is active, it's the only valid UI component type
+    if (OverlayActive())
     {
         return uictOverlay;
     }
@@ -1222,6 +1243,40 @@ CPixelPosition CApplicationData::MiniMapToDetailedMap(const CPixelPosition &pos)
     return Temp;
 }
 
+void CApplicationData::DrawBackground(
+    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+{
+    for (int YPos = 0; YPos < pageheight;
+         YPos += DBackgroundTileset->TileHeight())
+    {
+        for (int XPos = 0; XPos < pagewidth;
+             XPos += DBackgroundTileset->TileWidth())
+        {
+            DBackgroundTileset->DrawTile(surface, XPos, YPos, 0);
+        }
+    }
+
+}
+
+void CApplicationData::DrawInnerBevel(
+    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+{
+    DInnerBevel->DrawBevel(surface, DInnerBevel->Width(),
+        DInnerBevel->Width(),
+        pagewidth - DInnerBevel->Width() * 2,
+        pageheight - DInnerBevel->Width() * 2);
+}
+
+void CApplicationData::DrawOuterBevel(
+    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+{
+    DOuterBevel->DrawBevel(surface, DOuterBevel->Width(),
+        DOuterBevel->Width(),
+        pagewidth - DOuterBevel->Width() * 2,
+        pageheight - DOuterBevel->Width() * 2);
+}
+
+
 void CApplicationData::RenderMenuTitle(const std::string &title,
                                        int &titlebottomy, int &pagewidth,
                                        int &pageheight)
@@ -1231,19 +1286,9 @@ void CApplicationData::RenderMenuTitle(const std::string &title,
 
     pagewidth = DWorkingBufferSurface->Width();
     pageheight = DWorkingBufferSurface->Height();
-    for (int YPos = 0; YPos < pageheight;
-         YPos += DBackgroundTileset->TileHeight())
-    {
-        for (int XPos = 0; XPos < pagewidth;
-             XPos += DBackgroundTileset->TileWidth())
-        {
-            DBackgroundTileset->DrawTile(DWorkingBufferSurface, XPos, YPos, 0);
-        }
-    }
-    DOuterBevel->DrawBevel(DWorkingBufferSurface, DOuterBevel->Width(),
-                           DOuterBevel->Width(),
-                           pagewidth - DOuterBevel->Width() * 2,
-                           pageheight - DOuterBevel->Width() * 2);
+
+    DrawBackground(DWorkingBufferSurface, pagewidth, pageheight);
+    DrawOuterBevel(DWorkingBufferSurface, pagewidth, pageheight);
 
     DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Giant)]
         ->MeasureText(title, TitleWidth, titlebottomy);
@@ -1436,16 +1481,14 @@ void CApplicationData::LoadGameMap(int index)
     DMenuButtonYOffset = (DViewportYOffset - DOuterBevel->Width()) / 2 -
                          DMenuButtonRenderer->Height() / 2;
 
-    // Find X, Y offsets to center overlay surface over the viewport
-    DOverlayXOffset = static_cast<int>(DViewportXOffset + 0.5*DViewportSurface->Width() -
-                      0.5*DOverlaySurface->Width());
-    DOverlayYOffset = DViewportYOffset + DInnerBevel->Width() * 6;
-
     int CurWidth, CurHeight;
 
     CurWidth = DViewportSurface->Width();
     CurHeight = DViewportSurface->Height();
     DViewportRenderer->InitViewportDimensions(CurWidth, CurHeight);
+
+    // Overlay X,Y offsets
+
 
     for (auto WeakAsset : DGameModel->Player(DPlayerNumber)->Assets())
     {
@@ -1540,10 +1583,10 @@ void CApplicationData::ResizeCanvases()
         ResourceContext->Rectangle(0, 0, CurWidth, CurHeight);
         ResourceContext->Fill();
     }
-    //if (!DUnitDescriptionRenderer)
-    //{
-      //  return;
-    //}
+//    if (!DUnitDescriptionRenderer)
+//    {
+//        return;
+//    }
     if (!DOuterBevel)
     {
         return;
@@ -1616,6 +1659,7 @@ void CApplicationData::ResizeCanvases()
         DNotificationRendererSurface = CGraphicFactory::CreateSurface(ViewportWidth,ViewportHeight/4,CGraphicSurface::ESurfaceFormat::ARGB32);
     }
 
+
     if (nullptr != DResourceSurface)
     {
         int CurWidth, CurHeight;
@@ -1635,6 +1679,7 @@ void CApplicationData::ResizeCanvases()
                 ARGB32);  // DDrawingArea->CreateSimilarSurface(ViewportWidth,
                           // DBorderWidth);
     }
+
     // Button Description Surface
     if (nullptr != DButtonDescriptionSurface)
     {
@@ -1653,54 +1698,6 @@ void CApplicationData::ResizeCanvases()
         DButtonDescriptionSurface = CGraphicFactory::CreateSurface(
             ViewportWidth, DBorderWidth,
             CGraphicSurface::ESurfaceFormat::ARGB32);
-    }
-    // Overlay surface dimensions are scaled down from the viewport
-    float OverlayXScale = 0.95;
-    float OverlayYScale = 0.75;
-
-    // Overlay surface background color
-    uint32_t OverlayColor = 0x172f4e;
-
-    // Overlay surface
-    if (nullptr != DOverlaySurface)
-    {
-        int CurWidth, CurHeight;
-
-        CurWidth = static_cast<int>(OverlayXScale * DViewportSurface->Width());
-        CurHeight = static_cast<int>(OverlayYScale * DViewportSurface->Height());
-
-        // Make sure surface dimensions are as requested
-        if ((OverlayXScale * ViewportWidth != CurWidth) ||
-            OverlayYScale * ViewportHeight != CurHeight)
-        {
-            DOverlaySurface = nullptr;
-        }
-        else
-        {
-            auto ResourceContext = DOverlaySurface->CreateResourceContext();
-            ResourceContext->SetSourceRGB(OverlayColor);
-            ResourceContext->Rectangle(0, 0, CurWidth, CurHeight);
-            ResourceContext->Fill();
-        }
-    }
-
-    // Overlay surface
-    if (nullptr == DOverlaySurface)
-    {
-        // Surface width and height
-        int OverlayWidth = static_cast<int>(OverlayXScale * ViewportWidth);
-        int OverlayHeight = static_cast<int>(OverlayYScale * ViewportHeight);
-
-        // Allocate the surface memory
-        DOverlaySurface = CGraphicFactory::CreateSurface(
-        OverlayWidth, OverlayHeight,
-        CGraphicSurface::ESurfaceFormat::ARGB32);
-
-        auto ResourceContext = DOverlaySurface->CreateResourceContext();
-        ResourceContext->SetSourceRGB(OverlayColor);
-        ResourceContext->Rectangle(0, 0, OverlayWidth, OverlayHeight);
-        ResourceContext->Fill();
-
     }
 
     if (nullptr != DViewportSurface)
@@ -1754,9 +1751,26 @@ bool CApplicationData::MultiPlayer()
     return false;
 }
 
+void CApplicationData::DeactivateOverlay()
+{
+    DOverlayActive = false;
+}
+
+void CApplicationData::ActivateOverlay()
+{
+    DOverlayActive = true;
+}
+
 void CApplicationData::ToggleOverlay()
 {
-    DOverlayActive ? (DOverlayActive = false) : (DOverlayActive = true);
+    if (DOverlayActive)
+    {
+        DOverlayActive = false;
+    }
+    else
+    {
+        DOverlayActive = true;
+    }
 }
 
 bool CApplicationData::OverlayActive()
@@ -1764,21 +1778,94 @@ bool CApplicationData::OverlayActive()
     return DOverlayActive;
 }
 
+int CApplicationData::FindClipID(const std::string &name)
+{
+    return DSoundLibraryMixer->FindClip(name);
+}
+
+void CApplicationData::StartPlayingClip(const std::string &name)
+{
+    int ClipID = FindClipID(name);
+    DSoundLibraryMixer->PlayClip(ClipID, DSoundVolume, 0.0);
+}
+
+int CApplicationData::FindSongID(const std::string &name)
+{
+    return DSoundLibraryMixer->FindSong(name);
+}
+
+void CApplicationData::StopPlayingMusic()
+{
+    DSoundLibraryMixer->StopSong();
+}
+
+void CApplicationData::StartPlayingMusic(const std::string &song)
+{
+    int SongID = FindSongID(song);
+    DSoundLibraryMixer->PlaySong(SongID, DMusicVolume);
+}
+
+void CApplicationData::SetFXVolume(float fx_vol)
+{
+    DSoundVolume = fx_vol;
+    DSoundEventRenderer->Volume(DSoundVolume);
+
+}
+
+void CApplicationData::SetMusicVolume(float music_vol)
+{
+    DMusicVolume = music_vol;
+    DSoundLibraryMixer->SongVolume(music_vol);
+}
+
+// Function handle changing state from game play to a menu mode
 void CApplicationData::LeaveGame()
 {
+    StopPlayingMusic();
+    StartPlayingMusic("menu");
+
+    // Leave game flag used inside battle mode to signal mode change
+    DLeaveGame = false;
+    // Active game flag to indicate game in progress
     DActiveGame = false;
 
     if (MultiPlayer())
     {
-        ClientPointer->SendMessage("Leave");
-        roomInfo.Clear();
-        ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
+        ChangeApplicationMode(CServerConnectMenuMode::Instance());
     }
     else
     {
         ChangeApplicationMode(CMainMenuMode::Instance());
     }
 }
+
+void CApplicationData::ShutdownGame()
+{
+    // Cleanly terminate any state before closing the application
+
+    StopPlayingMusic();
+    DMainWindow->Close();
+}
+
+void CApplicationData::ClearMouseButtonState()
+{
+    DLeftClick = 0;
+    DLeftDown = false;
+    DRightClick = 0;
+    DRightDown = false;
+}
+
+void CApplicationData::SetLeaveGameFlag(bool flag)
+{
+    DLeaveGame = flag;
+}
+
+bool CApplicationData::CheckLeaveGameFlag()
+{
+    return DLeaveGame;
+}
+
+
 
 int CApplicationData::Run(int argc, char *argv[])
 {

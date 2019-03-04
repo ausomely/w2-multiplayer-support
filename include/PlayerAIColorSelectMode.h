@@ -22,7 +22,6 @@
 #include "ApplicationMode.h"
 #include "GameDataTypes.h"
 #include "Rectangle.h"
-#include "RoomInfo.pb.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
@@ -41,12 +40,14 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     std::vector<SRectangle> DButtonLocations;
     std::vector<SRectangle> DColorButtonLocations;
     std::vector<SRectangle> DPlayerTypeButtonLocations;
+    static std::array<bool, to_underlying(EPlayerNumber::Max)> DReadyPlayers;
     static int DCountdownTimer;
     EPlayerNumber DPlayerNumberRequestingChange;
     EPlayerColor DPlayerColorChangeRequest;
     EPlayerNumber DPlayerNumberRequesTypeChange;
     bool DButtonHovered;
     int DMapOffset;
+
 
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);
@@ -55,6 +56,7 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     static void PlayGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void CancelButtonCallback(std::shared_ptr<CApplicationData> context);
+
     CPlayerAIColorSelectMode(const CPlayerAIColorSelectMode &) = delete;
     const CPlayerAIColorSelectMode &operator=(
         const CPlayerAIColorSelectMode &) = delete;

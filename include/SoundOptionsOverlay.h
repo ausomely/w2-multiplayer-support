@@ -20,7 +20,11 @@
 #include <string>
 #include <vector>
 #include "OverlayMode.h"
-#include "VerticalButtonAlignment.h"
+#include "Rectangle.h"
+#include "HorizontalButtonAlignment.h"
+
+using TSoundCallbackFunction = void (*)(std::shared_ptr<CApplicationData>);
+using TSoundValidTextCallbackFunction = bool (*)(const std::string &);
 
 
 class COverlayManagement;
@@ -30,25 +34,47 @@ class CSoundOptionsOverlay : public COverlayMode
     friend class CButton;
 
   protected:
-    struct SPrivateConstructorType {};
+    std::shared_ptr<COverlayManagement> DOverlayManager;
+    std::shared_ptr<CApplicationData> DContext;
 
-    static std::shared_ptr<CSoundOptionsOverlay> DSoundOptionsOverlayPointer;
-    std::string DTitle;
+    struct SPrivateConstructorType
+    {
+    };
+
+    int DGoldColor;
+    int DWhiteColor;
+    int DShadowColor;
+
+    int DTextXoffset;
+    int DTextYoffset;
+    int DTextMaxWidth;
+    int DTextMaxHeight;
+    int DFontID;
+
+    int DEditSelected;
+    int DEditSelectedCharacter;
     std::vector<std::string> DButtonTexts;
-    std::shared_ptr<CVerticalButtonAlignment> DButtonStack;
+    std::vector<std::string> DEditTitles;
+    std::vector<std::string> DEditText;
+    std::vector<SRectangle> DEditLocations;
 
-    static std::shared_ptr<COverlayManagement> DOverlayManager;
-    static std::shared_ptr<CApplicationData> DContext;
-
-    CSoundOptionsOverlay(const CSoundOptionsOverlay &) = delete;
-    const CSoundOptionsOverlay &operator=(const CSoundOptionsOverlay &) = delete;
+    std::shared_ptr<CHorizontalButtonAlignment> DButtonStack;
 
   public:
-    ~CSoundOptionsOverlay(){};
-    explicit CSoundOptionsOverlay(const SPrivateConstructorType &key);
-    virtual void Input() override;
-    virtual void Draw(int x, int y, bool clicked) override;
-    static std::shared_ptr<COverlayMode> Initialize();
+    ~CSoundOptionsOverlay()
+    {
+    };
+    explicit CSoundOptionsOverlay(std::shared_ptr<COverlayManagement> manager);
+    void Input(int x, int y, bool clicked) override;
+    void Draw(int x, int y, bool clicked) override;
+    void DrawTextFields();
+    void ProcessButtonStack();
+    void ProcessTextEntryFields(int x, int y, bool clicked);
+    void ProcessKeyStrokes();
+    bool ValidateSoundLevel(const std::string &str);
+    void SaveSettings();
+    void SetTextColors();
+
 };
 
 #endif

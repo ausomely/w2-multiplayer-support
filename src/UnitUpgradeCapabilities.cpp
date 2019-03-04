@@ -87,6 +87,8 @@ CPlayerCapabilityUnitUpgrade::CRegistrant::CRegistrant()
     CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityUnitUpgrade>(
         new CPlayerCapabilityUnitUpgrade("Longbow")));
     CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityUnitUpgrade>(
+        new CPlayerCapabilityUnitUpgrade("RangerTracking")));
+    CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityUnitUpgrade>(
         new CPlayerCapabilityUnitUpgrade("RangerScouting")));
     CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityUnitUpgrade>(
         new CPlayerCapabilityUnitUpgrade("Marksmanship")));
@@ -115,6 +117,10 @@ bool CPlayerCapabilityUnitUpgrade::CanInitiate(
         {
             return false;
         }
+        // if (Upgrade->StoneCost() > playerdata->Stone())
+        // {
+        //     return false;
+        // }
         /*
         if(!playerdata->AssetRequirementsMet(DUpgradeName)){
             return false;
@@ -298,6 +304,10 @@ bool CPlayerCapabilityBuildRanger::CanInitiate(
             {
                 return false;
             }
+            // if (Upgrade->StoneCost() > playerdata->Stone())
+            // {
+            //     return false;
+            // }
             if (!playerdata->AssetRequirementsMet(DUnitName))
             {
                 return false;
@@ -319,6 +329,10 @@ bool CPlayerCapabilityBuildRanger::CanInitiate(
             {
                 return false;
             }
+            // if (AssetType->StoneCost() > playerdata->Stone())
+            // {
+            //     return false;
+            // }
             if ((AssetType->FoodConsumption() + playerdata->FoodConsumption()) >
                 playerdata->FoodProduction())
             {
@@ -471,6 +485,8 @@ bool CPlayerCapabilityBuildRanger::CActivatedCapability::IncrementStep()
                 EAssetCapabilityType::RangerScouting);
             LumberMillIterator->second->AddCapability(
                 EAssetCapabilityType::Marksmanship);
+            LumberMillIterator->second->AddCapability(
+                EAssetCapabilityType::RangerTracking);
             // Upgrade all Archers
             for (auto WeakAsset : DPlayerData->Assets())
             {
@@ -521,3 +537,4 @@ void CPlayerCapabilityBuildRanger::CActivatedCapability::Cancel()
     }
     DActor->PopCommand();
 }
+

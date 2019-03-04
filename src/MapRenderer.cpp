@@ -179,6 +179,20 @@ CMapRenderer::CMapRenderer(std::shared_ptr<CDataSource> config,
         while (true)
         {
             int Value = DTileset->FindTile(
+                    std::string("rubble-") + TempStringStream.str() +
+                    std::string("-") + std::to_string(AltTileIndex));
+            if (0 > Value)
+            {
+                break;
+            }
+            DTileIndices[to_underlying(CTerrainMap::ETileType::Rubble)][Index]
+                    .push_back(Value);
+            AltTileIndex++;
+        }
+        AltTileIndex = 0;
+        while (true)
+        {
+            int Value = DTileset->FindTile(
                 std::string("forest-") + TempStringStream.str() +
                 std::string("-") + std::to_string(AltTileIndex));
             if (0 > Value)
@@ -234,12 +248,12 @@ CMapRenderer::CMapRenderer(std::shared_ptr<CDataSource> config,
             AltTileIndex++;
         }
     }
-    for (int Index = 0; Index < 16; Index++)
-    {
-        DTileIndices[to_underlying(CTerrainMap::ETileType::Rubble)][Index]
-            .push_back(
-                DTileIndices[to_underlying(CTerrainMap::ETileType::Rock)][0][0]);
-    }
+//    for (int Index = 0; Index < 16; Index++)
+//    {
+//        DTileIndices[to_underlying(CTerrainMap::ETileType::Rubble)][Index]
+//            .push_back(
+//                DTileIndices[to_underlying(CTerrainMap::ETileType::Rock)][0][0]);
+//    }
 }
 
 int CMapRenderer::MapWidth() const

@@ -20,7 +20,6 @@
 #include "MemoryDataSource.h"
 #include "MultiPlayerOptionsMenuMode.h"
 #include "OptionsMenuMode.h"
-#include "Client.h"
 
 std::shared_ptr<CApplicationMode> CMainMenuMode::DMainMenuModePointer;
 
@@ -44,7 +43,7 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->DGameSessionType = CApplicationData::gstSinglePlayer;
-    
+
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
 }
 
@@ -52,14 +51,7 @@ void CMainMenuMode::SinglePlayerGameButtonCallback(
 void CMainMenuMode::MultiPlayerGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    if(context->ClientPointer == nullptr)
-        context->ClientPointer = std::make_shared< Client >();
-
-    if(context->ClientPointer->Connect(context)) {
-        if(context->ClientPointer->SendLoginInfo(context)) {
-            context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
-        }
-    }
+    context->ChangeApplicationMode(CMultiPlayerOptionsMenuMode::Instance());
 }
 
 //! @brief Opens game settings

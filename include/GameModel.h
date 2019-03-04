@@ -65,13 +65,12 @@ class CPlayerData
     std::vector<SGameEvent> DGameEvents;
     int DGold;
     int DLumber;
+    int DStone;
     int DGameCycle;
 
   public:
     CPlayerData(std::shared_ptr<CAssetDecoratedMap> map, EPlayerNumber number,
                 EPlayerColor color);
-
-    static std::unordered_map<int, std::shared_ptr<CPlayerAsset>> umap;
 
     int GameCycle() const
     {
@@ -115,6 +114,10 @@ class CPlayerData
     {
         return DLumber;
     };
+    int Stone() const
+    {
+        return DStone;
+    };
     int IncrementGold(int gold)
     {
         DGold += gold;
@@ -134,6 +137,16 @@ class CPlayerData
     {
         DLumber -= lumber;
         return DLumber;
+    };
+    int IncrementStone(int Stone)
+    {
+        DStone += Stone;
+        return DStone;
+    };
+    int DecrementStone(int Stone)
+    {
+        DStone -= Stone;
+        return DStone;
     };
     int FoodConsumption() const;
     int FoodProduction() const;
@@ -178,6 +191,7 @@ class CPlayerData
                                          EAssetType assettype, int buffer);
     std::list<std::weak_ptr<CPlayerAsset> > IdleAssets() const;
     int PlayerAssetCount(EAssetType type);
+    int PlayerMovingAssetCount(EPlayerNumber type);
     int FoundAssetCount(EAssetType type);
     void AddUpgrade(const std::string &upgradename);
     bool HasUpgrade(EAssetCapabilityType upgrade) const
@@ -229,6 +243,8 @@ class CGameModel
     CRouterMap DRouterMap;
     std::array<std::shared_ptr<CPlayerData>, to_underlying(EPlayerNumber::Max)>
         DPlayers;  //!< Array of all player data objects
+    std::map<std::shared_ptr<CPlayerAsset>, double > DAssetHealingPeriod;
+
     int DGameCycle;
     int DHarvestTime;
     int DHarvestSteps;
@@ -242,8 +258,11 @@ class CGameModel
     int DDecaySteps;
     int DLumberPerHarvest;
     int DGoldPerMining;
+    int DTotalAssetCount;
+    int DStonePerHarvest;
 
   public:
+    bool IsRock;
     CGameModel(int mapindex, uint64_t seed,
                const std::array<EPlayerColor, to_underlying(EPlayerNumber::Max)>
                    &newcolors);
@@ -255,7 +274,12 @@ class CGameModel
         return DGameCycle;
     };
 
+    void ChangeAssetOwner(EPlayerNumber PrevOwner, EPlayerNumber NewOwner, std::shared_ptr<CPlayerAsset> asset);
+    void ChangeGoldMineOwner();
+
+    int TotalMovingAssetCount();
     void ClearAssetsEvalList();  //!< Empty asset evaluation list for next round
+    void HealUnits(); //!<
     void CreateAssetsEvalList();  //!< Copy all player assets to a container
     std::vector<std::shared_ptr<CPlayerAsset> >
         AssetsEvalList()  //!< Return randomized assets evalulation list

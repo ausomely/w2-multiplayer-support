@@ -140,6 +140,8 @@ void CViewportRenderer::DrawViewport(
         case EAssetCapabilityType::BuildScoutTower:
             PlaceType = EAssetType::ScoutTower;
             break;
+        //case EAssetCapabilityType::BuildGoldMine:
+        //    PlaceType = EAssetType::GoldMine;
         default:
             break;
     }

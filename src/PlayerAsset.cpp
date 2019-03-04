@@ -24,7 +24,7 @@ int CPlayerAsset::DIdCounter = 1;
 std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType> >
     CPlayerAssetType::DRegistry;
 std::vector<std::string> CPlayerAssetType::DTypeStrings(
-    {"None", "Peasant", "Footman", "Archer", "Ranger", "GoldMine", "TownHall",
+    {"None", "Peasant", "Footman", "Archer", "Ranger","GoldVein", "GoldMine", "TownHall",
      "Keep", "Castle", "Farm", "Barracks", "LumberMill", "Blacksmith",
      "ScoutTower", "GuardTower", "CannonTower"});
 std::unordered_map<std::string, EAssetType> CPlayerAssetType::
@@ -33,6 +33,7 @@ std::unordered_map<std::string, EAssetType> CPlayerAssetType::
                           {"Footman", EAssetType::Footman},
                           {"Archer", EAssetType::Archer},
                           {"Ranger", EAssetType::Ranger},
+                          {"GoldVein", EAssetType::GoldVein},
                           {"GoldMine", EAssetType::GoldMine},
                           {"TownHall", EAssetType::TownHall},
                           {"Keep", EAssetType::Keep},
@@ -125,6 +126,7 @@ EAssetCapabilityType CPlayerCapability::NameToType(const std::string &name)
              {"BuildFootman", EAssetCapabilityType::BuildFootman},
              {"BuildArcher", EAssetCapabilityType::BuildArcher},
              {"BuildRanger", EAssetCapabilityType::BuildRanger},
+             {"BuildGoldMine", EAssetCapabilityType::BuildGoldMine},
              {"BuildFarm", EAssetCapabilityType::BuildFarm},
              {"BuildTownHall", EAssetCapabilityType::BuildTownHall},
              {"BuildBarracks", EAssetCapabilityType::BuildBarracks},
@@ -156,6 +158,7 @@ EAssetCapabilityType CPlayerCapability::NameToType(const std::string &name)
              {"ArmorUpgrade2", EAssetCapabilityType::ArmorUpgrade2},
              {"ArmorUpgrade3", EAssetCapabilityType::ArmorUpgrade3},
              {"Longbow", EAssetCapabilityType::Longbow},
+             {"RangerTracking", EAssetCapabilityType::RangerTracking},
              {"RangerScouting", EAssetCapabilityType::RangerScouting},
              {"Marksmanship", EAssetCapabilityType::Marksmanship}});
     auto Iterator = NameTypeTranslation.find(name);
@@ -176,6 +179,7 @@ std::string CPlayerCapability::TypeToName(EAssetCapabilityType type)
         "BuildFootman",
         "BuildArcher",
         "BuildRanger",
+        "BuildGoldMine",
         "BuildFarm",
         "BuildTownHall",
         "BuildBarracks",
@@ -207,6 +211,7 @@ std::string CPlayerCapability::TypeToName(EAssetCapabilityType type)
         "ArmorUpgrade2",
         "ArmorUpgrade3",
         "Longbow",
+        "RangerTracking",
         "RangerScouting",
         "Marksmanship",
     });
@@ -293,6 +298,13 @@ bool CPlayerUpgrade::Load(std::shared_ptr<CDataSource> source)
         PlayerUpgrade->DName = Name;
         DRegistryByName[Name] = PlayerUpgrade;
         DRegistryByType[to_underlying(UpgradeType)] = PlayerUpgrade;
+
+        if(Name == "RangerTracking"){
+            PlayerUpgrade->DUpgradeActive = false;
+
+        }else{
+            PlayerUpgrade->DUpgradeActive = true;
+        }
     }
     try
     {
@@ -442,6 +454,7 @@ CPlayerAssetType::CPlayerAssetType(std::shared_ptr<CPlayerAssetType> asset)
         DSpeed = asset->DSpeed;
         DGoldCost = asset->DGoldCost;
         DLumberCost = asset->DLumberCost;
+        //DStoneCost = asset->DStoneCost;
         DFoodConsumption = asset->DFoodConsumption;
         DBuildTime = asset->DBuildTime;
         DAttackSteps = asset->DAttackSteps;
@@ -459,7 +472,9 @@ int CPlayerAssetType::ArmorUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->Armor();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->Armor();
+        }
     }
     return ReturnValue;
 }
@@ -469,7 +484,9 @@ int CPlayerAssetType::SightUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->Sight();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->Sight();
+        }
     }
     return ReturnValue;
 }
@@ -479,7 +496,9 @@ int CPlayerAssetType::SpeedUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->Speed();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->Speed();
+        }
     }
     return ReturnValue;
 }
@@ -489,7 +508,9 @@ int CPlayerAssetType::BasicDamageUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->BasicDamage();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->BasicDamage();
+        }
     }
     return ReturnValue;
 }
@@ -499,7 +520,9 @@ int CPlayerAssetType::PiercingDamageUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->PiercingDamage();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->PiercingDamage();
+        }
     }
     return ReturnValue;
 }
@@ -509,7 +532,9 @@ int CPlayerAssetType::RangeUpgrade() const
     int ReturnValue = 0;
     for (auto Upgrade : DAssetUpgrades)
     {
-        ReturnValue += Upgrade->Range();
+        if(Upgrade->DUpgradeActive){
+            ReturnValue += Upgrade->Range();
+        }
     }
     return ReturnValue;
 }
@@ -580,6 +605,9 @@ bool CPlayerAssetType::LoadTypes(std::shared_ptr<CDataContainer> container)
         {
             if (!CPlayerAssetType::Load(container->DataSource(Filename)))
             {
+                if (Filename.c_str() == "MiniIcons.dat" || "Terrain.dat")
+                  continue;
+
                 PrintError("Failed to load resource \"%s\".\n",
                            Filename.c_str());
                 continue;
@@ -625,6 +653,8 @@ bool CPlayerAssetType::Load(std::shared_ptr<CDataSource> source)
     if ((EAssetType::None == AssetType) &&
         (Name != DTypeStrings[to_underlying(EAssetType::None)]))
     {
+        if (Name.c_str() == "./MiniIcons.png" || "./Terrain.png")
+          return false;
         PrintError("Unknown resource type %s.\n", Name.c_str());
         return false;
     }
@@ -697,6 +727,12 @@ bool CPlayerAssetType::Load(std::shared_ptr<CDataSource> source)
             PrintError("Failed to get resource type food consumption.\n");
             goto LoadExit;
         }
+        // PlayerAssetType->DStoneCost = std::stoi(TempString);
+        // if (!LineSource.Read(TempString))
+        // {
+        //     PrintError("Failed to get resource type stone cost.\n");
+        //     goto LoadExit;
+        // }
         PlayerAssetType->DFoodConsumption = std::stoi(TempString);
         if (!LineSource.Read(TempString))
         {
@@ -817,11 +853,11 @@ std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType
         std::shared_ptr<CPlayerAssetType> NewAssetType(
             new CPlayerAssetType(It.second));
         NewAssetType->DThis = NewAssetType;
+        
         NewAssetType->DNumber = number;
         NewAssetType->DColor = color;
         (*ReturnRegistry)[It.first] = NewAssetType;
     }
-
     return ReturnRegistry;
 }
 
@@ -856,11 +892,14 @@ CPlayerAsset::CPlayerAsset(std::shared_ptr<CPlayerAssetType> type)
     DGold = 0;
     DLumber = 0;
     DStep = 0;
+    DStone = 0;
     DMoveRemainderX = 0;
     DMoveRemainderY = 0;
     DDirection = EDirection::South;
     TilePosition(CTilePosition());
 }
+
+CPlayerAsset::CPlayerAsset(){DId  = -1;}
 
 CPlayerAsset::~CPlayerAsset() {}
 

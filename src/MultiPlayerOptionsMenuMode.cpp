@@ -15,11 +15,10 @@
     ownership of this material.
 */
 #include "MultiPlayerOptionsMenuMode.h"
-#include "JoinMultiPlayerOptions.h"
 #include "ApplicationData.h"
+#include "JoinMultiPlayerOptions.h"
 #include "MainMenuMode.h"
 #include "MapSelectionMode.h"
-#include "Client.h"
 
 std::shared_ptr<CApplicationMode>
     CMultiPlayerOptionsMenuMode::DMultiPlayerOptionsMenuModePointer;
@@ -42,7 +41,6 @@ CMultiPlayerOptionsMenuMode::CMultiPlayerOptionsMenuMode(
 void CMultiPlayerOptionsMenuMode::HostMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer->SendMessage("Host");
     context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
 
     context->ChangeApplicationMode(CMapSelectionMode::Instance());
@@ -53,6 +51,7 @@ void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
     context->DGameSessionType = CApplicationData::gstMultiPlayerClient;
+
     context->ChangeApplicationMode(CJoinMultiPlayerOptions::Instance());
 }
 
@@ -60,7 +59,6 @@ void CMultiPlayerOptionsMenuMode::JoinMultiPlayerButtonCallback(
 void CMultiPlayerOptionsMenuMode::MainMenuButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->ClientPointer->CloseConnection();
     context->DGameSessionType = CApplicationData::gstSinglePlayer;
     context->ChangeApplicationMode(CMainMenuMode::Instance());
 }

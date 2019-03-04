@@ -14,13 +14,14 @@
 */
 #include "ApplicationData.h"
 #include "Button.h"
-#include "VerticalButtonAlignment.h"
+#include "HorizontalButtonAlignment.h"
 #include "Debug.h"
 
-CVerticalButtonAlignment::CVerticalButtonAlignment(
-    std::shared_ptr<CApplicationData> context, std::vector<std::string> texts,
-    EPosition placement, int width, int height)
-    : CButtonAlignment(context, placement)
+CHorizontalButtonAlignment::CHorizontalButtonAlignment(
+    std::shared_ptr<CApplicationData> context,
+    std::vector<std::string> texts, EPosition placement, int width,
+    int height)
+        : CButtonAlignment(context, placement)
 {
     DButtons.reserve(texts.size());
 
@@ -28,14 +29,15 @@ CVerticalButtonAlignment::CVerticalButtonAlignment(
 
     DCanvasWidth = width;
     DCanvasHeight = height;
+
     DMaxHeight = 0;
     DMaxWidth = 0;
 
     MeasureButtons(texts);
 
     // Bump up size to proportions in Main Menu
-    DMaxWidth = DMaxWidth * 7 / 6;
-    DMaxHeight = DMaxHeight * 5 / 4;
+    DMaxWidth = DMaxWidth * 5/4;
+    DMaxHeight = DMaxHeight * 3/2;
 
     FindXOffset(DCanvasWidth);
     FindYOffset(DCanvasHeight);
@@ -44,8 +46,22 @@ CVerticalButtonAlignment::CVerticalButtonAlignment(
 }
 
 // Based on canvas placement, find the X offset of vertically aligned buttons
-void CVerticalButtonAlignment::FindXOffset(int Width)
+void CHorizontalButtonAlignment::FindXOffset(int Width)
 {
+    size_t StackWidth;
+    size_t NumberOfButtons = DButtons.capacity();
+
+    // Find stack width the buttons
+    if (1 < NumberOfButtons)
+    {
+        StackWidth = NumberOfButtons * DMaxWidth + 
+            (NumberOfButtons - 1) * DButtonGap;
+    }
+    else
+    {
+        StackWidth = static_cast<size_t>(DMaxWidth);
+    }
+
     switch (DPlacement)
     {
         // Middle of canvas
@@ -53,20 +69,20 @@ void CVerticalButtonAlignment::FindXOffset(int Width)
         case EPosition::North:
         case EPosition::South:
         {
-            DXOffset = static_cast<int>(.5 * Width - 0.5 * DMaxWidth);
+            DXOffset = static_cast<int>(.5 * Width - 0.5 * StackWidth);
         }
-            break;
+        break;
 
-            // Eastern side of canvas
+        // Eastern side of canvas
         case EPosition::NorthEast:
         case EPosition::East:
         case EPosition::SouthEast:
         {
-            DXOffset = Width - DMaxWidth - DContext->DBorderWidth;
+            DXOffset = static_cast<int>(Width - StackWidth - DContext->DBorderWidth);
         }
-            break;
+        break;
 
-            // Western side of canvas
+        // Western side of canvas
         default:
         {
             DXOffset = DContext->DBorderWidth;
@@ -75,22 +91,8 @@ void CVerticalButtonAlignment::FindXOffset(int Width)
 }
 
 // Find Y offset of top most button in the group
-void CVerticalButtonAlignment::FindYOffset(int Height)
+void CHorizontalButtonAlignment::FindYOffset(int Height)
 {
-    size_t StackHeight;
-    size_t NumberOfButtons = DButtons.capacity();
-
-    // Find stack height the buttons
-    if (1 < NumberOfButtons)
-    {
-        StackHeight =
-            NumberOfButtons * DMaxHeight + (NumberOfButtons - 1) * DButtonGap;
-    }
-    else
-    {
-        StackHeight = static_cast<size_t>(DMaxHeight);
-    }
-
     switch (DPlacement)
     {
         // Middle of canvas
@@ -98,21 +100,20 @@ void CVerticalButtonAlignment::FindYOffset(int Height)
         case EPosition::Center:
         case EPosition::East:
         {
-            DYOffset = static_cast<int>(0.5 * Height - 0.5 * StackHeight);
+            DYOffset = static_cast<int>(0.5 * Height - 0.5 * DMaxHeight);
         }
-            break;
+        break;
 
-            // South side of canvas
+        // South side of canvas
         case EPosition::SouthWest:
         case EPosition::South:
         case EPosition::SouthEast:
         {
-            DYOffset =
-                static_cast<int>(Height - StackHeight - DContext->DBorderWidth);
+            DYOffset = Height - DMaxHeight - DContext->DBorderWidth;
         }
-            break;
+        break;
 
-            // North side of canvas
+        // North side of canvas
         default:
         {
             DYOffset = DContext->DBorderWidth;
@@ -122,17 +123,16 @@ void CVerticalButtonAlignment::FindYOffset(int Height)
 
 // Create buttons whose dimensions are calculated from X, Y offsets and
 // pre-measured button width and height
-void CVerticalButtonAlignment::CreateButtons(std::vector<std::string> texts)
+void CHorizontalButtonAlignment::CreateButtons(std::vector<std::string> texts)
 {
-    int CurrentYOffset = DYOffset;
+    int CurrentXOffset = DXOffset;
 
     for (auto &text : texts)
     {
-        DButtons.push_back(
-            std::make_shared<CButton>(text, DXOffset, CurrentYOffset, DMaxWidth,
-                DMaxHeight));
+        DButtons.push_back(std::make_shared<CButton>(text,
+            CurrentXOffset, DYOffset, DMaxWidth, DMaxHeight));
 
-        CurrentYOffset += DMaxHeight + DButtonGap;
+        CurrentXOffset += DMaxWidth + DButtonGap;
     }
 }
 

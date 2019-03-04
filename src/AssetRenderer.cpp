@@ -149,6 +149,7 @@ CAssetRenderer::CAssetRenderer(
     DWalkIndices.resize(DTilesets.size());
     DNoneIndices.resize(DTilesets.size());
     DCarryGoldIndices.resize(DTilesets.size());
+    DCarryStoneIndices.resize(DTilesets.size());
     DCarryLumberIndices.resize(DTilesets.size());
     DAttackIndices.resize(DTilesets.size());
     DDeathIndices.resize(DTilesets.size());
@@ -242,6 +243,29 @@ CAssetRenderer::CAssetRenderer(
                     StepIndex++;
                 }
             }
+
+            PrintDebug(DEBUG_LOW, "Checking Stone on %d\n", TypeIndex);
+            for (auto &DirectionName :
+                    {"gold-n-", "gold-ne-", "gold-e-", "gold-se-",
+                     "gold-s-", "gold-sw-", "gold-w-", "gold-nw-"})
+            {
+                int StepIndex = 0, TileIndex;
+                while (true)
+                {
+                    TileIndex = Tileset->FindTile(std::string(DirectionName) +
+                                                  std::to_string(StepIndex));
+                    if (0 <= TileIndex)
+                    {
+                        DCarryStoneIndices[TypeIndex].push_back(TileIndex);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    StepIndex++;
+                }
+            }
+
             PrintDebug(DEBUG_LOW, "Checking Attack on %d\n", TypeIndex);
             for (auto &DirectionName :
                  {"attack-n-", "attack-ne-", "attack-e-", "attack-se-",
@@ -546,6 +570,23 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 DCarryLumberIndices[to_underlying(
                                     TempRenderData.DType)][TileIndex];
                         }
+                        else if (AssetIterator->Stone())
+                        {
+                            ActionSteps =
+                                    DCarryStoneIndices[to_underlying(
+                                            TempRenderData.DType)]
+                                            .size();
+                            ActionSteps /= to_underlying(EDirection::Max);
+                            TileIndex =
+                                    to_underlying(AssetIterator->Direction()) *
+                                    ActionSteps +
+                                    ((AssetIterator->Step() /
+                                      DAnimationDownsample) %
+                                     ActionSteps);
+                            TempRenderData.DTileIndex =
+                                    DCarryStoneIndices[to_underlying(
+                                            TempRenderData.DType)][TileIndex];
+                        }
                         else if (AssetIterator->Gold())
                         {
                             ActionSteps =
@@ -623,6 +664,20 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                             DAttackIndices[to_underlying(TempRenderData.DType)]
                                           [TileIndex];
                         break;
+                    case EAssetAction::HarvestStone:
+                        ActionSteps =
+                                DAttackIndices[to_underlying(TempRenderData.DType)]
+                                        .size();
+                        ActionSteps /= to_underlying(EDirection::Max);
+                        TileIndex =
+                                to_underlying(AssetIterator->Direction()) *
+                                ActionSteps +
+                                ((AssetIterator->Step() / DAnimationDownsample) %
+                                 ActionSteps);
+                        TempRenderData.DTileIndex =
+                                DAttackIndices[to_underlying(TempRenderData.DType)]
+                                [TileIndex];
+                        break;
                     case EAssetAction::MineGold:
                         break;
                     case EAssetAction::StandGround:
@@ -644,6 +699,18 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                     [to_underlying(TempRenderData.DType)]
                                     [to_underlying(AssetIterator->Direction()) *
                                      ActionSteps];
+                            }
+                            else if (AssetIterator->Stone())
+                            {
+                                ActionSteps =
+                                        DCarryStoneIndices
+                                        [to_underlying(TempRenderData.DType)]
+                                                .size();
+                                ActionSteps /= to_underlying(EDirection::Max);
+                                TempRenderData.DTileIndex = DCarryStoneIndices
+                                [to_underlying(TempRenderData.DType)]
+                                [to_underlying(AssetIterator->Direction()) *
+                                 ActionSteps];
                             }
                             else if (AssetIterator->Gold())
                             {
@@ -999,6 +1066,8 @@ void CAssetRenderer::DrawSelections(
                 else if ((EAssetAction::MineGold == LockedAsset->Action()) ||
                          (EAssetAction::ConveyLumber ==
                           LockedAsset->Action()) ||
+                        (EAssetAction::ConveyStone ==
+                         LockedAsset->Action()) ||
                          (EAssetAction::ConveyGold == LockedAsset->Action()))
                 {
                     OnScreen = false;

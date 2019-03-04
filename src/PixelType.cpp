@@ -73,6 +73,9 @@ CPixelType::CPixelType(const CPlayerAsset &asset)
         case EAssetType::Ranger:
             DType = EAssetTerrainType::Ranger;
             break;
+        case EAssetType::GoldVein:
+            DType = EAssetTerrainType::GoldVein;
+            break;
         case EAssetType::GoldMine:
             DType = EAssetTerrainType::GoldMine;
             break;
@@ -150,6 +153,8 @@ EAssetType CPixelType::AssetType() const
             return EAssetType::Archer;
         case EAssetTerrainType::Ranger:
             return EAssetType::Ranger;
+        case EAssetTerrainType::GoldVein:
+            return EAssetType::GoldVein;
         case EAssetTerrainType::GoldMine:
             return EAssetType::GoldMine;
         case EAssetTerrainType::TownHall:

@@ -129,8 +129,21 @@ void CTerrainMap::ChangeTerrainTilePartial(int xindex, int yindex, uint8_t val)
     }
 }
 
-bool CTerrainMap::IsTraversable(ETileType type)
+bool CTerrainMap::IsTraversable(ETileType type, CPlayerAsset &asset, bool AssetOnTree)
 {
+    
+
+    if(asset.Id() != -1 && ETileType::Forest == type && asset.RangerTrackingManager(0)){
+        if(AssetOnTree){
+            asset.RangerTrackingManager(1);
+        }
+        return true;
+    }else if(asset.Id() != -1 && ETileType::Forest != type && asset.RangerTrackingManager(0)){
+        if(!AssetOnTree){
+            asset.RangerTrackingManager(2);
+        }
+    }
+    
     switch (type)
     {
         case ETileType::None:

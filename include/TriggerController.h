@@ -14,41 +14,39 @@
     purposes only and this copyright notice does not attempt to claim any
     ownership of this material.
 */
-#ifndef INGAMEMENUOVERLAY_H
-#define INGAMEMENUOVERLAY_H
+#ifndef TRIGGERCONTROLLER_H
+#define TRIGGERCONTROLLER_H
 
-#include <string>
+#include "ApplicationData.h"
+#include "GameModel.h"
+#include "Effects.h"
+#include "Triggers.h"
 #include <vector>
-#include "OverlayMode.h"
-#include "VerticalButtonAlignment.h"
+#include <string>
 
+class CTrigger;
 
-class COverlayManagement;
-
-class CInGameMenuOverlay : public COverlayMode
+class CTriggerController
 {
-    friend class CButton;
-
   protected:
-    std::shared_ptr<COverlayManagement> DOverlayManager;
+    struct SPrivateConstructorType{};
+    static std::shared_ptr<CTriggerController> DTriggerControllerPtr;
+
+    std::vector<std::shared_ptr<CTrigger> > DTriggers;
+    std::shared_ptr<CContextRetrieval> DContextRetrieval;
     std::shared_ptr<CApplicationData> DContext;
 
-    struct SPrivateConstructorType
-    {
-    };
-
-    std::string DTitle;
-    std::vector<std::string> DButtonTexts;
-//    std::vector<TOverlayCallbackFunction> DButtonFunctions;
-    std::shared_ptr<CVerticalButtonAlignment> DButtonStack;
+    CTriggerController(const CTriggerController &) = delete;
+    const CTriggerController &operator=(const CTriggerController &) = delete;
 
   public:
-    ~CInGameMenuOverlay()
-    {
-    };
-    explicit CInGameMenuOverlay(std::shared_ptr<COverlayManagement> manager);
-    void Input(int x, int y, bool clicked) override;
-    void Draw(int x, int y, bool clicked) override;
+    CTriggerController(const SPrivateConstructorType &key,
+        std::shared_ptr<CApplicationData> context);
+    void ReadFile(std::string path);
+    void CheckTriggers();
+    int PlayerCount();
+    static std::shared_ptr<CTriggerController> Instance(
+        std::shared_ptr<CApplicationData> context);
 };
 
 #endif

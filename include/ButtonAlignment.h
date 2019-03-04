@@ -20,8 +20,6 @@
 #include <vector>
 #include "Button.h"
 
-using TCallBackFunction = void (*)(std::shared_ptr<void> ptr);
-
 enum class EPosition
 {
     Center = 0,
@@ -49,30 +47,37 @@ class CButtonAlignment
     int DYOffset;
     EPosition DPlacement;
 
-    std::shared_ptr<CGraphicSurface> DSurface;
 
     std::shared_ptr<CApplicationData> DContext;
+    int DCanvasWidth;
+    int DCanvasHeight;
 
     std::vector<std::shared_ptr<CButton> > DButtons;
     bool DButtonPressedInStack;
 
   public:
     virtual ~CButtonAlignment() = default;
-    explicit CButtonAlignment(EPosition placement);
+    explicit CButtonAlignment(std::shared_ptr<CApplicationData> context,
+        EPosition placement);
 
-    virtual void MeasureButtons(std::vector<std::string> &texts) = 0;
-    virtual void FindXOffset() = 0;
-    virtual void FindYOffset() = 0;
-    virtual void CreateButtons(std::vector<std::string> &texts) = 0;
+    void MeasureButtons(std::vector<std::string> texts);
+    virtual void FindXOffset(int CanvasWidth) = 0;
+    virtual void FindYOffset(int CanvasHeight) = 0;
 
-    void DrawStack(int x, int y, bool clicked);
+    void DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int y, bool clicked);
+    void MarkInactiveButton(int index);
+    void ClearInactiveButton(int index);
     bool ButtonPressedInStack()
     {
         return DButtonPressedInStack;
     }
     int ButtonPressedIndex();
     void ResetButtonStates();
-    bool PointerHovering();
+
+    bool PointerHovering()
+    {
+        return DButtonHovered;
+    }
 
 };
 
