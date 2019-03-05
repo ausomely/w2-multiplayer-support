@@ -197,6 +197,8 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 
     // ready to start game!
     if(context->roomInfo.active()) {
+        boost::asio::ip::tcp::no_delay option(true);
+        context->ClientPointer->socket.set_option(option);
         context->ChangeApplicationMode(CBattleMode::Instance());
     }
 

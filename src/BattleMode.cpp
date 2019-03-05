@@ -956,6 +956,8 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     // settings in CApplicationData::LeaveGame()
     if (context->CheckLeaveGameFlag())
     {
+        boost::asio::ip::tcp::no_delay option(true);
+        context->ClientPointer->socket.set_option(option);
         context->LeaveGame();
     }
 
@@ -1038,8 +1040,11 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
           context->DSoundLibraryMixer->PlaySong(game_over_song,
                                                 context->DMusicVolume);
           context->DActiveGame = false;
-          
+
           context->ClientPointer->SendMessage("End");
+
+          boost::asio::ip::tcp::no_delay option(true);
+          context->ClientPointer->socket.set_option(option);
 
           context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
