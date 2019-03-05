@@ -205,7 +205,7 @@ void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplica
             return;
         }
     }
-  
+
     context->roomInfo.set_messages(2, context->roomInfo.messages()[1]);
     context->roomInfo.set_messages(1, context->roomInfo.messages()[0]);
     context->roomInfo.set_messages(0, context->DUsername + ": " +
@@ -373,9 +373,10 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                             DEditText[DEditSelected].substr(1);
                 }
             }
-            else if (SGUIKeyType::UpArrow == Key)
+            else if (SGUIKeyType::Enter == Key)
             {
                 ChatUpdateButtonCallback(context);
+                DEditText.clear();
             }
             else if (SGUIKeyType::LeftArrow == Key)
             {
@@ -391,7 +392,8 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                     DEditSelectedCharacter++;
                 }
             }
-            else if (TempKey.IsAlphaNumeric() || (SGUIKeyType::Period == Key))
+            else if (TempKey.IsAlphaNumeric() || (SGUIKeyType::Period == Key)
+                || (SGUIKeyType::Space == Key))
             {
                 DEditText[DEditSelected] =
                         DEditText[DEditSelected].substr(0, DEditSelectedCharacter) +

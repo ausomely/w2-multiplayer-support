@@ -55,6 +55,7 @@ struct SGUIModifierType
 struct SGUIKeyType
 {
     uint32_t DValue;
+    static const uint32_t Enter;
     static const uint32_t LeftShift;
     static const uint32_t RightShift;
     static const uint32_t LeftControl;

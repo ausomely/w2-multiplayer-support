@@ -67,6 +67,7 @@ void SGUIModifierType::ClearModifier(uint32_t val)
     DState &= ~val;
 }
 
+const uint32_t SGUIKeyType::Enter = GDK_KEY_Return;
 const uint32_t SGUIKeyType::LeftShift = GDK_KEY_Shift_L;
 const uint32_t SGUIKeyType::RightShift = GDK_KEY_Shift_R;
 const uint32_t SGUIKeyType::LeftControl = GDK_KEY_Control_L;
