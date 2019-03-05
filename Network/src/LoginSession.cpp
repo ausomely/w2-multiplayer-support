@@ -159,7 +159,7 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
 
             // else it is a sucesss in logging in
             else {
-                std::string header;
+                /*std::string header;
                 //read header information until authorization line
                 while (std::getline(response_stream, header)) {// && header != "\r") {
                     //std::cout << header << std::endl;
@@ -181,7 +181,7 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
 
                 //below is the full json response, the first half is parsed in the first read somehow
                 //so the data read using read some is appended to the end of last data
-                //header += userPtr->data;
+                //header += userPtr->data;*/
 
                 userPtr->lobby.join(userPtr);
 
