@@ -375,8 +375,12 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
             }
             else if (SGUIKeyType::Enter == Key)
             {
-                ChatUpdateButtonCallback(context);
-                DEditText.clear();
+                if (DEditSelectedCharacter > 0)
+                {
+                    ChatUpdateButtonCallback(context);
+                    DEditText[DEditSelected] = "";
+                    DEditSelectedCharacter = 0;
+                }
             }
             else if (SGUIKeyType::LeftArrow == Key)
             {
