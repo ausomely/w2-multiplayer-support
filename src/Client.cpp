@@ -212,7 +212,7 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
 // send the server a message
 void Client::SendMessage(std::string message) {
     boost::system::error_code err;
-    boost::asio::write(socket, boost::asio::buffer(message.c_str(), strlen(message.c_str())), err);
+    boost::asio::write(socket, boost::asio::buffer(message.c_str(), BUFFER_SIZE), err);
     if(err) {
         std::cerr << "ERROR writing" << std::endl;
         return;

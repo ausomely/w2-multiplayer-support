@@ -956,8 +956,10 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     // settings in CApplicationData::LeaveGame()
     if (context->CheckLeaveGameFlag())
     {
-        boost::asio::ip::tcp::no_delay option(false);
-        context->ClientPointer->socket.set_option(option);
+        if(context->MultiPlayer()) {
+            boost::asio::ip::tcp::no_delay option(false);
+            context->ClientPointer->socket.set_option(option);
+        }
         context->LeaveGame();
     }
 

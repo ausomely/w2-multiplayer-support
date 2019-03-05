@@ -55,15 +55,17 @@ void CPlayerAIColorSelectMode::InitializeChange(
     DButtonTexts.clear();
     DColorButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
+    DEditValidationFunctions.clear();
+    DEditTitles.clear();
     DEditText.clear();
     DEditText.push_back("");
+    context->Text.clear();
 
     std::string CancelButtonText;
     switch (context->DGameSessionType)
     {
         case CApplicationData::gstSinglePlayer:
         {
-            std::cout << "you are single" << std::endl;
             DTitle = "Select Colors / Difficulty";
 
             CancelButtonText = "Back";
@@ -208,7 +210,7 @@ void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplica
         context->Text.pop_back();
     }
 
-    auto it = context->Text.insert(context->Text.begin(), context->DUsername + ": " +
+    context->Text.insert(context->Text.begin(), context->DUsername + ": " +
         DPlayerAIColorSelectModePointer->DEditText[0]);
 
 }
@@ -216,7 +218,8 @@ void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplica
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 {
     // if you become the host!
-    if(context->DPlayerNumber == EPlayerNumber::Player1 && context->MultiPlayer()) {
+    if(context->DPlayerNumber == EPlayerNumber::Player1 && context->MultiPlayer()
+        && context->DGameSessionType == CApplicationData::gstMultiPlayerClient) {
         context->DGameSessionType = CApplicationData::gstMultiPlayerHost;
         DButtonHovered = false;
         DButtonFunctions.clear();
@@ -324,13 +327,7 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
     if (context->DLeftClick && !context->DLeftDown)
     {
         bool ClickedEdit = false;
-        for (int Index = 0; Index < DButtonLocations.size(); Index++)
-        {
-            if (DButtonLocations[Index].PointInside(CurrentX, CurrentY))
-            {
-                DButtonFunctions[Index](context);
-            }
-        }
+
         for (int Index = 0; Index < DEditLocations.size(); Index++)
         {
             if (DEditLocations[Index].PointInside(CurrentX, CurrentY))
