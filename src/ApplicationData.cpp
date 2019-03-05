@@ -1801,13 +1801,16 @@ void CApplicationData::SetMusicVolume(float music_vol)
 
 void CApplicationData::SaveVolumeSettings(float fx_vol, float music_vol)
 {
-
+    std::string FullPath = DDataPath + "/snd/" + DSoundSettingsFilename;
     nlohmann::json settings;
     settings["soundOption"]["soundVolume"] = fx_vol;
     settings["soundOption"]["musicVolume"] = music_vol;
-    std::ofstream o(DSoundSettingsFilename);
-    o << std::setw(4) << settings << std::endl;
+    if (std::ofstream(FullPath))
+    {
+        std::ofstream o(FullPath);
+        o << std::setw(4) << settings << std::endl;
 
+    }
 }
 
 // Load FX/Music volume settings from a config file
@@ -1881,8 +1884,6 @@ bool CApplicationData::CheckLeaveGameFlag()
 {
     return DLeaveGame;
 }
-
-
 
 int CApplicationData::Run(int argc, char *argv[])
 {

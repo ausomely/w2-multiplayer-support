@@ -23,11 +23,12 @@
 #include "GameDataTypes.h"
 #include "Rectangle.h"
 #include "RoomInfo.pb.h"
+#include "EditOptionsMode.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
 
-class CPlayerAIColorSelectMode : public CApplicationMode
+class CPlayerAIColorSelectMode : public CEditOptionsMode
 {
   protected:
     struct SPrivateConstructorType
@@ -47,7 +48,13 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     EPlayerNumber DPlayerNumberRequesTypeChange;
     bool DButtonHovered;
     int DMapOffset;
+    int TextWidth, TextHeight, MaxTextWidth;
+    int LargeFontSize;
+    int GoldColor, WhiteColor, ShadowColor, RedColor;
 
+    static void ChatUpdateButtonCallback(
+        std::shared_ptr<CApplicationData> context);
+    static bool ChatCallback(const std::string &str);
 
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);
@@ -55,6 +62,8 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     std::shared_ptr<CApplicationData> context);
     static void PlayGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
+    void DrawText(std::shared_ptr<CApplicationData> context,
+                  std::string text, int xpos, int ypos, int color);
     static void CancelButtonCallback(std::shared_ptr<CApplicationData> context);
 
     CPlayerAIColorSelectMode(const CPlayerAIColorSelectMode &) = delete;

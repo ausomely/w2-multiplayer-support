@@ -137,6 +137,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     EGameSessionType DGameSessionType;
     float DSoundVolume;
     float DMusicVolume;
+    std::vector<std::string> Text;
     std::string DUsername;
     std::string DRemoteHostname;
     std::string DPassword;
