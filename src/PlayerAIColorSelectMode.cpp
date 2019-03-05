@@ -205,14 +205,13 @@ void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplica
             return;
         }
     }
-    if(context->Text.size() == 3)
-    {
-        context->Text.pop_back();
-    }
-
-    context->Text.insert(context->Text.begin(), context->DUsername + ": " +
+  
+    context->roomInfo.set_messages(2, context->roomInfo.messages()[1]);
+    context->roomInfo.set_messages(1, context->roomInfo.messages()[0]);
+    context->roomInfo.set_messages(0, context->DUsername + ": " +
         DPlayerAIColorSelectModePointer->DEditText[0]);
 
+    context->ClientPointer->SendRoomInfo(context);
 }
 
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)

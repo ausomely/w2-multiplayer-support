@@ -215,6 +215,28 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedField< bool >*
       mutable_ready();
 
+  // repeated string messages = 10;
+  int messages_size() const;
+  void clear_messages();
+  static const int kMessagesFieldNumber = 10;
+  const ::std::string& messages(int index) const;
+  ::std::string* mutable_messages(int index);
+  void set_messages(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_messages(int index, ::std::string&& value);
+  #endif
+  void set_messages(int index, const char* value);
+  void set_messages(int index, const char* value, size_t size);
+  ::std::string* add_messages();
+  void add_messages(const ::std::string& value);
+  #if LANG_CXX11
+  void add_messages(::std::string&& value);
+  #endif
+  void add_messages(const char* value);
+  void add_messages(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& messages() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_messages();
+
   // required string host = 1;
   bool has_host() const;
   void clear_host();
@@ -289,6 +311,7 @@ class RoomInformation : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::RepeatedPtrField< ::std::string> players_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > types_;
   ::google::protobuf::RepeatedField< bool > ready_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> messages_;
   ::google::protobuf::internal::ArenaStringPtr host_;
   ::google::protobuf::internal::ArenaStringPtr map_;
   ::google::protobuf::int32 capacity_;
@@ -785,6 +808,75 @@ inline ::google::protobuf::RepeatedField< bool >*
 RoomInformation::mutable_ready() {
   // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.ready)
   return &ready_;
+}
+
+// repeated string messages = 10;
+inline int RoomInformation::messages_size() const {
+  return messages_.size();
+}
+inline void RoomInformation::clear_messages() {
+  messages_.Clear();
+}
+inline const ::std::string& RoomInformation::messages(int index) const {
+  // @@protoc_insertion_point(field_get:RoomInfo.RoomInformation.messages)
+  return messages_.Get(index);
+}
+inline ::std::string* RoomInformation::mutable_messages(int index) {
+  // @@protoc_insertion_point(field_mutable:RoomInfo.RoomInformation.messages)
+  return messages_.Mutable(index);
+}
+inline void RoomInformation::set_messages(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.messages)
+  messages_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void RoomInformation::set_messages(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:RoomInfo.RoomInformation.messages)
+  messages_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void RoomInformation::set_messages(int index, const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  messages_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:RoomInfo.RoomInformation.messages)
+}
+inline void RoomInformation::set_messages(int index, const char* value, size_t size) {
+  messages_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:RoomInfo.RoomInformation.messages)
+}
+inline ::std::string* RoomInformation::add_messages() {
+  // @@protoc_insertion_point(field_add_mutable:RoomInfo.RoomInformation.messages)
+  return messages_.Add();
+}
+inline void RoomInformation::add_messages(const ::std::string& value) {
+  messages_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.messages)
+}
+#if LANG_CXX11
+inline void RoomInformation::add_messages(::std::string&& value) {
+  messages_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:RoomInfo.RoomInformation.messages)
+}
+#endif
+inline void RoomInformation::add_messages(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  messages_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:RoomInfo.RoomInformation.messages)
+}
+inline void RoomInformation::add_messages(const char* value, size_t size) {
+  messages_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:RoomInfo.RoomInformation.messages)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+RoomInformation::messages() const {
+  // @@protoc_insertion_point(field_list:RoomInfo.RoomInformation.messages)
+  return messages_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+RoomInformation::mutable_messages() {
+  // @@protoc_insertion_point(field_mutable_list:RoomInfo.RoomInformation.messages)
+  return &messages_;
 }
 
 // -------------------------------------------------------------------

@@ -77,6 +77,10 @@ void CMapSelectionMode::SelectMapButtonCallback(
         context->roomInfo.set_host(context->DUsername);
         context->roomInfo.set_active(false);
 
+        for(int Index = 0; Index < 3; Index++) {
+            context->roomInfo.add_messages("");
+        }
+
         for(auto &It: context->DLoadingPlayerTypes) {
             context->roomInfo.add_types(to_underlying(It));
         }

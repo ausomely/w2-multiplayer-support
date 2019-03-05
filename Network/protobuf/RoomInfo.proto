@@ -12,7 +12,7 @@ message RoomInformation {
     repeated string players = 7;
     repeated int32 types = 8;
     repeated bool ready = 9;
-
+    repeated string messages = 10;
 }
 
 message RoomInfoPackage {

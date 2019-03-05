@@ -86,11 +86,13 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::RoomInfo::RoomInformation, players_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::RoomInfo::RoomInformation, types_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::RoomInfo::RoomInformation, ready_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::RoomInfo::RoomInformation, messages_),
   0,
   1,
   2,
   3,
   4,
+  ~0u,
   ~0u,
   ~0u,
   ~0u,
@@ -104,8 +106,8 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 14, sizeof(::RoomInfo::RoomInformation)},
-  { 23, 29, sizeof(::RoomInfo::RoomInfoPackage)},
+  { 0, 15, sizeof(::RoomInfo::RoomInformation)},
+  { 25, 31, sizeof(::RoomInfo::RoomInfoPackage)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -134,16 +136,16 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\016RoomInfo.proto\022\010RoomInfo\"\233\001\n\017RoomInfor"
+      "\n\016RoomInfo.proto\022\010RoomInfo\"\255\001\n\017RoomInfor"
       "mation\022\014\n\004host\030\001 \002(\t\022\013\n\003map\030\002 \002(\t\022\020\n\010cap"
       "acity\030\003 \002(\005\022\014\n\004size\030\004 \002(\005\022\016\n\006active\030\005 \002("
       "\010\022\016\n\006colors\030\006 \003(\005\022\017\n\007players\030\007 \003(\t\022\r\n\005ty"
-      "pes\030\010 \003(\005\022\r\n\005ready\030\t \003(\010\">\n\017RoomInfoPack"
-      "age\022+\n\010roominfo\030\001 \003(\0132\031.RoomInfo.RoomInf"
-      "ormation"
+      "pes\030\010 \003(\005\022\r\n\005ready\030\t \003(\010\022\020\n\010messages\030\n \003"
+      "(\t\">\n\017RoomInfoPackage\022+\n\010roominfo\030\001 \003(\0132"
+      "\031.RoomInfo.RoomInformation"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 248);
+      descriptor, 266);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "RoomInfo.proto", &protobuf_RegisterTypes);
 }
@@ -175,6 +177,7 @@ const int RoomInformation::kColorsFieldNumber;
 const int RoomInformation::kPlayersFieldNumber;
 const int RoomInformation::kTypesFieldNumber;
 const int RoomInformation::kReadyFieldNumber;
+const int RoomInformation::kMessagesFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 RoomInformation::RoomInformation()
@@ -191,7 +194,8 @@ RoomInformation::RoomInformation(const RoomInformation& from)
       colors_(from.colors_),
       players_(from.players_),
       types_(from.types_),
-      ready_(from.ready_) {
+      ready_(from.ready_),
+      messages_(from.messages_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   host_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (from.has_host()) {
@@ -249,6 +253,7 @@ void RoomInformation::Clear() {
   players_.Clear();
   types_.Clear();
   ready_.Clear();
+  messages_.Clear();
   cached_has_bits = _has_bits_[0];
   if (cached_has_bits & 3u) {
     if (cached_has_bits & 0x00000001u) {
@@ -425,6 +430,23 @@ bool RoomInformation::MergePartialFromCodedStream(
         break;
       }
 
+      // repeated string messages = 10;
+      case 10: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(82u /* 82 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_messages()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->messages(this->messages_size() - 1).data(),
+            static_cast<int>(this->messages(this->messages_size() - 1).length()),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "RoomInfo.RoomInformation.messages");
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -515,6 +537,16 @@ void RoomInformation::SerializeWithCachedSizes(
       9, this->ready(i), output);
   }
 
+  // repeated string messages = 10;
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->messages(i).data(), static_cast<int>(this->messages(i).length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "RoomInfo.RoomInformation.messages");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      10, this->messages(i), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -588,6 +620,16 @@ void RoomInformation::SerializeWithCachedSizes(
   // repeated bool ready = 9;
   target = ::google::protobuf::internal::WireFormatLite::
     WriteBoolToArray(9, this->ready_, target);
+
+  // repeated string messages = 10;
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->messages(i).data(), static_cast<int>(this->messages(i).length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "RoomInfo.RoomInformation.messages");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(10, this->messages(i), target);
+  }
 
   if (_internal_metadata_.have_unknown_fields()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
@@ -707,6 +749,14 @@ size_t RoomInformation::ByteSizeLong() const {
     total_size += data_size;
   }
 
+  // repeated string messages = 10;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->messages_size());
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->messages(i));
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -738,6 +788,7 @@ void RoomInformation::MergeFrom(const RoomInformation& from) {
   players_.MergeFrom(from.players_);
   types_.MergeFrom(from.types_);
   ready_.MergeFrom(from.ready_);
+  messages_.MergeFrom(from.messages_);
   cached_has_bits = from._has_bits_[0];
   if (cached_has_bits & 31u) {
     if (cached_has_bits & 0x00000001u) {
@@ -790,6 +841,7 @@ void RoomInformation::InternalSwap(RoomInformation* other) {
   players_.InternalSwap(CastToBase(&other->players_));
   types_.InternalSwap(&other->types_);
   ready_.InternalSwap(&other->ready_);
+  messages_.InternalSwap(CastToBase(&other->messages_));
   host_.Swap(&other->host_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   map_.Swap(&other->map_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),

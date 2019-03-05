@@ -124,6 +124,11 @@ void Client::GetRoomInfo(std::shared_ptr<CApplicationData> context) {
     size_t length = socket.read_some(boost::asio::buffer(data, BUFFER_SIZE), err);
     if(!err) {
         context->roomInfo.ParseFromArray(data, length);
+        // update messages
+        context->Text.clear();
+        for(int Index = 0; Index < 3; Index++) {
+            context->Text.push_back(context->roomInfo.messages()[Index]);
+        }
         // update DPlayerNumber if someone before you left
         while(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
             context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
@@ -190,6 +195,12 @@ void Client::UpdateRoomInfo(std::shared_ptr<CApplicationData> context) {
                 while(context->roomInfo.players()[to_underlying(context->DPlayerNumber)] != context->DUsername) {
                     context->DPlayerNumber = static_cast<EPlayerNumber> (to_underlying(context->DPlayerNumber) - 1);
                 }
+                // update room message
+                context->Text.clear();
+                for(int Index = 0; Index < 3; Index++) {
+                    context->Text.push_back(context->roomInfo.messages()[Index]);
+                }
+
                 // copy over room info
                 for(int Index = 0; Index < to_underlying(EPlayerColor::Max); Index++) {
                     context->DLoadingPlayerTypes[Index] = static_cast <CApplicationData::EPlayerType> (context->roomInfo.types(Index));
