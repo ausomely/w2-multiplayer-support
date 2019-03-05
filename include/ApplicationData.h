@@ -140,6 +140,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     std::string DUsername;
     std::string DRemoteHostname;
     std::string DPassword;
+    std::string DSoundSettingsFilename;
     int DMultiplayerPort;
     std::shared_ptr<CGUIApplication> DApplication;
     std::shared_ptr<CGUIWindow> DMainWindow;
@@ -370,6 +371,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     void StartPlayingMusic(const std::string &song);
     void SetFXVolume(float fx_vol);
     void SetMusicVolume(float music_vol);
+    void SaveVolumeSettings(float fx_vol, float music_vol);
+    void LoadVolumeSettings(std::string path);
 
     //! Quit active game and exit to a menu
     void LeaveGame();

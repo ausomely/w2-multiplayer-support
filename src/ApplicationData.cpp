@@ -17,6 +17,7 @@
 #include "ApplicationData.h"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <memory>
 #include "ApplicationPath.h"
@@ -38,30 +39,9 @@
 
 std::shared_ptr<CApplicationData> CApplicationData::DApplicationDataPointer;
 
-void LoadSettings(float *DSoundVolume, float *DMusicVolume)
-{
-    // If sound and music options were previously altered, set to those values
-    if (std::ifstream("settings.json"))
-    {
-        std::ifstream i("settings.json");
-        nlohmann::json settings;
-        i >> settings;
-        *DSoundVolume = settings["soundOption"]["soundVolume"];
-        *DMusicVolume = settings["soundOption"]["musicVolume"];
-    }
-    // Defaults
-    else
-    {
-        *DSoundVolume = 1;
-        *DMusicVolume = .5;
-    }
-}
-
 CApplicationData::CApplicationData(const std::string &appname,
                                    const SPrivateApplicationType &key)
 {
-    LoadSettings(&DSoundVolume, &DMusicVolume);
-
     DApplication = CGUIFactory::ApplicationInstance(appname);
     DApplication->SetActivateCallback(this, ActivateCallback);
 
@@ -84,6 +64,7 @@ CApplicationData::CApplicationData(const std::string &appname,
     DRemoteHostname = "localhost";
     DMultiplayerPort = 55107;  // Ascii WC = 0x5743 or'd with 0x8000
     DPassword = "11051996";
+    DSoundSettingsFilename = "SoundSettings.json";
     DBorderWidth = 32;
     DPanningSpeed = 0;
     for (int Index = 0; Index < to_underlying(EPlayerNumber::Max); Index++)
@@ -264,6 +245,7 @@ void CApplicationData::Activate()
         DDataPath = AppPath.ToString() + "/data";
     }
 
+    LoadVolumeSettings(DDataPath + "/snd/" + DSoundSettingsFilename);
     std::shared_ptr<CDataContainer> TempDataContainer =
         std::make_shared<CDirectoryDataContainer>(DDataPath);
     std::shared_ptr<CDataContainer> ImageDirectory =
@@ -1808,14 +1790,47 @@ void CApplicationData::StartPlayingMusic(const std::string &song)
 void CApplicationData::SetFXVolume(float fx_vol)
 {
     DSoundVolume = fx_vol;
-    DSoundEventRenderer->Volume(DSoundVolume);
-
+    DSoundEventRenderer->Volume(fx_vol);
 }
 
 void CApplicationData::SetMusicVolume(float music_vol)
 {
     DMusicVolume = music_vol;
     DSoundLibraryMixer->SongVolume(music_vol);
+}
+
+void CApplicationData::SaveVolumeSettings(float fx_vol, float music_vol)
+{
+
+    nlohmann::json settings;
+    settings["soundOption"]["soundVolume"] = fx_vol;
+    settings["soundOption"]["musicVolume"] = music_vol;
+    std::ofstream o(DSoundSettingsFilename);
+    o << std::setw(4) << settings << std::endl;
+
+}
+
+// Load FX/Music volume settings from a config file
+// If no settings are found, set to some defaults
+void CApplicationData::LoadVolumeSettings(std::string path)
+{
+    float FX_Vol = -1.0, Music_Vol = -1.0;
+
+    // If sound and music options were previously altered, set to those values
+    if (std::ifstream(DSoundSettingsFilename))
+    {
+        std::ifstream i(DSoundSettingsFilename);
+        nlohmann::json settings;
+        i >> settings;
+        DSoundVolume = settings["soundOption"]["soundVolume"];
+        DMusicVolume = settings["soundOption"]["musicVolume"];
+    }
+    // Defaults
+    else
+    {
+        DSoundVolume = 1;
+        DMusicVolume = 0.5;
+    }
 }
 
 // Function handle changing state from game play to a menu mode

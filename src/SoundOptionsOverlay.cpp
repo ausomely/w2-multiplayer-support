@@ -268,11 +268,7 @@ void CSoundOptionsOverlay::SaveSettings()
     DContext->SetMusicVolume(Music_Vol);
 
     // Save to sound settings file
-    nlohmann::json settings;
-    settings["soundOption"]["soundVolume"] = FX_Vol;
-    settings["soundOption"]["musicVolume"] = Music_Vol;
-    std::ofstream o("settings.json");
-    o << std::setw(4) << settings << std::endl;
+    DContext->SaveVolumeSettings(FX_Vol, Music_Vol);
 }
 
 void CSoundOptionsOverlay::SetTextColors()
@@ -281,6 +277,3 @@ void CSoundOptionsOverlay::SetTextColors()
     DWhiteColor = DContext->DFonts[DFontID]->FindColor("white");
     DShadowColor = DContext->DFonts[DFontID]->FindColor("black");
 }
-
-
-
