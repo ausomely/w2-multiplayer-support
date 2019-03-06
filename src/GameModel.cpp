@@ -1918,3 +1918,36 @@ void CGameModel::ClearGameEvents()
         DPlayers.at(PlayerIndex)->ClearGameEvents();
     }
 }
+
+//! Lookup requirements of a given asset type
+// Given an asset type string, lookup the requirements and their associated costs
+// Returns a vector of CSV strings: Name<string>,GoldCost<int>,LumberCost<int>
+std::vector<std::string> CGameModel::LookupAssetRequirements(std::string &name)
+{
+    std::vector<std::string> Results;
+
+    auto TypePtr = CPlayerAssetType::FindDefaultFromName(name);
+    auto AssetReqs = TypePtr->AssetRequirements();
+
+    // Given asset has requirements. Look them up and build up CSV string
+    // of requirements and their cost
+    if (!AssetReqs.empty())
+    {
+        for (auto EType : AssetReqs)
+        {
+            std::string Reqs = CPlayerAssetType::TypeToName(EType);
+            auto TempTypePtr = CPlayerAssetType::FindDefaultFromType(EType);
+            Reqs.append("," + std::to_string(TempTypePtr->GoldCost()));
+            Reqs.append("," + std::to_string(TempTypePtr->LumberCost()));
+
+            Results.emplace_back(Reqs);
+        }
+    }
+    // Given asset type has no requirements, return empty CSV string
+    else
+    {
+        Results.emplace_back("None,0,0");
+    }
+
+    return Results;
+}

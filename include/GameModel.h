@@ -297,6 +297,9 @@ class CGameModel
     std::shared_ptr<CPlayerData> Player(EPlayerNumber number) const;
     void Timestep();
     void ClearGameEvents();
+
+    std::vector<std::string> LookupAssetRequirements(std::string &name);
+
 };
 
 #endif

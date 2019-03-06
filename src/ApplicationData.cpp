@@ -1820,9 +1820,9 @@ void CApplicationData::LoadVolumeSettings(std::string path)
     float FX_Vol = -1.0, Music_Vol = -1.0;
 
     // If sound and music options were previously altered, set to those values
-    if (std::ifstream(DSoundSettingsFilename))
+    if (std::ifstream(path))
     {
-        std::ifstream i(DSoundSettingsFilename);
+        std::ifstream i(path);
         nlohmann::json settings;
         i >> settings;
         DSoundVolume = settings["soundOption"]["soundVolume"];
