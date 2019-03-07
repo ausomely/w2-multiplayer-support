@@ -456,38 +456,38 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
     int ScreenRightX = rect.DXPosition + rect.DWidth - 1;
     int ScreenBottomY = rect.DYPosition + rect.DHeight - 1;
     std::list<SAssetRenderData> FinalRenderList;
+    int Type, RandomDirection = 0;
 
     for (auto &AssetIterator : DPlayerMap->Assets())
     {
         SAssetRenderData TempRenderData;
         TempRenderData.DType = AssetIterator->Type();
+        Type = to_underlying(AssetIterator->Type());
         if (EAssetType::None == TempRenderData.DType)
         {
             continue;
         }
-        if ((0 <= to_underlying(TempRenderData.DType)) &&
-            (to_underlying(TempRenderData.DType) <
-             static_cast<int>(DTilesets.size())))
+        if ((0 <= Type) &&
+            (Type < static_cast<int>(DTilesets.size())))
         {
             CPixelType PixelType(*AssetIterator);
             int RightX;
             TempRenderData.DX =
                 AssetIterator->PositionX() +
                 (AssetIterator->Size() - 1) * CPosition::HalfTileWidth() -
-                DTilesets[to_underlying(TempRenderData.DType)]->TileHalfWidth();
+                DTilesets[(Type)]->TileHalfWidth();
             TempRenderData.DY =
                 AssetIterator->PositionY() +
                 (AssetIterator->Size() - 1) * CPosition::HalfTileHeight() -
-                DTilesets[to_underlying(TempRenderData.DType)]->TileHalfHeight();
+                DTilesets[(Type)]->TileHalfHeight();
             TempRenderData.DPixelColor = PixelType.ToPixelColor();
 
             RightX =
                 TempRenderData.DX +
-                DTilesets[to_underlying(TempRenderData.DType)]->TileWidth() - 1;
+                DTilesets[(Type)]->TileWidth() - 1;
             TempRenderData.DBottomY =
                 TempRenderData.DY +
-                DTilesets[to_underlying(TempRenderData.DType)]->TileHeight() -
-                1;
+                DTilesets[(Type)]->TileHeight() - 1;
             bool OnScreen = true;
             if ((RightX < rect.DXPosition) ||
                 (TempRenderData.DX > ScreenRightX))
@@ -513,7 +513,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                 {
                     case EAssetAction::Build:
                         ActionSteps =
-                            DBuildIndices[to_underlying(TempRenderData.DType)]
+                            DBuildIndices[(Type)]
                                 .size();
                         ActionSteps /= to_underlying(EDirection::Max);
                         if (ActionSteps)
@@ -525,14 +525,12 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                   DAnimationDownsample) %
                                  ActionSteps);
                             TempRenderData.DTileIndex =
-                                DBuildIndices[to_underlying(
-                                    TempRenderData.DType)][TileIndex];
+                                DBuildIndices[Type][TileIndex];
                         }
                         break;
                     case EAssetAction::Construct:
                         ActionSteps =
-                            DConstructIndices[to_underlying(
-                                                  TempRenderData.DType)]
+                            DConstructIndices[Type]
                                 .size();
                         if (ActionSteps)
                         {
@@ -541,24 +539,19 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                             int CurrentStep = AssetIterator->Step() *
                                               ActionSteps / TotalSteps;
                             if (CurrentStep ==
-                                DConstructIndices[to_underlying(
-                                                      TempRenderData.DType)]
-                                    .size())
+                                DConstructIndices[(Type)].size())
                             {
                                 CurrentStep--;
                             }
                             TempRenderData.DTileIndex =
-                                DConstructIndices[to_underlying(
-                                    TempRenderData.DType)][CurrentStep];
+                                DConstructIndices[(Type)][CurrentStep];
                         }
                         break;
                     case EAssetAction::Walk:
                         if (AssetIterator->Lumber())
                         {
                             ActionSteps =
-                                DCarryLumberIndices[to_underlying(
-                                                        TempRenderData.DType)]
-                                    .size();
+                                DCarryLumberIndices[(Type)].size();
                             ActionSteps /= to_underlying(EDirection::Max);
                             TileIndex =
                                 to_underlying(AssetIterator->Direction()) *
@@ -567,15 +560,12 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                   DAnimationDownsample) %
                                  ActionSteps);
                             TempRenderData.DTileIndex =
-                                DCarryLumberIndices[to_underlying(
-                                    TempRenderData.DType)][TileIndex];
+                                DCarryLumberIndices[(Type)][TileIndex];
                         }
                         else if (AssetIterator->Stone())
                         {
                             ActionSteps =
-                                    DCarryStoneIndices[to_underlying(
-                                            TempRenderData.DType)]
-                                            .size();
+                                    DCarryStoneIndices[(Type)].size();
                             ActionSteps /= to_underlying(EDirection::Max);
                             TileIndex =
                                     to_underlying(AssetIterator->Direction()) *
@@ -584,14 +574,12 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                       DAnimationDownsample) %
                                      ActionSteps);
                             TempRenderData.DTileIndex =
-                                    DCarryStoneIndices[to_underlying(
-                                            TempRenderData.DType)][TileIndex];
+                                    DCarryStoneIndices[(Type)][TileIndex];
                         }
                         else if (AssetIterator->Gold())
                         {
                             ActionSteps =
-                                DCarryGoldIndices[to_underlying(
-                                                      TempRenderData.DType)]
+                                DCarryGoldIndices[(Type)]
                                     .size();
                             ActionSteps /= to_underlying(EDirection::Max);
                             TileIndex =
@@ -601,14 +589,12 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                   DAnimationDownsample) %
                                  ActionSteps);
                             TempRenderData.DTileIndex =
-                                DCarryGoldIndices[to_underlying(
-                                    TempRenderData.DType)][TileIndex];
+                                DCarryGoldIndices[(Type)][TileIndex];
                         }
                         else
                         {
                             ActionSteps =
-                                DWalkIndices[to_underlying(TempRenderData.DType)]
-                                    .size();
+                                DWalkIndices[(Type)].size();
                             ActionSteps /= to_underlying(EDirection::Max);
                             TileIndex =
                                 to_underlying(AssetIterator->Direction()) *
@@ -617,8 +603,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                   DAnimationDownsample) %
                                  ActionSteps);
                             TempRenderData.DTileIndex =
-                                DWalkIndices[to_underlying(
-                                    TempRenderData.DType)][TileIndex];
+                                DWalkIndices[(Type)][TileIndex];
                         }
                         break;
                     case EAssetAction::Attack:
@@ -628,9 +613,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                         if (CurrentStep < AssetIterator->AttackSteps())
                         {
                             ActionSteps =
-                                DAttackIndices[to_underlying(
-                                                   TempRenderData.DType)]
-                                    .size();
+                                DAttackIndices[(Type)].size();
                             ActionSteps /= to_underlying(EDirection::Max);
                             TileIndex =
                                 to_underlying(AssetIterator->Direction()) *
@@ -638,13 +621,12 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 (CurrentStep * ActionSteps /
                                  AssetIterator->AttackSteps());
                             TempRenderData.DTileIndex =
-                                DAttackIndices[to_underlying(
-                                    TempRenderData.DType)][TileIndex];
+                                DAttackIndices[(Type)][TileIndex];
                         }
                         else
                         {
                             TempRenderData.DTileIndex =
-                                DNoneIndices[to_underlying(TempRenderData.DType)]
+                                DNoneIndices[(Type)]
                                             [to_underlying(
                                                 AssetIterator->Direction())];
                         }
@@ -652,7 +634,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                     case EAssetAction::Repair:
                     case EAssetAction::HarvestLumber:
                         ActionSteps =
-                            DAttackIndices[to_underlying(TempRenderData.DType)]
+                            DAttackIndices[(Type)]
                                 .size();
                         ActionSteps /= to_underlying(EDirection::Max);
                         TileIndex =
@@ -661,13 +643,10 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                             ((AssetIterator->Step() / DAnimationDownsample) %
                              ActionSteps);
                         TempRenderData.DTileIndex =
-                            DAttackIndices[to_underlying(TempRenderData.DType)]
-                                          [TileIndex];
+                            DAttackIndices[(Type)][TileIndex];
                         break;
                     case EAssetAction::HarvestStone:
-                        ActionSteps =
-                                DAttackIndices[to_underlying(TempRenderData.DType)]
-                                        .size();
+                        ActionSteps = DAttackIndices[(Type)].size();
                         ActionSteps /= to_underlying(EDirection::Max);
                         TileIndex =
                                 to_underlying(AssetIterator->Direction()) *
@@ -675,56 +654,61 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 ((AssetIterator->Step() / DAnimationDownsample) %
                                  ActionSteps);
                         TempRenderData.DTileIndex =
-                                DAttackIndices[to_underlying(TempRenderData.DType)]
-                                [TileIndex];
+                                DAttackIndices[(Type)][TileIndex];
                         break;
                     case EAssetAction::MineGold:
                         break;
                     case EAssetAction::StandGround:
                     case EAssetAction::None:
-                        TempRenderData.DTileIndex =
-                            DNoneIndices[to_underlying(TempRenderData.DType)]
-                                        [to_underlying(
-                                            AssetIterator->Direction())];
+                        // Randomly change direction if asset are idle
+                        RandomDirection = to_underlying(AssetIterator->Direction());
+                        
+                        if (DPlayerMap->AssetsDirectionTime.find(AssetIterator) 
+                            != DPlayerMap->AssetsDirectionTime.end() ) 
+                        {   
+                            if (DPlayerMap->AssetsDirectionTime[AssetIterator] % 150 == 0)
+                            {
+                                // 0-7 direction choices
+                                RandomDirection = rand() % 7;
+                            }
+                            else
+                            {
+                                RandomDirection = DPlayerMap->AssetsDirection[AssetIterator];
+                            }
+                            DPlayerMap->AssetsDirectionTime[AssetIterator] += 1;
+                        } 
+                        else 
+                        {
+                            DPlayerMap->AssetsDirectionTime[AssetIterator] = 0;
+                            DPlayerMap->AssetsDirection[AssetIterator] = to_underlying(AssetIterator->Direction());
+                        }
+
+                        TempRenderData.DTileIndex = DNoneIndices[Type][RandomDirection];
                         if (AssetIterator->Speed())
                         {
                             if (AssetIterator->Lumber())
                             {
-                                ActionSteps =
-                                    DCarryLumberIndices
-                                        [to_underlying(TempRenderData.DType)]
-                                            .size();
+                                ActionSteps = DCarryLumberIndices[Type].size();
                                 ActionSteps /= to_underlying(EDirection::Max);
-                                TempRenderData.DTileIndex = DCarryLumberIndices
-                                    [to_underlying(TempRenderData.DType)]
-                                    [to_underlying(AssetIterator->Direction()) *
-                                     ActionSteps];
+                                TempRenderData.DTileIndex = DCarryLumberIndices[Type]
+                                    [RandomDirection * ActionSteps];
                             }
                             else if (AssetIterator->Stone())
                             {
-                                ActionSteps =
-                                        DCarryStoneIndices
-                                        [to_underlying(TempRenderData.DType)]
-                                                .size();
+                                ActionSteps = DCarryStoneIndices[Type].size();
                                 ActionSteps /= to_underlying(EDirection::Max);
-                                TempRenderData.DTileIndex = DCarryStoneIndices
-                                [to_underlying(TempRenderData.DType)]
-                                [to_underlying(AssetIterator->Direction()) *
-                                 ActionSteps];
+                                TempRenderData.DTileIndex = DCarryStoneIndices[Type]
+                                    [RandomDirection * ActionSteps];
                             }
                             else if (AssetIterator->Gold())
                             {
-                                ActionSteps =
-                                    DCarryGoldIndices[to_underlying(
-                                                          TempRenderData.DType)]
-                                        .size();
+                                ActionSteps = DCarryGoldIndices[(Type)].size();
                                 ActionSteps /= to_underlying(EDirection::Max);
-                                TempRenderData.DTileIndex = DCarryGoldIndices
-                                    [to_underlying(TempRenderData.DType)]
-                                    [to_underlying(AssetIterator->Direction()) *
-                                     ActionSteps];
+                                TempRenderData.DTileIndex = DCarryGoldIndices[Type]
+                                    [RandomDirection * ActionSteps];
                             }
                         }
+                        DPlayerMap->AssetsDirection[AssetIterator] = RandomDirection;
                         break;
                     case EAssetAction::Capability:
                         if (AssetIterator->Speed())
@@ -734,8 +718,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 (EAssetCapabilityType::StandGround ==
                                  AssetIterator->CurrentCommand().DCapability))
                             {
-                                TempRenderData.DTileIndex = DNoneIndices
-                                    [to_underlying(TempRenderData.DType)]
+                                TempRenderData.DTileIndex = DNoneIndices[Type]
                                     [to_underlying(AssetIterator->Direction())];
                             }
                         }
@@ -743,15 +726,13 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                         {
                             // Buildings
                             TempRenderData.DTileIndex =
-                                DNoneIndices[to_underlying(TempRenderData.DType)]
-                                            [to_underlying(
+                                DNoneIndices[(Type)][to_underlying(
                                                 AssetIterator->Direction())];
                         }
                         break;
                     case EAssetAction::Death:
                         ActionSteps =
-                            DDeathIndices[to_underlying(TempRenderData.DType)]
-                                .size();
+                            DDeathIndices[(Type)].size();
                         if (AssetIterator->Speed())
                         {
                             ActionSteps /= to_underlying(EDirection::Max);
@@ -764,7 +745,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                     CurrentStep = ActionSteps - 1;
                                 }
                                 TempRenderData.DTileIndex = DDeathIndices
-                                    [to_underlying(TempRenderData.DType)]
+                                    [(Type)]
                                     [to_underlying(AssetIterator->Direction()) *
                                          ActionSteps +
                                      CurrentStep];
@@ -776,19 +757,13 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 DBuildingDeathTileset->TileCount())
                             {
                                 TempRenderData.DTileIndex =
-                                    DTilesets[to_underlying(
-                                                  TempRenderData.DType)]
-                                        ->TileCount() +
+                                    DTilesets[(Type)]->TileCount() +
                                     AssetIterator->Step();
                                 TempRenderData.DX +=
-                                    DTilesets[to_underlying(
-                                                  TempRenderData.DType)]
-                                        ->TileHalfWidth() -
+                                    DTilesets[(Type)]->TileHalfWidth() -
                                     DBuildingDeathTileset->TileHalfWidth();
                                 TempRenderData.DY +=
-                                    DTilesets[to_underlying(
-                                                  TempRenderData.DType)]
-                                        ->TileHalfHeight() -
+                                    DTilesets[(Type)]->TileHalfHeight() -
                                     DBuildingDeathTileset->TileHalfHeight();
                             }
                         }

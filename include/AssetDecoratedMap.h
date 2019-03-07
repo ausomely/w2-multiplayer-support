@@ -42,7 +42,7 @@ class CAssetDecoratedMap : public CTerrainMap
     } SResourceInitialization, *SResourceInitializationRef;
 
   protected:
-    std::list<std::shared_ptr<CPlayerAsset> > DAssets;
+    std::list<std::shared_ptr<CPlayerAsset> > DAssets; 
     std::list<SAssetInitialization> DAssetInitializationList;
     std::list<SResourceInitialization> DResourceInitializationList;
     std::vector<std::vector<int> > DSearchMap;
@@ -63,6 +63,8 @@ class CAssetDecoratedMap : public CTerrainMap
     static int FindMapIndex(const std::string &name);
     static std::shared_ptr<const CAssetDecoratedMap> GetMap(int index);
     static std::shared_ptr<CAssetDecoratedMap> DuplicateMap(int index);
+    std::map<std::shared_ptr<CPlayerAsset>, int> AssetsDirectionTime;
+    std::map<std::shared_ptr<CPlayerAsset>, int> AssetsDirection;
 
     int PlayerCount() const
     {

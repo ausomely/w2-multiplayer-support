@@ -27,13 +27,23 @@ std::vector<std::shared_ptr<CAssetDecoratedMap> > CAssetDecoratedMap::DAllMaps;
 CAssetDecoratedMap::CAssetDecoratedMap() : CTerrainMap() {}
 
 CAssetDecoratedMap::CAssetDecoratedMap(const CAssetDecoratedMap &map)
-        : CTerrainMap(map)
+        : CTerrainMap(map )
 {
     DAssets = map.DAssets;
     DLumberAvailable = map.DLumberAvailable;
     DStoneAvailable = map.DStoneAvailable;
     DAssetInitializationList = map.DAssetInitializationList;
     DResourceInitializationList = map.DResourceInitializationList;
+
+    for(auto asset: DAssets)
+    {
+        // If asset not building and is not already in map
+        if (asset->Speed() && 0 == AssetsDirectionTime.count(asset) )
+        {
+            AssetsDirectionTime.insert(std::pair<std::shared_ptr<CPlayerAsset>,int>(asset, 1));
+            AssetsDirection.insert(std::pair<std::shared_ptr<CPlayerAsset>,int>(asset, to_underlying(asset->Direction())));
+        }
+    }
 }
 
 CAssetDecoratedMap::~CAssetDecoratedMap() {}
