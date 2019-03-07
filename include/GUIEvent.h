@@ -63,9 +63,46 @@ struct SGUIKeyType
     static const uint32_t LeftAlt;
     static const uint32_t RightAlt;
     static const uint32_t Escape;
+    // Space -> Slash are 0x020 -> 0x02f
     static const uint32_t Space;
-    static const uint32_t Delete;
+    static const uint32_t Exclam;
+    static const uint32_t QuoteDbl;
+    static const uint32_t NumberSign;
+    static const uint32_t Dollar;
+    static const uint32_t Percent;
+    static const uint32_t Ampersand;
+    static const uint32_t Apostrophe;
+    static const uint32_t QuoteRight;
+    static const uint32_t ParenLeft;
+    static const uint32_t ParenRight;
+    static const uint32_t Asterisk;
+    static const uint32_t Plus;
+    static const uint32_t Comma;
+    static const uint32_t Minus;
     static const uint32_t Period;
+    static const uint32_t Slash;
+    // Colon -> At (@) are 0x03a -> 0x040
+    static const uint32_t Colon;
+    static const uint32_t SemiColon;
+    static const uint32_t Less;
+    static const uint32_t Equal;
+    static const uint32_t Greater;
+    static const uint32_t Question;
+    static const uint32_t At;
+    // BracketLeft -> QuoteLeft are 0x05b -> 0x060
+    static const uint32_t BracketLeft;
+    static const uint32_t BackSlash;
+    static const uint32_t BracketRight;
+    static const uint32_t ASCIICircum;
+    static const uint32_t UnderScore;
+    static const uint32_t Grave;
+    static const uint32_t QuoteLeft;
+    // BraceLeft -> ASCIITilde are 0x07b -> 0x07e
+    static const uint32_t BraceLeft;
+    static const uint32_t Bar;
+    static const uint32_t BraceRight;
+    static const uint32_t ASCIITilde;
+    static const uint32_t Delete;
     static const uint32_t BackSpace;
     static const uint32_t UpArrow;
     static const uint32_t DownArrow;
@@ -141,6 +178,8 @@ struct SGUIKeyType
     bool IsUpper() const;
     bool IsLower() const;
     bool IsASCII() const;
+    bool IsPunctuation() const;
+    bool IsViewableInTextField() const;
 };
 
 struct SGUIButtonEvent

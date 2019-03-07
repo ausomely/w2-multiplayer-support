@@ -75,9 +75,46 @@ const uint32_t SGUIKeyType::RightControl = GDK_KEY_Control_R;
 const uint32_t SGUIKeyType::LeftAlt = GDK_KEY_Alt_L;
 const uint32_t SGUIKeyType::RightAlt = GDK_KEY_Alt_R;
 const uint32_t SGUIKeyType::Escape = GDK_KEY_Escape;
+// Space -> Slash are 0x020 -> 0x02f
 const uint32_t SGUIKeyType::Space = GDK_KEY_space;
-const uint32_t SGUIKeyType::Delete = GDK_KEY_Delete;
+const uint32_t SGUIKeyType::Exclam = GDK_KEY_exclam;
+const uint32_t SGUIKeyType::QuoteDbl = GDK_KEY_quotedbl;
+const uint32_t SGUIKeyType::NumberSign = GDK_KEY_numbersign;
+const uint32_t SGUIKeyType::Dollar = GDK_KEY_dollar;
+const uint32_t SGUIKeyType::Percent = GDK_KEY_percent;
+const uint32_t SGUIKeyType::Ampersand = GDK_KEY_ampersand;
+const uint32_t SGUIKeyType::Apostrophe = GDK_KEY_apostrophe;
+const uint32_t SGUIKeyType::QuoteRight = GDK_KEY_quoteright;
+const uint32_t SGUIKeyType::ParenLeft = GDK_KEY_parenleft;
+const uint32_t SGUIKeyType::ParenRight = GDK_KEY_parenright;
+const uint32_t SGUIKeyType::Asterisk = GDK_KEY_asterisk;
+const uint32_t SGUIKeyType::Plus = GDK_KEY_plus;
+const uint32_t SGUIKeyType::Comma = GDK_KEY_comma;
+const uint32_t SGUIKeyType::Minus = GDK_KEY_minus;
 const uint32_t SGUIKeyType::Period = GDK_KEY_period;
+const uint32_t SGUIKeyType::Slash = GDK_KEY_slash;
+// Colon -> At (@) are 0x03a -> 0x040
+const uint32_t SGUIKeyType::Colon = GDK_KEY_colon;
+const uint32_t SGUIKeyType::SemiColon = GDK_KEY_semicolon;
+const uint32_t SGUIKeyType::Less = GDK_KEY_less;
+const uint32_t SGUIKeyType::Equal = GDK_KEY_equal;
+const uint32_t SGUIKeyType::Greater = GDK_KEY_greater;
+const uint32_t SGUIKeyType::Question = GDK_KEY_question;
+const uint32_t SGUIKeyType::At = GDK_KEY_at;
+// BracketLeft -> QuoteLeft are 0x05b -> 0x060
+const uint32_t SGUIKeyType::BracketLeft = GDK_KEY_bracketleft;
+const uint32_t SGUIKeyType::BackSlash = GDK_KEY_backslash;
+const uint32_t SGUIKeyType::BracketRight = GDK_KEY_bracketright;
+const uint32_t SGUIKeyType::ASCIICircum = GDK_KEY_asciicircum;
+const uint32_t SGUIKeyType::UnderScore = GDK_KEY_underscore;
+const uint32_t SGUIKeyType::Grave = GDK_KEY_grave;
+const uint32_t SGUIKeyType::QuoteLeft = GDK_KEY_quoteleft;
+// BraceLeft -> ASCIITilde are 0x07b -> 0x07e
+const uint32_t SGUIKeyType::BraceLeft = GDK_KEY_braceleft;
+const uint32_t SGUIKeyType::Bar = GDK_KEY_bar;
+const uint32_t SGUIKeyType::BraceRight = GDK_KEY_braceright;
+const uint32_t SGUIKeyType::ASCIITilde = GDK_KEY_asciitilde;
+const uint32_t SGUIKeyType::Delete = GDK_KEY_Delete;
 const uint32_t SGUIKeyType::BackSpace = GDK_KEY_BackSpace;
 const uint32_t SGUIKeyType::UpArrow = GDK_KEY_Up;
 const uint32_t SGUIKeyType::DownArrow = GDK_KEY_Down;
@@ -184,6 +221,33 @@ bool SGUIKeyType::IsLower() const
 bool SGUIKeyType::IsASCII() const
 {
     return 127 >= DValue;
+}
+
+bool SGUIKeyType::IsPunctuation() const
+{
+    if ((Exclam <= DValue) && (Slash >= DValue))
+    {
+        return true;
+    }
+    else if ((Colon <= DValue) && (At >= DValue))
+    {
+        return true;
+    }
+    else if ((BracketLeft <= DValue) && (QuoteLeft >= DValue))
+    {
+        return true;
+    }
+    else if ((BraceLeft <= DValue) && (ASCIITilde >= DValue))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool SGUIKeyType::IsViewableInTextField() const
+{
+    return (IsAlphaNumeric() || IsPunctuation() || (Space == DValue));
 }
 
 std::shared_ptr<CGUIApplication> CGUIFactory::DApplicationPointer = nullptr;
