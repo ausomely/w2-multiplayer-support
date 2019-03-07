@@ -73,6 +73,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     friend class COverlayManagement;
     friend class CInGameMenuOverlay;
     friend class CSoundOptionsOverlay;
+    friend class CChatOverlay;
 
     // friend Client class
     friend class Client;
@@ -108,7 +109,8 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
         uictUserDescription,
         uictUserAction,
         uictMenuButton,
-        uictOverlay
+        uictOverlay,
+        uictChat
     } EUIComponentType,
         *EUIComponentTypeRef;
 
@@ -170,6 +172,7 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 
     // Flags
     bool DOverlayActive;
+    bool DChatOverlayActive;
     bool DLeaveGame;
 
     int DBorderWidth;
@@ -364,6 +367,10 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
     void ActivateOverlay();
     void ToggleOverlay();
     bool OverlayActive();
+    bool ChatOverlayActive();
+    void DeactivateChatOverlay();
+    void ActivateChatOverlay();
+    void ToggleChatOverlay();
 
     int FindClipID(const std::string &name);
     void StartPlayingClip(const std::string &name);

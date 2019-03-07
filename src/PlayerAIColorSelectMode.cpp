@@ -22,6 +22,7 @@
 #include "MemoryDataSource.h"
 #include "MultiPlayerOptionsMenuMode.h"
 #include "Client.h"
+#include "ChatOverlay.h"
 
 std::shared_ptr<CPlayerAIColorSelectMode>
     CPlayerAIColorSelectMode::DPlayerAIColorSelectModePointer;
@@ -55,11 +56,16 @@ void CPlayerAIColorSelectMode::InitializeChange(
     DButtonTexts.clear();
     DColorButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
-    DEditValidationFunctions.clear();
-    DEditTitles.clear();
-    DEditText.clear();
-    DEditText.push_back("");
-    context->Text.clear();
+
+    if (context->MultiPlayer())
+    {
+        if (nullptr == DChatOverlay)
+        {
+            DChatOverlay.reset(new CChatOverlay(context, EChatLocation::Lobby));
+        }
+        DChatOverlay->InitializeChat();
+        context->Text.clear();
+    }
 
     std::string CancelButtonText;
     switch (context->DGameSessionType)
@@ -81,8 +87,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Cancel";
             DButtonTexts.push_back("Play Game");
             DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
-            DEditTitles.push_back("Chat: ");
-            DEditValidationFunctions.push_back(ChatCallback);
 
             // start updating roominfo
             context->ClientPointer->StartUpdateRoomInfo(context);
@@ -94,8 +98,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
             CancelButtonText = "Leave Server";
             DButtonTexts.push_back("I'm Ready!");
             DButtonFunctions.push_back(MPClientReadyButtonCallback);
-            DEditTitles.push_back("Chat: ");
-            DEditValidationFunctions.push_back(ChatCallback);
 
             // start updating roominfo
             context->ClientPointer->StartUpdateRoomInfo(context);
@@ -196,16 +198,6 @@ std::shared_ptr<CApplicationData> context)
 
 void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplicationData> context)
 {
-    for (int Index = 0; Index < DPlayerAIColorSelectModePointer->DEditText.size();
-         Index++)
-    {
-        if (!DPlayerAIColorSelectModePointer->DEditValidationFunctions[Index](
-                DPlayerAIColorSelectModePointer->DEditText[Index]))
-        {
-            return;
-        }
-    }
-
     context->roomInfo.set_messages(2, context->roomInfo.messages()[1]);
     context->roomInfo.set_messages(1, context->roomInfo.messages()[0]);
     context->roomInfo.set_messages(0, context->DUsername + ": " +
@@ -323,94 +315,12 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
             }
         }
     }
-    if (context->DLeftClick && !context->DLeftDown)
+    // Process chat text field
+    if (context->MultiPlayer())
     {
-        bool ClickedEdit = false;
-
-        for (int Index = 0; Index < DEditLocations.size(); Index++)
-        {
-            if (DEditLocations[Index].PointInside(CurrentX, CurrentY))
-            {
-                if (Index != DEditSelected)
-                {
-                    DEditSelected = Index;
-                    DEditSelectedCharacter = DEditText[Index].size();
-                    ClickedEdit = true;
-                }
-            }
-        }
-        if (!ClickedEdit)
-        {
-            DEditSelected = -1;
-        }
+        DChatOverlay->ProcessTextEntryFields(CurrentX, CurrentY, context->DLeftDown);
+        DChatOverlay->ProcessKeyStrokes();
     }
-    for (auto Key : context->DReleasedKeys)
-    {
-        if (SGUIKeyType::Escape == Key)
-        {
-            DEditSelected = -1;
-        }
-        else if (0 <= DEditSelected)
-        {
-            SGUIKeyType TempKey;
-            TempKey.DValue = Key;
-            if ((SGUIKeyType::Delete == Key) || (SGUIKeyType::BackSpace == Key))
-            {
-                if (DEditSelectedCharacter)
-                {
-                    DEditText[DEditSelected] =
-                            DEditText[DEditSelected].substr(
-                                    0, DEditSelectedCharacter - 1) +
-                            DEditText[DEditSelected].substr(
-                                    DEditSelectedCharacter,
-                                    DEditText[DEditSelected].length() -
-                                    DEditSelectedCharacter);
-                    DEditSelectedCharacter--;
-                }
-                else if (DEditText[DEditSelected].length())
-                {
-                    DEditText[DEditSelected] =
-                            DEditText[DEditSelected].substr(1);
-                }
-            }
-            else if (SGUIKeyType::Enter == Key)
-            {
-                if (DEditSelectedCharacter > 0)
-                {
-                    ChatUpdateButtonCallback(context);
-                    DEditText[DEditSelected] = "";
-                    DEditSelectedCharacter = 0;
-                }
-            }
-            else if (SGUIKeyType::LeftArrow == Key)
-            {
-                if (DEditSelectedCharacter)
-                {
-                    DEditSelectedCharacter--;
-                }
-            }
-            else if (SGUIKeyType::RightArrow == Key)
-            {
-                if (DEditSelectedCharacter < DEditText[DEditSelected].length())
-                {
-                    DEditSelectedCharacter++;
-                }
-            }
-            else if (TempKey.IsAlphaNumeric() || (SGUIKeyType::Period == Key)
-                || (SGUIKeyType::Space == Key))
-            {
-                DEditText[DEditSelected] =
-                        DEditText[DEditSelected].substr(0, DEditSelectedCharacter) +
-                        std::string(1, (char) Key) +
-                        DEditText[DEditSelected].substr(
-                                DEditSelectedCharacter,
-                                DEditText[DEditSelected].length() -
-                                DEditSelectedCharacter);
-                DEditSelectedCharacter++;
-            }
-        }
-    }
-    context->DReleasedKeys.clear();
 }
 
 void CPlayerAIColorSelectMode::Calculate(
@@ -962,42 +872,15 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     int JoinButtonWidth = 50;
     int JoinButtonHeight = 30;
 
-    DEditLocations.clear();
-    BufferCenter = BufferWidth / 8;
-    OptionSkip = context->DOptionsEditRenderer->Height() * 3 / 2;
-    OptionTop = 550; //(BufferHeight + TitleHeight) / 2 -
-                //(OptionSkip * DEditTitles.size()) / 2;
-    for (int Index = 0; Index < DEditTitles.size(); Index++)
+    // Draw the chat window
+    if (context->MultiPlayer())
     {
-        std::string TempString;
-        int TextWidth, TextHeight;
-        TempString = DEditTitles[Index];
-
-        context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]->MeasureText(TempString, TextWidth, TextHeight);
-        TextOffsetY = context->DOptionsEditRenderer->Height() / 2 - TextHeight / 2;
-        context
-            ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-            ->DrawTextWithShadow(context->DWorkingBufferSurface,
-                                 BufferCenter - TextWidth,
-                                 OptionTop + TextOffsetY, WhiteColor,
-                                 ShadowColor, 1, TempString);
-
-        context->DOptionsEditRenderer->Text(DEditText[Index], DEditValidationFunctions[Index](DEditText[Index]));
-        context->DOptionsEditRenderer->DrawEdit(context->DWorkingBufferSurface, BufferCenter, OptionTop,
-            Index == DEditSelected ? DEditSelectedCharacter : -1);
-        DEditLocations.push_back(SRectangle({BufferCenter, OptionTop, context->DOptionsEditRenderer->Width(),
-             context->DOptionsEditRenderer->Height()}));
-        OptionTop += OptionSkip;
+        DChatOverlay->DrawChatText();
+        DChatOverlay->DrawTextEntryField();
+        context->DWorkingBufferSurface->Draw(DChatOverlay->Surface(),
+            DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
     }
 
-    for(int i = 1; i < context->Text.size()+1; i++)
-    {
-        if(context->Text.size() == 0)
-        {
-            break;
-        }
-        DrawText(context, context->Text[i-1], BufferCenter, OptionTop - (75)*i, GoldColor);
-    }
     // Draw the button on the screen
     context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
                                             BufferCenter + 50, OptionTop,

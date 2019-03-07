@@ -50,6 +50,7 @@ CApplicationData::CApplicationData(const std::string &appname,
     DDeleted = false;
     DActiveGame = false;  //!< Flag for active game
     DOverlayActive = false;
+    DChatOverlayActive = false;
     DLeaveGame = false;
     DLeftDown = false;
     DRightDown = false;
@@ -1078,6 +1079,12 @@ CApplicationData::EUIComponentType CApplicationData::FindUIComponentType(
         return uictOverlay;
     }
 
+    // When chat overlay is active, it's the only valid UI component type
+    if (ChatOverlayActive())
+    {
+        return uictChat;
+    }
+
     ViewWidth = DViewportSurface->Width();
     ViewHeight = DViewportSurface->Height();
 
@@ -1745,19 +1752,46 @@ void CApplicationData::ActivateOverlay()
 
 void CApplicationData::ToggleOverlay()
 {
-    if (DOverlayActive)
+    if (OverlayActive())
     {
-        DOverlayActive = false;
+        DeactivateOverlay();
     }
     else
     {
-        DOverlayActive = true;
+        ActivateOverlay();
     }
 }
 
 bool CApplicationData::OverlayActive()
 {
     return DOverlayActive;
+}
+
+bool CApplicationData::ChatOverlayActive()
+{
+    return DChatOverlayActive;
+}
+
+void CApplicationData::DeactivateChatOverlay()
+{
+    DChatOverlayActive = false;
+}
+
+void CApplicationData::ActivateChatOverlay()
+{
+    DChatOverlayActive = true;
+}
+
+void CApplicationData::ToggleChatOverlay()
+{
+    if (ChatOverlayActive())
+    {
+        DeactivateChatOverlay();
+    }
+    else
+    {
+        ActivateChatOverlay();
+    }
 }
 
 int CApplicationData::FindClipID(const std::string &name)

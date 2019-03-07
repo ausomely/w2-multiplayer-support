@@ -24,6 +24,7 @@
 #include "Rectangle.h"
 #include "RoomInfo.pb.h"
 #include "EditOptionsMode.h"
+#include "ChatOverlay.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
@@ -51,6 +52,8 @@ class CPlayerAIColorSelectMode : public CEditOptionsMode
     int TextWidth, TextHeight, MaxTextWidth;
     int LargeFontSize;
     int GoldColor, WhiteColor, ShadowColor, RedColor;
+
+    std::unique_ptr<CChatOverlay> DChatOverlay;
 
     static void ChatUpdateButtonCallback(
         std::shared_ptr<CApplicationData> context);

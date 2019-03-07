@@ -55,18 +55,21 @@ void CBattleMode::InitializeChange(std::shared_ptr<CApplicationData> context)
             DOverlayManager->SetMode(EOverlay::InGameMenu);
         }
 
-
-        if (context->EGameSessionType::gstSinglePlayer == context->DGameSessionType)
+        if (context->MultiPlayer())
         {
-            context->DTriggerController =
-                CTriggerController::Instance(context);
-
+            if (nullptr == DChatOverlay)
+            {
+                DChatOverlay.reset(new CChatOverlay(context, EChatLocation::GameScreen));
+            }
+            DChatOverlay->InitializeChat();
+        }
+        else
+        {
+            context->DTriggerController = CTriggerController::Instance(context);
             DScenarioTimmer = 0;
         }
     }
-    context->DSoundLibraryMixer->StopSong();
-    context->DSoundLibraryMixer->PlaySong(
-        context->DSoundLibraryMixer->FindSong("game1"), context->DMusicVolume);
+    context->StartPlayingMusic("game1");
 }
 
 //! @brief Handles keyboard and mouse input while the game is running
@@ -81,7 +84,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
     CurrentY = context->DCurrentY;
 
     SPlayerCommandRequest& request = context->DPlayerCommands[to_underlying(context->DPlayerNumber)];
-    if (!context->OverlayActive())
+    if (!context->OverlayActive() && !context->ChatOverlayActive())
     {
         //! Does things based on current keyboard input
         context->DGameModel->ClearGameEvents();
@@ -116,8 +119,17 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
 
         for (auto Key : context->DReleasedKeys)
         {
+             // Toggle chat overlay
+             // TODO: should probably add a check for multiplayer
+            if ((SGUIKeyType::LeftAlt == Key) || (SGUIKeyType::RightAlt == Key))
+            {
+                if (context->MultiPlayer())
+                {
+                    context->ToggleChatOverlay();
+                }
+            }
             // Handle releases
-            if (context->DSelectedPlayerAssets.size())
+            else if (context->DSelectedPlayerAssets.size())
             {
                 bool CanMove = true;
                 for (auto &Asset : context->DSelectedPlayerAssets)
@@ -312,8 +324,12 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
      * menu button, etc. are selected. Set properties for that UI element's
      * state
      */
-
-    if (CApplicationData::uictOverlay == ComponentType)
+    if (CApplicationData::uictChat == ComponentType)
+    {
+        DChatOverlay->ProcessTextEntryFields(CurrentX, CurrentY, context->DLeftDown);
+        DChatOverlay->ProcessKeyStrokes();
+    }
+    else if (CApplicationData::uictOverlay == ComponentType)
     {
         int X = CurrentX;
         int Y = CurrentY;
@@ -1324,6 +1340,14 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
 
     switch (context->FindUIComponentType(CPixelPosition(CurrentX, CurrentY)))
     {
+        case CApplicationData::uictChat:
+        {
+            DChatOverlay->DrawChatText();
+            DChatOverlay->DrawTextEntryField();
+            context->DWorkingBufferSurface->Draw(DChatOverlay->Surface(),
+                DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
+            break;
+        }
         case CApplicationData::uictOverlay:
         {
             int X = CurrentX;

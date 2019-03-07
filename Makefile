@@ -52,6 +52,7 @@ GAME_OBJS = $(OBJ_DIR)/main.o                   \
     $(OBJ_DIR)/CommentSkipLineDataSource.o      \
     $(OBJ_DIR)/CursorSet.o                      \
 		$(OBJ_DIR)/ContextRetrieval.o               \
+		$(OBJ_DIR)/ChatOverlay.o					          \
     $(OBJ_DIR)/Debug.o                          \
     $(OBJ_DIR)/EditOptionsMode.o                \
 		$(OBJ_DIR)/Effects.o                        \

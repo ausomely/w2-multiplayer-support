@@ -19,12 +19,15 @@
 
 #include <string>
 #include <vector>
+#include "ChatOverlay.h"
 #include "ApplicationMode.h"
 #include "Rectangle.h"
 #include "OverlayManagement.h"
 
 // using TBattleModeCallbackFunction = void (*)(std::shared_ptr<
 // CApplicationData >);
+
+class CChatOverlay;
 
 class CBattleMode : public CApplicationMode
 {
@@ -34,6 +37,7 @@ class CBattleMode : public CApplicationMode
     };
     static std::shared_ptr<CBattleMode> DBattleModePointer;
     std::shared_ptr<COverlayManagement> DOverlayManager;
+    std::shared_ptr<CChatOverlay> DChatOverlay;
 
     CBattleMode(const CBattleMode &) = delete;
     const CBattleMode &operator=(const CBattleMode &) = delete;
@@ -50,6 +54,7 @@ class CBattleMode : public CApplicationMode
     virtual void Render(std::shared_ptr<CApplicationData> context) override;
     static std::shared_ptr<CApplicationMode> Instance();
     void PixelPositionOnOverlay(int &CurrentX, int &CurrentY);
+    void PixelPositionOnChat(int &CurrentX, int &CurrentY);
 };
 
 #endif
