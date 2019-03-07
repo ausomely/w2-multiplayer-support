@@ -153,6 +153,11 @@ void GameRoom::UpdateRoomList(std::shared_ptr<User> user) {
 
 void GameRoom::SetPlayerComand(const GameInfo::PlayerCommandRequest &playerCommandRequest, int index) {
     playerCommandPackage.mutable_dplayercommand(index)->CopyFrom(playerCommandRequest);
+    if(playerCommandRequest.has_message()) {
+        playerCommandPackage.set_messages(2, playerCommandPackage.messages()[1]);
+        playerCommandPackage.set_messages(1, playerCommandPackage.messages()[0]);
+        playerCommandPackage.set_messages(0, playerCommandRequest.message());
+    }
 }
 
 const RoomInfo::RoomInformation& GameRoom::GetRoomInfo() const {
@@ -179,6 +184,10 @@ void GameRoom::InitializeGame() {
         playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
         playerCommandPackage.add_dplayercommand()->CopyFrom(playerCommandRequest);
     }
+    for(int Index = 0; Index < 3; Index++) {
+        playerCommandPackage.add_messages("");
+    }
+
     // set tcp_no_delay for sending game play data
     for(auto& It: players) {
         boost::asio::ip::tcp::no_delay option(true);

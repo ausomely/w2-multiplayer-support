@@ -8,15 +8,17 @@ message PlayerCommandRequest {
         required int32 DX = 1;
         required int32 DY = 2;
     }
-    
+
     required int32 DAction = 1; //EAssetCapabilityType
     required int32 DTargetNumber= 2; //EPlayerNumber
     required int32 DTargetType = 3; //EAssetType
     repeated int32 DActors = 4; //CPlayerAsset IDs
     required CPixelPosition DTargetLocation= 5; //CPixelPosition
     required int32 PlayerNum = 6;
+    optional string message = 7;
 }
 
 message PlayerCommandPackage {
     repeated PlayerCommandRequest DPlayerCommand = 1;
+    repeated string messages = 2;
 }

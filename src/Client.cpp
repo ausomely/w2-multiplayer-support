@@ -86,6 +86,11 @@ void Client::SendGameInfo(std::shared_ptr<CApplicationData> context) {
 
     playerCommandRequest.set_allocated_dtargetlocation(pixelPosition);
 
+    if(!context->NewMessage.empty()) {
+        playerCommandRequest.set_message(context->NewMessage);
+        context->NewMessage.clear();
+    }
+
     // send package to server
     boost::system::error_code err;
     boost::asio::streambuf stream_buffer;
@@ -239,7 +244,10 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
         GameInfo::PlayerCommandPackage playerCommandPackage;
         playerCommandPackage.ParseFromArray(data,length);
         //std::cout << playerCommandPackage.DebugString() << std::endl;
-
+        context->InGameText.clear();
+        for(int Index = 0; Index < 3; Index++) {
+            context->InGameText.push_back(playerCommandPackage.messages()[Index]);
+        }
         // set player commands
         for(int Index = 1; Index <= context->roomInfo.size(); Index++) {
               GameInfo::PlayerCommandRequest playerCommand = playerCommandPackage.dplayercommand()[Index - 1];

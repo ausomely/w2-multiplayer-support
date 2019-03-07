@@ -62,6 +62,7 @@ void CBattleMode::InitializeChange(std::shared_ptr<CApplicationData> context)
                 DChatOverlay.reset(new CChatOverlay(context, EChatLocation::GameScreen));
             }
             DChatOverlay->InitializeChat();
+            context->InGameText.clear();
         }
         else
         {

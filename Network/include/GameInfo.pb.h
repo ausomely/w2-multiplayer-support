@@ -302,6 +302,21 @@ class PlayerCommandRequest : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_dactors();
 
+  // optional string message = 7;
+  bool has_message() const;
+  void clear_message();
+  static const int kMessageFieldNumber = 7;
+  const ::std::string& message() const;
+  void set_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_message(::std::string&& value);
+  #endif
+  void set_message(const char* value);
+  void set_message(const char* value, size_t size);
+  ::std::string* mutable_message();
+  ::std::string* release_message();
+  void set_allocated_message(::std::string* message);
+
   // required .GameInfo.PlayerCommandRequest.CPixelPosition DTargetLocation = 5;
   bool has_dtargetlocation() const;
   void clear_dtargetlocation();
@@ -354,6 +369,8 @@ class PlayerCommandRequest : public ::google::protobuf::Message /* @@protoc_inse
   void clear_has_dtargetlocation();
   void set_has_playernum();
   void clear_has_playernum();
+  void set_has_message();
+  void clear_has_message();
 
   // helper for ByteSizeLong()
   size_t RequiredFieldsByteSizeFallback() const;
@@ -362,6 +379,7 @@ class PlayerCommandRequest : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > dactors_;
+  ::google::protobuf::internal::ArenaStringPtr message_;
   ::GameInfo::PlayerCommandRequest_CPixelPosition* dtargetlocation_;
   ::google::protobuf::int32 daction_;
   ::google::protobuf::int32 dtargetnumber_;
@@ -477,6 +495,28 @@ class PlayerCommandPackage : public ::google::protobuf::Message /* @@protoc_inse
   const ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest >&
       dplayercommand() const;
 
+  // repeated string messages = 2;
+  int messages_size() const;
+  void clear_messages();
+  static const int kMessagesFieldNumber = 2;
+  const ::std::string& messages(int index) const;
+  ::std::string* mutable_messages(int index);
+  void set_messages(int index, const ::std::string& value);
+  #if LANG_CXX11
+  void set_messages(int index, ::std::string&& value);
+  #endif
+  void set_messages(int index, const char* value);
+  void set_messages(int index, const char* value, size_t size);
+  ::std::string* add_messages();
+  void add_messages(const ::std::string& value);
+  #if LANG_CXX11
+  void add_messages(::std::string&& value);
+  #endif
+  void add_messages(const char* value);
+  void add_messages(const char* value, size_t size);
+  const ::google::protobuf::RepeatedPtrField< ::std::string>& messages() const;
+  ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_messages();
+
   // @@protoc_insertion_point(class_scope:GameInfo.PlayerCommandPackage)
  private:
 
@@ -484,6 +524,7 @@ class PlayerCommandPackage : public ::google::protobuf::Message /* @@protoc_inse
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequest > dplayercommand_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> messages_;
   friend struct ::protobuf_GameInfo_2eproto::TableStruct;
 };
 // ===================================================================
@@ -551,13 +592,13 @@ inline void PlayerCommandRequest_CPixelPosition::set_dy(::google::protobuf::int3
 
 // required int32 DAction = 1;
 inline bool PlayerCommandRequest::has_daction() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void PlayerCommandRequest::set_has_daction() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void PlayerCommandRequest::clear_has_daction() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void PlayerCommandRequest::clear_daction() {
   daction_ = 0;
@@ -575,13 +616,13 @@ inline void PlayerCommandRequest::set_daction(::google::protobuf::int32 value) {
 
 // required int32 DTargetNumber = 2;
 inline bool PlayerCommandRequest::has_dtargetnumber() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void PlayerCommandRequest::set_has_dtargetnumber() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void PlayerCommandRequest::clear_has_dtargetnumber() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void PlayerCommandRequest::clear_dtargetnumber() {
   dtargetnumber_ = 0;
@@ -599,13 +640,13 @@ inline void PlayerCommandRequest::set_dtargetnumber(::google::protobuf::int32 va
 
 // required int32 DTargetType = 3;
 inline bool PlayerCommandRequest::has_dtargettype() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void PlayerCommandRequest::set_has_dtargettype() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void PlayerCommandRequest::clear_has_dtargettype() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void PlayerCommandRequest::clear_dtargettype() {
   dtargettype_ = 0;
@@ -653,13 +694,13 @@ PlayerCommandRequest::mutable_dactors() {
 
 // required .GameInfo.PlayerCommandRequest.CPixelPosition DTargetLocation = 5;
 inline bool PlayerCommandRequest::has_dtargetlocation() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void PlayerCommandRequest::set_has_dtargetlocation() {
-  _has_bits_[0] |= 0x00000001u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void PlayerCommandRequest::clear_has_dtargetlocation() {
-  _has_bits_[0] &= ~0x00000001u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void PlayerCommandRequest::clear_dtargetlocation() {
   if (dtargetlocation_ != NULL) dtargetlocation_->Clear();
@@ -711,13 +752,13 @@ inline void PlayerCommandRequest::set_allocated_dtargetlocation(::GameInfo::Play
 
 // required int32 PlayerNum = 6;
 inline bool PlayerCommandRequest::has_playernum() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void PlayerCommandRequest::set_has_playernum() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void PlayerCommandRequest::clear_has_playernum() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void PlayerCommandRequest::clear_playernum() {
   playernum_ = 0;
@@ -731,6 +772,72 @@ inline void PlayerCommandRequest::set_playernum(::google::protobuf::int32 value)
   set_has_playernum();
   playernum_ = value;
   // @@protoc_insertion_point(field_set:GameInfo.PlayerCommandRequest.PlayerNum)
+}
+
+// optional string message = 7;
+inline bool PlayerCommandRequest::has_message() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void PlayerCommandRequest::set_has_message() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void PlayerCommandRequest::clear_has_message() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void PlayerCommandRequest::clear_message() {
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_has_message();
+}
+inline const ::std::string& PlayerCommandRequest::message() const {
+  // @@protoc_insertion_point(field_get:GameInfo.PlayerCommandRequest.message)
+  return message_.GetNoArena();
+}
+inline void PlayerCommandRequest::set_message(const ::std::string& value) {
+  set_has_message();
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:GameInfo.PlayerCommandRequest.message)
+}
+#if LANG_CXX11
+inline void PlayerCommandRequest::set_message(::std::string&& value) {
+  set_has_message();
+  message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:GameInfo.PlayerCommandRequest.message)
+}
+#endif
+inline void PlayerCommandRequest::set_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  set_has_message();
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:GameInfo.PlayerCommandRequest.message)
+}
+inline void PlayerCommandRequest::set_message(const char* value, size_t size) {
+  set_has_message();
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:GameInfo.PlayerCommandRequest.message)
+}
+inline ::std::string* PlayerCommandRequest::mutable_message() {
+  set_has_message();
+  // @@protoc_insertion_point(field_mutable:GameInfo.PlayerCommandRequest.message)
+  return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* PlayerCommandRequest::release_message() {
+  // @@protoc_insertion_point(field_release:GameInfo.PlayerCommandRequest.message)
+  if (!has_message()) {
+    return NULL;
+  }
+  clear_has_message();
+  return message_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void PlayerCommandRequest::set_allocated_message(::std::string* message) {
+  if (message != NULL) {
+    set_has_message();
+  } else {
+    clear_has_message();
+  }
+  message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
+  // @@protoc_insertion_point(field_set_allocated:GameInfo.PlayerCommandRequest.message)
 }
 
 // -------------------------------------------------------------------
@@ -765,6 +872,75 @@ inline const ::google::protobuf::RepeatedPtrField< ::GameInfo::PlayerCommandRequ
 PlayerCommandPackage::dplayercommand() const {
   // @@protoc_insertion_point(field_list:GameInfo.PlayerCommandPackage.DPlayerCommand)
   return dplayercommand_;
+}
+
+// repeated string messages = 2;
+inline int PlayerCommandPackage::messages_size() const {
+  return messages_.size();
+}
+inline void PlayerCommandPackage::clear_messages() {
+  messages_.Clear();
+}
+inline const ::std::string& PlayerCommandPackage::messages(int index) const {
+  // @@protoc_insertion_point(field_get:GameInfo.PlayerCommandPackage.messages)
+  return messages_.Get(index);
+}
+inline ::std::string* PlayerCommandPackage::mutable_messages(int index) {
+  // @@protoc_insertion_point(field_mutable:GameInfo.PlayerCommandPackage.messages)
+  return messages_.Mutable(index);
+}
+inline void PlayerCommandPackage::set_messages(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:GameInfo.PlayerCommandPackage.messages)
+  messages_.Mutable(index)->assign(value);
+}
+#if LANG_CXX11
+inline void PlayerCommandPackage::set_messages(int index, ::std::string&& value) {
+  // @@protoc_insertion_point(field_set:GameInfo.PlayerCommandPackage.messages)
+  messages_.Mutable(index)->assign(std::move(value));
+}
+#endif
+inline void PlayerCommandPackage::set_messages(int index, const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  messages_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:GameInfo.PlayerCommandPackage.messages)
+}
+inline void PlayerCommandPackage::set_messages(int index, const char* value, size_t size) {
+  messages_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:GameInfo.PlayerCommandPackage.messages)
+}
+inline ::std::string* PlayerCommandPackage::add_messages() {
+  // @@protoc_insertion_point(field_add_mutable:GameInfo.PlayerCommandPackage.messages)
+  return messages_.Add();
+}
+inline void PlayerCommandPackage::add_messages(const ::std::string& value) {
+  messages_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:GameInfo.PlayerCommandPackage.messages)
+}
+#if LANG_CXX11
+inline void PlayerCommandPackage::add_messages(::std::string&& value) {
+  messages_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:GameInfo.PlayerCommandPackage.messages)
+}
+#endif
+inline void PlayerCommandPackage::add_messages(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  messages_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:GameInfo.PlayerCommandPackage.messages)
+}
+inline void PlayerCommandPackage::add_messages(const char* value, size_t size) {
+  messages_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:GameInfo.PlayerCommandPackage.messages)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+PlayerCommandPackage::messages() const {
+  // @@protoc_insertion_point(field_list:GameInfo.PlayerCommandPackage.messages)
+  return messages_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+PlayerCommandPackage::mutable_messages() {
+  // @@protoc_insertion_point(field_mutable_list:GameInfo.PlayerCommandPackage.messages)
+  return &messages_;
 }
 
 #ifdef __GNUC__

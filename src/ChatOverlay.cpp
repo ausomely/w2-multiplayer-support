@@ -113,12 +113,13 @@ void CChatOverlay::ProcessKeyStrokes()
                     DContext->ClientPointer->SendRoomInfo(DContext);
                 }
                 else {
-                    if(DContext->Text.size() == 3)
+                    /*if(DContext->InGameText.size() == 3)
                     {
-                        DContext->Text.pop_back();
+                        DContext->InGameText.pop_back();
                     }
 
-                    DContext->Text.insert(DContext->Text.begin(), DEditText);
+                    DContext->InGameText.insert(DContext->InGameText.begin(), DEditText);*/
+                    DContext->NewMessage = DContext->DUsername + ": " + DEditText;
                 }
                 DEditSelectedCharacter = 0;
                 DEditText.clear();
@@ -158,15 +159,30 @@ void CChatOverlay::ProcessKeyStrokes()
 void CChatOverlay::DrawChatText()
 {
     ClearChatTextArea();
-    for( int Index = 1; Index < DContext->Text.size()+1; ++Index)
-    {
-        if(DContext->Text.size() == 0)
+
+    if(!DContext->DActiveGame) {
+        for(int Index = 1; Index < DContext->Text.size()+1; ++Index)
         {
-            break;
+            if(DContext->Text.size() == 0)
+            {
+                break;
+            }
+            DrawText(DContext->Text[Index-1], DContext->DInnerBevel->Width(),
+                DHeight - DTextMaxHeight - Index*DTextMaxHeight, DGoldColor,
+                DShadowColor);
         }
-        DrawText(DContext->Text[Index-1], DContext->DInnerBevel->Width(),
-            DHeight - DTextMaxHeight - Index*DTextMaxHeight, DGoldColor,
-            DShadowColor);
+    }
+    else {
+        for(int Index = 1; Index < DContext->InGameText.size()+1; ++Index)
+        {
+            if(DContext->InGameText.size() == 0)
+            {
+                break;
+            }
+            DrawText(DContext->InGameText[Index-1], DContext->DInnerBevel->Width(),
+                DHeight - DTextMaxHeight - Index*DTextMaxHeight, DGoldColor,
+                DShadowColor);
+        }
     }
 }
 

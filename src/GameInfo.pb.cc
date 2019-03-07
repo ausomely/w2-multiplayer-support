@@ -114,24 +114,28 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandRequest, dactors_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandRequest, dtargetlocation_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandRequest, playernum_),
-  1,
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandRequest, message_),
   2,
   3,
-  ~0u,
-  0,
   4,
+  ~0u,
+  1,
+  5,
+  0,
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandPackage, _has_bits_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandPackage, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandPackage, dplayercommand_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::GameInfo::PlayerCommandPackage, messages_),
+  ~0u,
   ~0u,
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 7, sizeof(::GameInfo::PlayerCommandRequest_CPixelPosition)},
-  { 9, 20, sizeof(::GameInfo::PlayerCommandRequest)},
-  { 26, 32, sizeof(::GameInfo::PlayerCommandPackage)},
+  { 9, 21, sizeof(::GameInfo::PlayerCommandRequest)},
+  { 28, 35, sizeof(::GameInfo::PlayerCommandPackage)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -161,18 +165,19 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\016GameInfo.proto\022\010GameInfo\"\351\001\n\024PlayerCom"
+      "\n\016GameInfo.proto\022\010GameInfo\"\372\001\n\024PlayerCom"
       "mandRequest\022\017\n\007DAction\030\001 \002(\005\022\025\n\rDTargetN"
       "umber\030\002 \002(\005\022\023\n\013DTargetType\030\003 \002(\005\022\017\n\007DAct"
       "ors\030\004 \003(\005\022F\n\017DTargetLocation\030\005 \002(\0132-.Gam"
       "eInfo.PlayerCommandRequest.CPixelPositio"
-      "n\022\021\n\tPlayerNum\030\006 \002(\005\032(\n\016CPixelPosition\022\n"
-      "\n\002DX\030\001 \002(\005\022\n\n\002DY\030\002 \002(\005\"N\n\024PlayerCommandP"
-      "ackage\0226\n\016DPlayerCommand\030\001 \003(\0132\036.GameInf"
-      "o.PlayerCommandRequest"
+      "n\022\021\n\tPlayerNum\030\006 \002(\005\022\017\n\007message\030\007 \001(\t\032(\n"
+      "\016CPixelPosition\022\n\n\002DX\030\001 \002(\005\022\n\n\002DY\030\002 \002(\005\""
+      "`\n\024PlayerCommandPackage\0226\n\016DPlayerComman"
+      "d\030\001 \003(\0132\036.GameInfo.PlayerCommandRequest\022"
+      "\020\n\010messages\030\002 \003(\t"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 342);
+      descriptor, 377);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "GameInfo.proto", &protobuf_RegisterTypes);
 }
@@ -501,6 +506,7 @@ const int PlayerCommandRequest::kDTargetTypeFieldNumber;
 const int PlayerCommandRequest::kDActorsFieldNumber;
 const int PlayerCommandRequest::kDTargetLocationFieldNumber;
 const int PlayerCommandRequest::kPlayerNumFieldNumber;
+const int PlayerCommandRequest::kMessageFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PlayerCommandRequest::PlayerCommandRequest()
@@ -516,6 +522,10 @@ PlayerCommandRequest::PlayerCommandRequest(const PlayerCommandRequest& from)
       _has_bits_(from._has_bits_),
       dactors_(from.dactors_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  message_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_message()) {
+    message_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.message_);
+  }
   if (from.has_dtargetlocation()) {
     dtargetlocation_ = new ::GameInfo::PlayerCommandRequest_CPixelPosition(*from.dtargetlocation_);
   } else {
@@ -528,6 +538,7 @@ PlayerCommandRequest::PlayerCommandRequest(const PlayerCommandRequest& from)
 }
 
 void PlayerCommandRequest::SharedCtor() {
+  message_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&dtargetlocation_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&playernum_) -
       reinterpret_cast<char*>(&dtargetlocation_)) + sizeof(playernum_));
@@ -539,6 +550,7 @@ PlayerCommandRequest::~PlayerCommandRequest() {
 }
 
 void PlayerCommandRequest::SharedDtor() {
+  message_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete dtargetlocation_;
 }
 
@@ -564,11 +576,16 @@ void PlayerCommandRequest::Clear() {
 
   dactors_.Clear();
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    GOOGLE_DCHECK(dtargetlocation_ != NULL);
-    dtargetlocation_->Clear();
+  if (cached_has_bits & 3u) {
+    if (cached_has_bits & 0x00000001u) {
+      message_.ClearNonDefaultToEmptyNoArena();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      GOOGLE_DCHECK(dtargetlocation_ != NULL);
+      dtargetlocation_->Clear();
+    }
   }
-  if (cached_has_bits & 30u) {
+  if (cached_has_bits & 60u) {
     ::memset(&daction_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&playernum_) -
         reinterpret_cast<char*>(&daction_)) + sizeof(playernum_));
@@ -674,6 +691,22 @@ bool PlayerCommandRequest::MergePartialFromCodedStream(
         break;
       }
 
+      // optional string message = 7;
+      case 7: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(58u /* 58 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_message()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->message().data(), static_cast<int>(this->message().length()),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "GameInfo.PlayerCommandRequest.message");
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -702,17 +735,17 @@ void PlayerCommandRequest::SerializeWithCachedSizes(
 
   cached_has_bits = _has_bits_[0];
   // required int32 DAction = 1;
-  if (cached_has_bits & 0x00000002u) {
+  if (cached_has_bits & 0x00000004u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->daction(), output);
   }
 
   // required int32 DTargetNumber = 2;
-  if (cached_has_bits & 0x00000004u) {
+  if (cached_has_bits & 0x00000008u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->dtargetnumber(), output);
   }
 
   // required int32 DTargetType = 3;
-  if (cached_has_bits & 0x00000008u) {
+  if (cached_has_bits & 0x00000010u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->dtargettype(), output);
   }
 
@@ -723,14 +756,24 @@ void PlayerCommandRequest::SerializeWithCachedSizes(
   }
 
   // required .GameInfo.PlayerCommandRequest.CPixelPosition DTargetLocation = 5;
-  if (cached_has_bits & 0x00000001u) {
+  if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
       5, this->_internal_dtargetlocation(), output);
   }
 
   // required int32 PlayerNum = 6;
-  if (cached_has_bits & 0x00000010u) {
+  if (cached_has_bits & 0x00000020u) {
     ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->playernum(), output);
+  }
+
+  // optional string message = 7;
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->message().data(), static_cast<int>(this->message().length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "GameInfo.PlayerCommandRequest.message");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      7, this->message(), output);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -749,17 +792,17 @@ void PlayerCommandRequest::SerializeWithCachedSizes(
 
   cached_has_bits = _has_bits_[0];
   // required int32 DAction = 1;
-  if (cached_has_bits & 0x00000002u) {
+  if (cached_has_bits & 0x00000004u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->daction(), target);
   }
 
   // required int32 DTargetNumber = 2;
-  if (cached_has_bits & 0x00000004u) {
+  if (cached_has_bits & 0x00000008u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->dtargetnumber(), target);
   }
 
   // required int32 DTargetType = 3;
-  if (cached_has_bits & 0x00000008u) {
+  if (cached_has_bits & 0x00000010u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->dtargettype(), target);
   }
 
@@ -768,15 +811,26 @@ void PlayerCommandRequest::SerializeWithCachedSizes(
     WriteInt32ToArray(4, this->dactors_, target);
 
   // required .GameInfo.PlayerCommandRequest.CPixelPosition DTargetLocation = 5;
-  if (cached_has_bits & 0x00000001u) {
+  if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         5, this->_internal_dtargetlocation(), deterministic, target);
   }
 
   // required int32 PlayerNum = 6;
-  if (cached_has_bits & 0x00000010u) {
+  if (cached_has_bits & 0x00000020u) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->playernum(), target);
+  }
+
+  // optional string message = 7;
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->message().data(), static_cast<int>(this->message().length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "GameInfo.PlayerCommandRequest.message");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        7, this->message(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -837,7 +891,7 @@ size_t PlayerCommandRequest::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         _internal_metadata_.unknown_fields());
   }
-  if (((_has_bits_[0] & 0x0000001f) ^ 0x0000001f) == 0) {  // All required fields are present.
+  if (((_has_bits_[0] & 0x0000003e) ^ 0x0000003e) == 0) {  // All required fields are present.
     // required .GameInfo.PlayerCommandRequest.CPixelPosition DTargetLocation = 5;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::MessageSize(
@@ -875,6 +929,13 @@ size_t PlayerCommandRequest::ByteSizeLong() const {
     total_size += data_size;
   }
 
+  // optional string message = 7;
+  if (has_message()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->message());
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -904,20 +965,24 @@ void PlayerCommandRequest::MergeFrom(const PlayerCommandRequest& from) {
 
   dactors_.MergeFrom(from.dactors_);
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 31u) {
+  if (cached_has_bits & 63u) {
     if (cached_has_bits & 0x00000001u) {
-      mutable_dtargetlocation()->::GameInfo::PlayerCommandRequest_CPixelPosition::MergeFrom(from.dtargetlocation());
+      set_has_message();
+      message_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.message_);
     }
     if (cached_has_bits & 0x00000002u) {
-      daction_ = from.daction_;
+      mutable_dtargetlocation()->::GameInfo::PlayerCommandRequest_CPixelPosition::MergeFrom(from.dtargetlocation());
     }
     if (cached_has_bits & 0x00000004u) {
-      dtargetnumber_ = from.dtargetnumber_;
+      daction_ = from.daction_;
     }
     if (cached_has_bits & 0x00000008u) {
-      dtargettype_ = from.dtargettype_;
+      dtargetnumber_ = from.dtargetnumber_;
     }
     if (cached_has_bits & 0x00000010u) {
+      dtargettype_ = from.dtargettype_;
+    }
+    if (cached_has_bits & 0x00000020u) {
       playernum_ = from.playernum_;
     }
     _has_bits_[0] |= cached_has_bits;
@@ -939,7 +1004,7 @@ void PlayerCommandRequest::CopyFrom(const PlayerCommandRequest& from) {
 }
 
 bool PlayerCommandRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x0000001f) != 0x0000001f) return false;
+  if ((_has_bits_[0] & 0x0000003e) != 0x0000003e) return false;
   if (has_dtargetlocation()) {
     if (!this->dtargetlocation_->IsInitialized()) return false;
   }
@@ -953,6 +1018,8 @@ void PlayerCommandRequest::Swap(PlayerCommandRequest* other) {
 void PlayerCommandRequest::InternalSwap(PlayerCommandRequest* other) {
   using std::swap;
   dactors_.InternalSwap(&other->dactors_);
+  message_.Swap(&other->message_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(dtargetlocation_, other->dtargetlocation_);
   swap(daction_, other->daction_);
   swap(dtargetnumber_, other->dtargetnumber_);
@@ -974,6 +1041,7 @@ void PlayerCommandPackage::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int PlayerCommandPackage::kDPlayerCommandFieldNumber;
+const int PlayerCommandPackage::kMessagesFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 PlayerCommandPackage::PlayerCommandPackage()
@@ -987,7 +1055,8 @@ PlayerCommandPackage::PlayerCommandPackage(const PlayerCommandPackage& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
       _has_bits_(from._has_bits_),
-      dplayercommand_(from.dplayercommand_) {
+      dplayercommand_(from.dplayercommand_),
+      messages_(from.messages_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:GameInfo.PlayerCommandPackage)
 }
@@ -1024,6 +1093,7 @@ void PlayerCommandPackage::Clear() {
   (void) cached_has_bits;
 
   dplayercommand_.Clear();
+  messages_.Clear();
   _has_bits_.Clear();
   _internal_metadata_.Clear();
 }
@@ -1044,6 +1114,23 @@ bool PlayerCommandPackage::MergePartialFromCodedStream(
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                 input, add_dplayercommand()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated string messages = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_messages()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->messages(this->messages_size() - 1).data(),
+            static_cast<int>(this->messages(this->messages_size() - 1).length()),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "GameInfo.PlayerCommandPackage.messages");
         } else {
           goto handle_unusual;
         }
@@ -1085,6 +1172,16 @@ void PlayerCommandPackage::SerializeWithCachedSizes(
       output);
   }
 
+  // repeated string messages = 2;
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->messages(i).data(), static_cast<int>(this->messages(i).length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "GameInfo.PlayerCommandPackage.messages");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      2, this->messages(i), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -1105,6 +1202,16 @@ void PlayerCommandPackage::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         1, this->dplayercommand(static_cast<int>(i)), deterministic, target);
+  }
+
+  // repeated string messages = 2;
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->messages(i).data(), static_cast<int>(this->messages(i).length()),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "GameInfo.PlayerCommandPackage.messages");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(2, this->messages(i), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1135,6 +1242,14 @@ size_t PlayerCommandPackage::ByteSizeLong() const {
     }
   }
 
+  // repeated string messages = 2;
+  total_size += 1 *
+      ::google::protobuf::internal::FromIntSize(this->messages_size());
+  for (int i = 0, n = this->messages_size(); i < n; i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->messages(i));
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -1163,6 +1278,7 @@ void PlayerCommandPackage::MergeFrom(const PlayerCommandPackage& from) {
   (void) cached_has_bits;
 
   dplayercommand_.MergeFrom(from.dplayercommand_);
+  messages_.MergeFrom(from.messages_);
 }
 
 void PlayerCommandPackage::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1191,6 +1307,7 @@ void PlayerCommandPackage::Swap(PlayerCommandPackage* other) {
 void PlayerCommandPackage::InternalSwap(PlayerCommandPackage* other) {
   using std::swap;
   CastToBase(&dplayercommand_)->InternalSwap(CastToBase(&other->dplayercommand_));
+  messages_.InternalSwap(CastToBase(&other->messages_));
   swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
