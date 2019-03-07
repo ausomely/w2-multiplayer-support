@@ -34,35 +34,31 @@ void CButton::State(CButtonRenderer::EButtonState state)
 // Update the button's state given the current x, y, and clicked values
 bool CButton::Update(int x, int y, bool clicked)
 {
-    // Set state to inactive if the button is marked inactive
-    if (Inactive())
+    // Only change button state if it's not marked inactive
+    if (!Inactive())
     {
-        State(CButtonRenderer::EButtonState::Inactive);
-        return false;
-    }
-
-    // Check if pointer is within button coordinates
-    if (DShape->PointInside(x, y))
-    {
-        // Check if the button is clicked
-        if (clicked)
+        // Check if pointer is within button coordinates
+        if (DShape->PointInside(x, y))
         {
-            State(CButtonRenderer::EButtonState::Pressed);
+            // Check if the button is clicked
+            if (clicked)
+            {
+                State(CButtonRenderer::EButtonState::Pressed);
+            }
+                // Button not clicked, so the pointer is hovering
+            else
+            {
+                State(CButtonRenderer::EButtonState::Hover);
+            }
+
+            // Signal the pointer is over the button
+            return true;
         }
-        // Button not clicked, so the pointer is hovering
+        // Pointer is not over button. Reset the button's state.
         else
         {
-            State(CButtonRenderer::EButtonState::Hover);
+            State(CButtonRenderer::EButtonState::None);
         }
-
-        // Signal the pointer is over the button
-        return true;
-    }
-    // Current pointer location is outside the button
-    // Reset the button's state
-    else if (CButtonRenderer::EButtonState::Inactive != State())
-    {
-        State(CButtonRenderer::EButtonState::None);
     }
 
     // Signal the pointer is not over the button
@@ -72,6 +68,7 @@ bool CButton::Update(int x, int y, bool clicked)
 void CButton::MarkInactive()
 {
     DInactive = true;
+    State(CButtonRenderer::EButtonState::Inactive);
 }
 
 void CButton::ClearInactive()

@@ -129,8 +129,18 @@ void CHorizontalButtonAlignment::CreateButtons(std::vector<std::string> texts)
 
     for (auto &text : texts)
     {
-        DButtons.push_back(std::make_shared<CButton>(text,
-            CurrentXOffset, DYOffset, DMaxWidth, DMaxHeight));
+        // Create the button off-screen if the text is an empty string
+        if (text.empty())
+        {
+            DButtons.push_back(
+                std::make_shared<CButton>(text, -1, -1, 0, 0));
+        }
+        // Otherwise set the coordinates for the button on-screen
+        else
+        {
+            DButtons.push_back(std::make_shared<CButton>(text,
+                CurrentXOffset, DYOffset, DMaxWidth, DMaxHeight));
+        }
 
         CurrentXOffset += DMaxWidth + DButtonGap;
     }

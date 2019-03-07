@@ -72,15 +72,21 @@ CButtonAlignment::DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int
         {
             DButtonHovered = true;
         }
-        DContext->DButtonRenderer->Text(DButtons[Index]->Text());
-        DContext->DButtonRenderer->Width(DMaxWidth);
-        DContext->DButtonRenderer->Height(DMaxHeight);
-        DContext->DButtonRenderer->DrawButton(surface, DButtons[Index]->XPosition(),
-                    DButtons[Index]->YPosition(), DButtons[Index]->State());
+
+        // Skip drawing the button if it has empty text
+        if (0 <= DButtons[Index]->XPosition())
+        {
+            DContext->DButtonRenderer->Text(DButtons[Index]->Text());
+            DContext->DButtonRenderer->Width(DMaxWidth);
+            DContext->DButtonRenderer->Height(DMaxHeight);
+            DContext->DButtonRenderer->DrawButton(surface, DButtons[Index]->XPosition(),
+                DButtons[Index]->YPosition(), DButtons[Index]->State());
+        }
 
         if (DButtons[Index]->Pressed())
         {
             DButtonPressedInStack = true;
+            break;
         }
     }
 }

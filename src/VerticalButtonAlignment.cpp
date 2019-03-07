@@ -34,8 +34,8 @@ CVerticalButtonAlignment::CVerticalButtonAlignment(
     MeasureButtons(texts);
 
     // Bump up size to proportions in Main Menu
-    DMaxWidth = DMaxWidth * 7 / 6;
-    DMaxHeight = DMaxHeight * 5 / 4;
+    DMaxWidth = DMaxWidth * 5 / 4;
+    DMaxHeight = DMaxHeight * 3 / 2;
 
     FindXOffset(DCanvasWidth);
     FindYOffset(DCanvasHeight);
@@ -128,9 +128,19 @@ void CVerticalButtonAlignment::CreateButtons(std::vector<std::string> texts)
 
     for (auto &text : texts)
     {
-        DButtons.push_back(
-            std::make_shared<CButton>(text, DXOffset, CurrentYOffset, DMaxWidth,
-                DMaxHeight));
+        // Create the button off-screen if the text is an empty string
+        if (text.empty())
+        {
+            DButtons.push_back(
+                std::make_shared<CButton>(text, -1, -1, 0, 0));
+        }
+        // Otherwise set the coordinates for the button on-screen
+        else
+        {
+            DButtons.push_back(
+                std::make_shared<CButton>(text, DXOffset, CurrentYOffset, DMaxWidth,
+                    DMaxHeight));
+        }
 
         CurrentYOffset += DMaxHeight + DButtonGap;
     }
