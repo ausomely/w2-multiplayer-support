@@ -119,7 +119,7 @@ class CPlayerUpgrade
     int DGoldCost;
     int DLumberCost;
     int DResearchTime;
-    
+
     std::vector<EAssetType> DAffectedAssets;
     static std::unordered_map<std::string, std::shared_ptr<CPlayerUpgrade> >
         DRegistryByName;
@@ -127,9 +127,9 @@ class CPlayerUpgrade
         DRegistryByType;
 
   public:
-    
+
     bool DUpgradeActive;
-    
+
     CPlayerUpgrade();
 
     std::string Name() const
@@ -263,7 +263,7 @@ class CPlayerAssetType
     void ChangeOwner(EPlayerNumber num,EPlayerColor color){
 
         DNumber = num;
-        DColor = color; 
+        DColor = color;
     }
 
     std::vector<std::shared_ptr<CPlayerUpgrade>> GetUpgrades(){
@@ -438,7 +438,9 @@ class CPlayerAsset
     CPlayerAsset();
     ~CPlayerAsset();
 
-
+    static void ResetIDCounter() {
+        DIdCounter = 1;
+    }
 
     static int UpdateFrequency()
     {
@@ -470,10 +472,10 @@ class CPlayerAsset
             }
         }
         return false;
-        
+
     }
 
-    
+
 
     int Id() const
     {
@@ -484,13 +486,13 @@ class CPlayerAsset
     {
         DId = NewId;
     };
-    
+
     void IncIdCounter()
     {
         DIdCounter++;
     };
 
-    int GetIdCounter() const
+    static int GetIdCounter()
     {
         return DIdCounter;
     };

@@ -1035,7 +1035,6 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
         context->DSoundLibraryMixer->PlaySong(game_over_song,
                                               context->DMusicVolume);
         context->DActiveGame = false;
-
         context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
 
@@ -1064,7 +1063,6 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
 
           boost::asio::ip::tcp::no_delay option(false);
           context->ClientPointer->socket.set_option(option);
-
           context->ChangeApplicationMode(CGameOverMenuMode::Instance());
     }
 

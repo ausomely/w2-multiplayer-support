@@ -243,7 +243,7 @@ void Client::GetGameInfo(std::shared_ptr<CApplicationData> context) {
     if(!err) {
         GameInfo::PlayerCommandPackage playerCommandPackage;
         playerCommandPackage.ParseFromArray(data,length);
-        //std::cout << playerCommandPackage.DebugString() << std::endl;
+        // std::cout << playerCommandPackage.DebugString() << std::endl;
         context->InGameText.clear();
         for(int Index = 0; Index < 3; Index++) {
             context->InGameText.push_back(playerCommandPackage.messages()[Index]);

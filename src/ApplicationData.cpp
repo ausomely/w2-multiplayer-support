@@ -1343,6 +1343,17 @@ void CApplicationData::LoadGameMap(int index)
 {
     int DetailedMapWidth, DetailedMapHeight;
 
+    // Reset static counter every time a map is loaded
+    if (1 != CPlayerAsset::GetIdCounter()) {
+        CPlayerAsset::ResetIDCounter();
+        CPlayerData::umap.clear();
+        for (int Index = 0; Index < to_underlying(EPlayerNumber::Max); Index++)
+        {
+            DPlayerCommands[Index].DAction = EAssetCapabilityType::None;
+            DPlayerCommands[Index].DActors.clear();
+        }
+    }
+
     DGameModel = std::make_shared<CGameModel>(index, 0x123456789ABCDEFULL,
                                               DLoadingPlayerColors);
 
