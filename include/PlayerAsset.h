@@ -277,12 +277,12 @@ class CPlayerAssetType
 
     int Armor() const
     {
-        return DArmor + ArmorUpgrade();
+        return DArmor;
     };
 
     int Sight() const
     {
-        return DSight + SightUpgrade();
+        return DSight;
     };
 
     int ConstructionSight() const
@@ -297,7 +297,7 @@ class CPlayerAssetType
 
     int Speed() const
     {
-        return DSpeed + SpeedUpgrade();
+        return DSpeed;
     };
 
     int GoldCost() const
@@ -332,17 +332,17 @@ class CPlayerAssetType
 
     int BasicDamage() const
     {
-        return DBasicDamage + BasicDamageUpgrade();
+        return DBasicDamage;
     };
 
     int PiercingDamage() const
     {
-        return DPiercingDamage + PiercingDamageUpgrade();
+        return DPiercingDamage;
     };
 
     int Range() const
     {
-        return DRange + RangeUpgrade();
+        return DRange;
     };
 
 

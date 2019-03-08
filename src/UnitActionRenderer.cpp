@@ -172,7 +172,7 @@ void CUnitActionRenderer::DrawUnitAction(
             {
                 UnitType = Asset->Type();
                 IsFirst = false;
-                Moveable = 0 < Asset->Speed();
+                Moveable = 0 < Asset->EffectiveSpeed();
             }
             else if (UnitType != Asset->Type())
             {

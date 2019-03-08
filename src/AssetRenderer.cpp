@@ -662,10 +662,10 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                     case EAssetAction::None:
                         // Randomly change direction if asset are idle
                         RandomDirection = to_underlying(AssetIterator->Direction());
-                        
-                        if (DPlayerMap->AssetsDirectionTime.find(AssetIterator) 
-                            != DPlayerMap->AssetsDirectionTime.end() ) 
-                        {   
+
+                        if (DPlayerMap->AssetsDirectionTime.find(AssetIterator)
+                            != DPlayerMap->AssetsDirectionTime.end() )
+                        {
                             if (DPlayerMap->AssetsDirectionTime[AssetIterator] % 150 == 0)
                             {
                                 // 0-7 direction choices
@@ -676,15 +676,15 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                                 RandomDirection = DPlayerMap->AssetsDirection[AssetIterator];
                             }
                             DPlayerMap->AssetsDirectionTime[AssetIterator] += 1;
-                        } 
-                        else 
+                        }
+                        else
                         {
                             DPlayerMap->AssetsDirectionTime[AssetIterator] = 0;
                             DPlayerMap->AssetsDirection[AssetIterator] = to_underlying(AssetIterator->Direction());
                         }
 
                         TempRenderData.DTileIndex = DNoneIndices[Type][RandomDirection];
-                        if (AssetIterator->Speed())
+                        if (AssetIterator->EffectiveSpeed())
                         {
                             if (AssetIterator->Lumber())
                             {
@@ -711,7 +711,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                         DPlayerMap->AssetsDirection[AssetIterator] = RandomDirection;
                         break;
                     case EAssetAction::Capability:
-                        if (AssetIterator->Speed())
+                        if (AssetIterator->EffectiveSpeed())
                         {
                             if ((EAssetCapabilityType::Patrol ==
                                  AssetIterator->CurrentCommand().DCapability) ||
@@ -733,7 +733,7 @@ void CAssetRenderer::DrawAssets(std::shared_ptr<CGraphicSurface> surface,
                     case EAssetAction::Death:
                         ActionSteps =
                             DDeathIndices[(Type)].size();
-                        if (AssetIterator->Speed())
+                        if (AssetIterator->EffectiveSpeed())
                         {
                             ActionSteps /= to_underlying(EDirection::Max);
                             if (ActionSteps)
@@ -826,7 +826,7 @@ void CAssetRenderer::DrawSelections(
             if ((0 <= to_underlying(TempRenderData.DType)) &&
                 (to_underlying(TempRenderData.DType) < DTilesets.size()))
             {
-                if (0 == AssetIterator->Speed())
+                if (0 == AssetIterator->EffectiveSpeed())
                 {
                     int RightX;
                     int Offset =
@@ -1113,7 +1113,7 @@ void CAssetRenderer::DrawOverlays(std::shared_ptr<CGraphicSurface> surface,
                 }
             }
         }
-        else if (0 == AssetIterator->Speed())
+        else if (0 == AssetIterator->EffectiveSpeed())
         {
             EAssetAction CurrentAction = AssetIterator->Action();
 

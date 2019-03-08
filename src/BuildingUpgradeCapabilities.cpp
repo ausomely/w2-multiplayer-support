@@ -231,7 +231,7 @@ bool CPlayerCapabilityBuildingUpgrade::CActivatedCapability::IncrementStep()
         DPlayerData->AddGameEvent(TempEvent);
 
         DActor->PopCommand();
-        if (DActor->Range())
+        if (DActor->EffectiveRange())
         {
             SAssetCommand Command;
             Command.DAction = EAssetAction::StandGround;

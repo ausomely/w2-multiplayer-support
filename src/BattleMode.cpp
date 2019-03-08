@@ -137,7 +137,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                 {
                     if (auto LockedAsset = Asset.lock())
                     {
-                        if (0 == LockedAsset->Speed())
+                        if (0 == LockedAsset->EffectiveSpeed())
                         {
                             CanMove = false;
                             break;
@@ -359,7 +359,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
             {
                 if (auto LockedAsset = Asset.lock())
                 {
-                    if (0 == LockedAsset->Speed())
+                    if (0 == LockedAsset->EffectiveSpeed())
                     {
                         CanMove = false;
                         break;
@@ -437,7 +437,7 @@ void CBattleMode::Input(std::shared_ptr<CApplicationData> context)
                                     ->SelectAsset(TempPosition,
                                                   PixelType.AssetType())
                                     .lock();
-                            if ((0 == TargetAsset->Speed()) &&
+                            if ((0 == TargetAsset->EffectiveSpeed()) &&
                                 (TargetAsset->MaxHitPoints() >
                                  TargetAsset->HitPoints()))
                             {
@@ -1135,7 +1135,7 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
     while (WeakAsset != context->DSelectedPlayerAssets.end()) {
         if (auto Asset = WeakAsset->lock()) {
             if (context->DGameModel->ValidAsset(Asset) && Asset->Alive()) {
-                if (Asset->Speed() &&
+                if (Asset->EffectiveSpeed() &&
                     (EAssetAction::Capability == Asset->Action())) {
                     auto Command = Asset->CurrentCommand();
 

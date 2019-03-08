@@ -38,7 +38,7 @@ CAssetDecoratedMap::CAssetDecoratedMap(const CAssetDecoratedMap &map)
     for(auto asset: DAssets)
     {
         // If asset not building and is not already in map
-        if (asset->Speed() && 0 == AssetsDirectionTime.count(asset) )
+        if (asset->EffectiveSpeed() && 0 == AssetsDirectionTime.count(asset) )
         {
             AssetsDirectionTime.insert(std::pair<std::shared_ptr<CPlayerAsset>,int>(asset, 1));
             AssetsDirection.insert(std::pair<std::shared_ptr<CPlayerAsset>,int>(asset, to_underlying(asset->Direction())));
@@ -143,7 +143,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
 {
     int RightX, BottomY;
 
-    
+
     for (int YOff = 0; YOff < size; YOff++)
     {
         for (int XOff = 0; XOff < size; XOff++)
@@ -172,7 +172,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
     for (auto Asset : DAssets)
     {
         int Offset = EAssetType::GoldMine == Asset->Type() ? 1 : 0;
-      
+
         if (EAssetType::None == Asset->Type())
         {
             continue;
@@ -794,7 +794,7 @@ bool CAssetDecoratedMap::UpdateMap(const CVisibilityMap &vismap,
         CTilePosition CurPosition = (*Iterator)->TilePosition();
         int AssetSize = (*Iterator)->Size();
         bool RemoveAsset = false;
-        if ((*Iterator)->Speed() ||
+        if ((*Iterator)->EffectiveSpeed() ||
             (EAssetAction::Decay == (*Iterator)->Action()) ||
             (EAssetAction::Attack == (*Iterator)->Action()))
         {  // Remove all movable units

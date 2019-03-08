@@ -72,14 +72,14 @@ CPlayerCapabilityMove::CPlayerCapabilityMove()
 bool CPlayerCapabilityMove::CanInitiate(std::shared_ptr<CPlayerAsset> actor,
                                         std::shared_ptr<CPlayerData> playerdata)
 {
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityMove::CanApply(std::shared_ptr<CPlayerAsset> actor,
                                      std::shared_ptr<CPlayerData> playerdata,
                                      std::shared_ptr<CPlayerAsset> target)
 {
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityMove::ApplyCapability(
@@ -618,14 +618,15 @@ bool CPlayerCapabilityConvey::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return actor->Speed() > 0 && (actor->Lumber() || actor->Gold() || actor->Stone());
+    return actor->EffectiveSpeed() > 0 && (actor->Lumber() || actor->Gold() ||
+        actor->Stone());
 }
 
 bool CPlayerCapabilityConvey::CanApply(std::shared_ptr<CPlayerAsset> actor,
                                        std::shared_ptr<CPlayerData> playerdata,
                                        std::shared_ptr<CPlayerAsset> target)
 {
-    if (actor->Speed() && (actor->Lumber() || actor->Gold() || actor->Stone()))
+    if (actor->EffectiveSpeed() && (actor->Lumber() || actor->Gold() || actor->Stone()))
     {
         if (EAssetAction::Construct == target->Action())
         {
@@ -777,14 +778,14 @@ bool CPlayerCapabilityPatrol::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityPatrol::CanApply(std::shared_ptr<CPlayerAsset> actor,
                                        std::shared_ptr<CPlayerData> playerdata,
                                        std::shared_ptr<CPlayerAsset> target)
 {
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityPatrol::ApplyCapability(
@@ -910,7 +911,7 @@ bool CPlayerCapabilityAttack::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityAttack::CanApply(std::shared_ptr<CPlayerAsset> actor,
@@ -922,7 +923,7 @@ bool CPlayerCapabilityAttack::CanApply(std::shared_ptr<CPlayerAsset> actor,
     {
         return false;
     }
-    return actor->Speed() > 0;
+    return actor->EffectiveSpeed() > 0;
 }
 
 bool CPlayerCapabilityAttack::ApplyCapability(
@@ -1043,14 +1044,15 @@ bool CPlayerCapabilityRepair::CanInitiate(
     std::shared_ptr<CPlayerAsset> actor,
     std::shared_ptr<CPlayerData> playerdata)
 {
-    return (actor->Speed() > 0) && playerdata->Gold() && playerdata->Lumber() && playerdata->Stone();
+    return (actor->EffectiveSpeed() > 0) && playerdata->Gold() && playerdata->Lumber() &&
+        playerdata->Stone();
 }
 
 bool CPlayerCapabilityRepair::CanApply(std::shared_ptr<CPlayerAsset> actor,
                                        std::shared_ptr<CPlayerData> playerdata,
                                        std::shared_ptr<CPlayerAsset> target)
 {
-    if ((actor->Number() != target->Number()) || (target->Speed()))
+    if ((actor->Number() != target->Number()) || (target->EffectiveSpeed()))
     {
         return false;
     }

@@ -33,7 +33,7 @@ bool CAIPlayer::SearchMap(SPlayerCommandRequest &command)
     {
         if (auto Asset = WeakAsset.lock())
         {
-            if (Asset->Speed())
+            if (Asset->EffectiveSpeed())
             {
                 MovableAsset = Asset;
                 break;
@@ -411,7 +411,7 @@ bool CAIPlayer::ActivateFighters(SPlayerCommandRequest &command)
     {
         if (auto Asset = WeakAsset.lock())
         {
-            if (Asset->Speed() && (EAssetType::Peasant != Asset->Type()))
+            if (Asset->EffectiveSpeed() && (EAssetType::Peasant != Asset->Type()))
             {
                 if (!Asset->HasAction(EAssetAction::StandGround) &&
                     !Asset->HasActiveCapability(
@@ -509,7 +509,7 @@ bool CAIPlayer::TrainArcher(SPlayerCommandRequest &command)
 
 void CAIPlayer::CalculateCommand(SPlayerCommandRequest &command)
 {
-    
+
     command.DAction = EAssetCapabilityType::None;
     command.DActors.clear();
     command.DTargetNumber = EPlayerNumber::Neutral;

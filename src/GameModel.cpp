@@ -249,7 +249,7 @@ std::list<std::weak_ptr<CPlayerAsset>> CPlayerData::SelectAssets(
         if (auto LockedAsset = BestAsset.lock())
         {
             ReturnList.push_back(BestAsset);
-            if (selectidentical && LockedAsset->Speed())
+            if (selectidentical && LockedAsset->EffectiveSpeed())
             {
                 for (auto &WeakAsset : DAssets)
                 {
@@ -281,14 +281,14 @@ std::list<std::weak_ptr<CPlayerAsset>> CPlayerData::SelectAssets(
                 {
                     if (AnyMovable)
                     {
-                        if (Asset->Speed())
+                        if (Asset->EffectiveSpeed())
                         {
                             ReturnList.push_back(Asset);
                         }
                     }
                     else
                     {
-                        if (Asset->Speed())
+                        if (Asset->EffectiveSpeed())
                         {
                             ReturnList.clear();
                             ReturnList.push_back(Asset);
@@ -593,7 +593,7 @@ int CPlayerData::PlayerMovingAssetCount(EPlayerNumber number)
 
     for (auto Asset : DPlayerMap->Assets())
     {
-        if ((number == Asset->Number()) && 0 < Asset->Speed())
+        if ((number == Asset->Number()) && 0 < Asset->EffectiveSpeed())
         {
             Count++;
         }
@@ -775,7 +775,8 @@ void CGameModel::CreateAssetsEvalList()
         DSortedAssets.push_back(Asset);
 
         // If Asset not in the map
-        if ( DAssetHealingPeriod.find(Asset) == DAssetHealingPeriod.end() && 0 < Asset->Speed() )
+        if ( DAssetHealingPeriod.find(Asset) == DAssetHealingPeriod.end() &&
+            0 < Asset->EffectiveSpeed() )
         {
             DTotalAssetCount++;
             DAssetHealingPeriod[Asset] = 0;
@@ -791,7 +792,7 @@ int CGameModel::TotalMovingAssetCount()
 
     for (auto Asset : DActualMap->Assets())
     {
-        if (0 < Asset->Speed())
+        if (0 < Asset->EffectiveSpeed())
         {
             Count++;
         }
@@ -805,11 +806,11 @@ bool CGameModel::SortAssets(const std::shared_ptr<CPlayerAsset> &a,
                             const std::shared_ptr<CPlayerAsset> &b)
 {
     // In the first two cases, always choose the movable asset
-    if ((a->Speed() != 0) && (b->Speed() == 0))
+    if ((a->EffectiveSpeed() != 0) && (b->EffectiveSpeed() == 0))
     {
         return true;  // a is movable and is in the right place in the list
     }
-    else if ((a->Speed() == 0) && (b->Speed() != 0))
+    else if ((a->EffectiveSpeed() == 0) && (b->EffectiveSpeed() != 0))
     {
         return false;  // b is movable and is not, so a is not in right place
     }
@@ -1389,7 +1390,7 @@ void CGameModel::Timestep()
                                       TargetCommand.DAction) &&
                                      TargetCommand.DAssetTarget)
                             {
-                                if (CurrentCommand.DAssetTarget->Speed() &&
+                                if (CurrentCommand.DAssetTarget->EffectiveSpeed() &&
                                     (EAssetAction::Construct ==
                                      TargetCommand.DAssetTarget->Action()))
                                 {
