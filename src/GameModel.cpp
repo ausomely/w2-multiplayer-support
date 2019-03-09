@@ -1257,6 +1257,25 @@ void CGameModel::Timestep()
             Asset->PushCommand(Command);
             Asset->ResetStep();
         }
+        else if (EAssetAction::None == Asset->Action() && EAssetType::Peasant != Asset->Type())
+        {
+            SAssetCommand Command = Asset->CurrentCommand();
+            auto NewTarget = DPlayers.at(to_underlying(Asset->Number()))
+                                 ->FindNearestEnemy(Asset->Position(),
+                                                    Asset->EffectiveRange());
+
+            if (NewTarget.expired())
+            {
+                Command.DAction = EAssetAction::None;
+            }
+            else
+            {
+                Command.DAction = EAssetAction::Attack;
+                Command.DAssetTarget = NewTarget.lock();
+            }
+            Asset->PushCommand(Command);
+            Asset->ResetStep();
+        }
         else if (EAssetAction::Repair == Asset->Action())
         {
             SAssetCommand CurrentCommand = Asset->CurrentCommand();
