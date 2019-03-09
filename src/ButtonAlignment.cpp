@@ -26,12 +26,16 @@ CButtonAlignment::CButtonAlignment(std::shared_ptr<CApplicationData> context,
     DPlacement = placement;
     DButtonHovered = false;
     DButtonPressedInStack = false;
+    DColorSet = false;
+    auto FontID = to_underlying(CUnitDescriptionRenderer::EFontSize::Large);
+    DButRen.reset(new CButtonRenderer(DContext->DButtonRecolorMap,
+        DContext->DInnerBevel, DContext->DOuterBevel, DContext->DFonts[FontID]));
 }
 
 // Measure the button texts so all buttons are consistently sized
 void CButtonAlignment::MeasureButtons(std::vector<std::string> texts)
 {
-    DContext->DButtonRenderer->SetBaseDimensions(); // Set to minimum size
+    DButRen->SetBaseDimensions(); // Set to minimum size
 
     for (auto &text : texts)
     {
@@ -39,23 +43,22 @@ void CButtonAlignment::MeasureButtons(std::vector<std::string> texts)
         int Height;
 
         // false tells Text() not to shrink to size of text
-        DContext->DButtonRenderer->Text(text, false);
+        DButRen->Text(text, false);
 
         // Find maximum width of buttons
-        Width = DContext->DButtonRenderer->Width();
+        Width = DButRen->Width();
         if (Width > DMaxWidth)
         {
             DMaxWidth = Width;
         }
 
         // Find maximum height of buttons
-        Height = DContext->DButtonRenderer->Height();
+        Height = DButRen->Height();
         if (Height > DMaxHeight)
         {
             DMaxHeight = Height;
         }
     }
-
 }
 
 void
@@ -64,7 +67,7 @@ CButtonAlignment::DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int
 {
     DButtonHovered = false;
     DButtonPressedInStack = false;
-    DContext->DButtonRenderer->SetBaseDimensions();
+//    DContext->DButtonRenderer->SetBaseDimensions();
 
     for (int Index = 0; Index < DButtons.size(); ++Index)
     {
@@ -76,10 +79,14 @@ CButtonAlignment::DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int
         // Skip drawing the button if it has empty text
         if (0 <= DButtons[Index]->XPosition())
         {
-            DContext->DButtonRenderer->Text(DButtons[Index]->Text());
-            DContext->DButtonRenderer->Width(DMaxWidth);
-            DContext->DButtonRenderer->Height(DMaxHeight);
-            DContext->DButtonRenderer->DrawButton(surface, DButtons[Index]->XPosition(),
+            DButRen->Text(DButtons[Index]->Text());
+            if (HasColorSet())
+            {
+                DButRen->ButtonColor(DColor);
+            }
+//            DContext->DButtonRenderer->Width(DMaxWidth);
+//            DContext->DButtonRenderer->Height(DMaxHeight);
+            DButRen->DrawButton(surface, DButtons[Index]->XPosition(),
                 DButtons[Index]->YPosition(), DButtons[Index]->State());
         }
 
@@ -107,6 +114,12 @@ int CButtonAlignment::ButtonPressedIndex()
 
     // No buttons pressed
     return -1;
+}
+
+void CButtonAlignment::SetButtonColor(EPlayerColor color)
+{
+    DColor = color;
+    DColorSet = true;
 }
 
 // Mark a button inactive within the stack at the given index

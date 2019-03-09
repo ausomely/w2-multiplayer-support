@@ -90,7 +90,6 @@ void CSoundOptionsMode::SoundOptionsUpdateButtonCallback(
     {
         context->ChangeApplicationMode(COptionsMenuMode::Instance());
     }
-
     context->SaveVolumeSettings(context->DSoundVolume, context->DMusicVolume);
 }
 

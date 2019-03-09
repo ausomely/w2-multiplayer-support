@@ -38,6 +38,8 @@ CHorizontalButtonAlignment::CHorizontalButtonAlignment(
     // Bump up size to proportions in Main Menu
     DMaxWidth = DMaxWidth * 5/4;
     DMaxHeight = DMaxHeight * 3/2;
+    DButRen->Width(DMaxWidth);
+    DButRen->Height(DMaxHeight);
 
     FindXOffset(DCanvasWidth);
     FindYOffset(DCanvasHeight);

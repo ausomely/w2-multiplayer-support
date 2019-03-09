@@ -856,7 +856,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     if (context->MultiPlayer())
     {
         DChatOverlay->DrawChatText();
-        DChatOverlay->DrawTextEntryField();
+        DChatOverlay->DrawTextEntryField(context->DLoadingPlayerColors[to_underlying(context->DPlayerNumber)]);
         context->DWorkingBufferSurface->Draw(DChatOverlay->Surface(),
             DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
     }

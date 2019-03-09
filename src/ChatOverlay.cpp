@@ -16,6 +16,7 @@
 */
 
 #include "ChatOverlay.h"
+#include "GameDataTypes.h"
 
 
 CChatOverlay::CChatOverlay(std::shared_ptr<CApplicationData> context,
@@ -24,14 +25,6 @@ CChatOverlay::CChatOverlay(std::shared_ptr<CApplicationData> context,
     DContext = context;
     DScreen = screen;
     DSurfaceColor = 0x00112a;
-
-    SetupFontsAndRenderers();
-    SetupSurface();
-
-    // Set the width of the renderer and the coordinates of the text entry field
-    DEditRenderer->Width(Width());
-    DEditLocation.reset(new SRectangle({0, DEditYoffset, Width(),
-        DTextMaxHeight}));
 
     // Maximum number of characters allowed entry in text field
     DMaxCharacters = 60;
@@ -45,9 +38,19 @@ CChatOverlay::CChatOverlay(std::shared_ptr<CApplicationData> context,
 
 void CChatOverlay::InitializeChat()
 {
+    SetupFontsAndRenderers();
+
     DEditSelected = false;
     DEditSelectedCharacter = -1;
     DEditText.clear();
+
+    SetPlayerAndSurfaceColor();
+    SetupSurface();
+
+    // Set width, X,Y coordinates, and color of the edit renderer
+    DEditRenderer->Width(Width());
+    DEditLocation.reset(new SRectangle({0, DEditYoffset, Width(),
+        DTextMaxHeight}));
 }
 
 void CChatOverlay::ProcessTextEntryFields(int x, int y, bool clicked)
@@ -193,8 +196,9 @@ void CChatOverlay::DrawText(std::string text, int xoffset, int yoffset, int fgco
         fgcolor, bgcolor, 1, text);
 }
 
-void CChatOverlay::DrawTextEntryField()
+void CChatOverlay::DrawTextEntryField(EPlayerColor Color)
 {
+    DEditRenderer->BackgroundColor(Color);
     DEditRenderer->Text(DEditText, DMaxCharacters > DEditText.length());
     DEditRenderer->DrawEdit(Surface(), 0, DEditYoffset, DEditSelectedCharacter);
 }
@@ -299,4 +303,57 @@ void CChatOverlay::ClearChatTextArea()
     int Height = DHeight - DTextMaxHeight;
     DContext->DrawInnerBevel(DSurface, DWidth, Height);
 
+}
+
+void CChatOverlay::SetPlayerAndSurfaceColor()
+{
+    EPlayerNumber Number = DContext->DPlayerNumber;
+    DPlayerColor = DContext->DLoadingPlayerColors[to_underlying(Number)];
+
+    // Set color of chat to the same as the player color
+    switch (DPlayerColor)
+    {
+        case EPlayerColor::Blue:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("blue-dark");
+            break;
+        }
+        case EPlayerColor::Red:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("red-dark");
+            break;
+        }
+        case EPlayerColor::Green:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("green-dark");
+            break;
+        }
+        case EPlayerColor::Purple:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("purple-dark");
+            break;
+        }
+        case EPlayerColor::Orange:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("orange-dark");
+            break;
+        }
+        case EPlayerColor::Yellow:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("yellow-dark");
+            break;
+        }
+        case EPlayerColor::Black:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("black-dark");
+            break;
+        }
+        case EPlayerColor::White:
+        {
+            DDarkColor = DContext->DButtonRecolorMap->FindColor("white-dark");
+            break;
+        }
+    }
+
+    DSurfaceColor = static_cast<uint32_t>(DDarkColor);
 }

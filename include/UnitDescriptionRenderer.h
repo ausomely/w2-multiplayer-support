@@ -59,7 +59,6 @@ class CUnitDescriptionRenderer
     int DDisplayedHeight;
     int DDisplayedIcons;
 
-    static std::string AddAssetNameSpaces(const std::string &name);
     void DrawCompletionBar(std::shared_ptr<CGraphicSurface> surface,
                            int percent);
 
@@ -71,6 +70,7 @@ class CUnitDescriptionRenderer
             fonts,
         EPlayerColor color);
     ~CUnitDescriptionRenderer();
+    static std::string AddAssetNameSpaces(const std::string &name);
 
     int MinimumWidth() const;
     int MinimumHeight(int width, int count) const;

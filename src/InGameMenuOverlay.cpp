@@ -27,7 +27,7 @@ CInGameMenuOverlay::CInGameMenuOverlay(std::shared_ptr<COverlayManagement> manag
     DContext = DOverlayManager->Context();
 
     int CanvasWidth = DOverlayManager->CanvasWidth();
-    int CanvasHeight = DOverlayManager->CanvasWidth();
+    int CanvasHeight = DOverlayManager->CanvasHeight();
 
     DButtonTexts.push_back("Sound Options");
     DButtonTexts.push_back("Return to Game");
@@ -36,6 +36,9 @@ CInGameMenuOverlay::CInGameMenuOverlay(std::shared_ptr<COverlayManagement> manag
     DButtonStack = std::make_shared<CVerticalButtonAlignment>(DContext, DButtonTexts,
         EPosition::Center, CanvasWidth, CanvasHeight);
 
+    EPlayerNumber Number = DContext->DPlayerNumber;
+    EPlayerColor Color = DContext->DGameModel->Player(Number)->Color();
+    DButtonStack->SetButtonColor(Color);
 }
 
 //! Handle inputs
@@ -72,4 +75,3 @@ void CInGameMenuOverlay::Draw(int x, int y, bool clicked)
 {
     DButtonStack->DrawStack(DOverlayManager->Surface(), x, y, clicked);
 }
-

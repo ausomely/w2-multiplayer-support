@@ -63,6 +63,9 @@ class CChatOverlay
     int DWhiteColor;
     int DShadowColor;
 
+    int DDarkColor;
+    EPlayerColor DPlayerColor;
+
     bool DEditSelected;
     int DEditSelectedCharacter;
     std::string DEditText;
@@ -98,10 +101,11 @@ class CChatOverlay
     void DrawChatText();
     void DrawText(std::string text, int xoffset, int yoffset, int fgcolor,
         int bgcolor);
-    void DrawTextEntryField();
+    void DrawTextEntryField(EPlayerColor Color);
     void HideChat();
     void PixelPositionOnChat(int &CurrentX, int &CurrentY);
     void SetTextColors();
+    void SetPlayerAndSurfaceColor();
     void ClearChatTextArea();
 
     int Xoffset()

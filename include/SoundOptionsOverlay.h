@@ -22,6 +22,7 @@
 #include "OverlayMode.h"
 #include "Rectangle.h"
 #include "HorizontalButtonAlignment.h"
+#include "EditRenderer.h"
 
 using TSoundCallbackFunction = void (*)(std::shared_ptr<CApplicationData>);
 using TSoundValidTextCallbackFunction = bool (*)(const std::string &);
@@ -58,6 +59,7 @@ class CSoundOptionsOverlay : public COverlayMode
     std::vector<std::string> DEditText;
     std::vector<SRectangle> DEditLocations;
 
+    std::shared_ptr<CEditRenderer> DEditRenderer;
     std::shared_ptr<CHorizontalButtonAlignment> DButtonStack;
 
   public:

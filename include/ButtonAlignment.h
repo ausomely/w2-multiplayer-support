@@ -19,6 +19,7 @@
 
 #include <vector>
 #include "Button.h"
+#include "GameDataTypes.h"
 
 enum class EPosition
 {
@@ -47,11 +48,14 @@ class CButtonAlignment
     int DYOffset;
     EPosition DPlacement;
 
+    bool DColorSet;
+    EPlayerColor DColor;
 
     std::shared_ptr<CApplicationData> DContext;
     int DCanvasWidth;
     int DCanvasHeight;
 
+    std::unique_ptr<CButtonRenderer> DButRen;
     std::vector<std::shared_ptr<CButton> > DButtons;
     bool DButtonPressedInStack;
 
@@ -65,8 +69,13 @@ class CButtonAlignment
     virtual void FindYOffset(int CanvasHeight) = 0;
 
     void DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int y, bool clicked);
+    void SetButtonColor(EPlayerColor color);
     void MarkInactiveButton(int index);
     void ClearInactiveButton(int index);
+    bool HasColorSet()
+    {
+        return DColorSet;
+    }
     bool ButtonPressedInStack()
     {
         return DButtonPressedInStack;

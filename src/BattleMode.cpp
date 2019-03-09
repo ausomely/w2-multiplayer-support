@@ -1342,7 +1342,7 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
         case CApplicationData::uictChat:
         {
             DChatOverlay->DrawChatText();
-            DChatOverlay->DrawTextEntryField();
+            DChatOverlay->DrawTextEntryField(context->DLoadingPlayerColors[to_underlying(context->DPlayerNumber)]);
             context->DWorkingBufferSurface->Draw(DChatOverlay->Surface(),
                 DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
             break;
@@ -1381,13 +1381,15 @@ void CBattleMode::Render(std::shared_ptr<CApplicationData> context)
             if (EAssetCapabilityType::None != CapabilityType)
             {
                 // Action button description at the bottom of the screen
+                auto TempCapName = CUnitDescriptionRenderer::AddAssetNameSpaces(
+                    CPlayerCapability::TypeToName(CapabilityType));
                 context->DButtonDescriptionSurface->Draw(
                     context->DWorkingBufferSurface, 0, 0, ButtonDescriptionWidth,
                     ButtonDescriptionHeight, context->DViewportXOffset,
                     BufferHeight - ButtonDescriptionHeight);
                 context->DButtonDescriptionRenderer->DrawButtonDescription(
                     context->DButtonDescriptionSurface,
-                    CPlayerCapability::TypeToName(CapabilityType));
+                    TempCapName);
                 context->DWorkingBufferSurface->Draw(
                     context->DButtonDescriptionSurface, context->DViewportXOffset,
                     BufferHeight - ButtonDescriptionHeight, -1, -1, 0, 0);
