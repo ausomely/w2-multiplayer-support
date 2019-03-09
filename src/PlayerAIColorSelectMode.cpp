@@ -129,11 +129,6 @@ void CPlayerAIColorSelectMode::InitializeChange(
 
 }
 
-bool CPlayerAIColorSelectMode::ChatCallback(const std::string &str)
-{
-    return true;
-}
-
 // Play game button callback function for single player mode
 void CPlayerAIColorSelectMode::PlayGameButtonCallback(
 std::shared_ptr<CApplicationData> context)
@@ -194,16 +189,6 @@ std::shared_ptr<CApplicationData> context)
     {
         context->ChangeApplicationMode(CMapSelectionMode::Instance());
     }
-}
-
-void CPlayerAIColorSelectMode::ChatUpdateButtonCallback(std::shared_ptr<CApplicationData> context)
-{
-    context->roomInfo.set_messages(2, context->roomInfo.messages()[1]);
-    context->roomInfo.set_messages(1, context->roomInfo.messages()[0]);
-    context->roomInfo.set_messages(0, context->DUsername + ": " +
-        DPlayerAIColorSelectModePointer->DEditText[0]);
-
-    context->ClientPointer->SendRoomInfo(context);
 }
 
 void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
@@ -867,11 +852,6 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         }
     }
 
-    int BufferCenter;
-    int OptionSkip, OptionTop, TextOffsetY;
-    int JoinButtonWidth = 50;
-    int JoinButtonHeight = 30;
-
     // Draw the chat window
     if (context->MultiPlayer())
     {
@@ -880,11 +860,6 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         context->DWorkingBufferSurface->Draw(DChatOverlay->Surface(),
             DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
     }
-
-    // Draw the button on the screen
-    context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
-                                            BufferCenter + 50, OptionTop,
-                                            ButtonState);
 
     // Draw the button with colors correlating to the button state
     // Point of origin for the button is (ButtonLeft, ButtonTop)
@@ -958,14 +933,4 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 
     // Keep track of the button hovered state
     DButtonHovered = ButtonHovered;
-}
-
-void CPlayerAIColorSelectMode::DrawText(std::shared_ptr<CApplicationData> context,
-                                      std::string text, int xpos, int ypos,
-                                      int color)
-{
-    context->DFonts[LargeFontSize]->MeasureText(text, TextWidth, TextHeight);
-    context->DFonts[LargeFontSize]->DrawTextWithShadow(
-        context->DWorkingBufferSurface, xpos, ypos, color, ShadowColor, 1,
-        text);
 }

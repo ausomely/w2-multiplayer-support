@@ -29,7 +29,7 @@
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
 
-class CPlayerAIColorSelectMode : public CEditOptionsMode
+class CPlayerAIColorSelectMode : public CApplicationMode
 {
   protected:
     struct SPrivateConstructorType
@@ -55,18 +55,12 @@ class CPlayerAIColorSelectMode : public CEditOptionsMode
 
     std::unique_ptr<CChatOverlay> DChatOverlay;
 
-    static void ChatUpdateButtonCallback(
-        std::shared_ptr<CApplicationData> context);
-    static bool ChatCallback(const std::string &str);
-
     static void MPClientReadyButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void MPHostPlayGameButtonCallback(
     std::shared_ptr<CApplicationData> context);
     static void PlayGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
-    void DrawText(std::shared_ptr<CApplicationData> context,
-                  std::string text, int xpos, int ypos, int color);
     static void CancelButtonCallback(std::shared_ptr<CApplicationData> context);
 
     CPlayerAIColorSelectMode(const CPlayerAIColorSelectMode &) = delete;
