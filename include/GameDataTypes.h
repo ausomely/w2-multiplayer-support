@@ -119,7 +119,6 @@ enum class EAssetType : int
     Footman,
     Archer,
     Ranger,
-    GoldVein,
     GoldMine,
     TownHall,
     Keep,

@@ -272,21 +272,21 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of assets
 18
 # Starting assets Type Owner X Y
-GoldVein 1 28 0
-GoldVein 1 119 3
+GoldMine 1 28 0
+GoldMine 1 119 3
 TownHall 1 69 13
-GoldVein 1 7 19
-GoldVein 1 125 24
+GoldMine 1 7 19
+GoldMine 1 125 24
 Peasant 1 71 31
-GoldVein 0 68 32
-GoldVein 0 29 42
+GoldMine 0 68 32
+GoldMine 0 29 42
 Peasant 2 104 63
-GoldVein 0 105 64
-GoldVein 0 0 65
+GoldMine 0 105 64
+GoldMine 0 0 65
 TownHall 2 118 71
 Peasant 3 38 77
-GoldVein 0 37 78
+GoldMine 0 37 78
 TownHall 3 21 82
-GoldVein 0 119 94
-GoldVein 0 0 99
-GoldVein 0 113 125
+GoldMine 0 119 94
+GoldMine 0 0 99
+GoldMine 0 113 125

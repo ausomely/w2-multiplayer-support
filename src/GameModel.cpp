@@ -70,7 +70,7 @@ CPlayerData::CPlayerData(std::shared_ptr<CAssetDecoratedMap> map,
             std::shared_ptr<CPlayerAsset> InitAsset =
                 CreateAsset(AssetInit.DType);
             InitAsset->TilePosition(AssetInit.DTilePosition);
-            if (EAssetType::GoldVein ==
+            if (EAssetType::GoldMine ==
                 CPlayerAssetType::NameToType(AssetInit.DType))
             {
                 InitAsset->Gold(DGold);

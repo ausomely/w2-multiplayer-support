@@ -24,7 +24,7 @@ int CPlayerAsset::DIdCounter = 1;
 std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType> >
     CPlayerAssetType::DRegistry;
 std::vector<std::string> CPlayerAssetType::DTypeStrings(
-    {"None", "Peasant", "Footman", "Archer", "Ranger","GoldVein", "GoldMine", "TownHall",
+    {"None", "Peasant", "Footman", "Archer", "Ranger", "GoldMine", "TownHall",
      "Keep", "Castle", "Farm", "Barracks", "LumberMill", "Blacksmith",
      "ScoutTower", "GuardTower", "CannonTower"});
 std::unordered_map<std::string, EAssetType> CPlayerAssetType::
@@ -33,7 +33,6 @@ std::unordered_map<std::string, EAssetType> CPlayerAssetType::
                           {"Footman", EAssetType::Footman},
                           {"Archer", EAssetType::Archer},
                           {"Ranger", EAssetType::Ranger},
-                          {"GoldVein", EAssetType::GoldVein},
                           {"GoldMine", EAssetType::GoldMine},
                           {"TownHall", EAssetType::TownHall},
                           {"Keep", EAssetType::Keep},
@@ -853,7 +852,7 @@ std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType
         std::shared_ptr<CPlayerAssetType> NewAssetType(
             new CPlayerAssetType(It.second));
         NewAssetType->DThis = NewAssetType;
-        
+
         NewAssetType->DNumber = number;
         NewAssetType->DColor = color;
         (*ReturnRegistry)[It.first] = NewAssetType;

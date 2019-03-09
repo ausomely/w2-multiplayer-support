@@ -71,8 +71,6 @@ CUnitDescriptionRenderer::CUnitDescriptionRenderer(
         DIconTileset->FindTile("archer");
     DAssetIndices[to_underlying(EAssetType::Ranger)] =
         DIconTileset->FindTile("ranger");
-    DAssetIndices[to_underlying(EAssetType::GoldVein)] =
-        DIconTileset->FindTile("gold-vein");
     DAssetIndices[to_underlying(EAssetType::GoldMine)] =
         DIconTileset->FindTile("gold-mine");
     DAssetIndices[to_underlying(EAssetType::TownHall)] =

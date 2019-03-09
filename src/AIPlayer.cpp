@@ -514,7 +514,7 @@ void CAIPlayer::CalculateCommand(SPlayerCommandRequest &command)
     command.DActors.clear();
     command.DTargetNumber = EPlayerNumber::Neutral;
     command.DTargetType = EAssetType::None;
-    /*
+
     if ((DCycle % DDownSample) == 0)
     {
         // Do decision
@@ -603,6 +603,6 @@ void CAIPlayer::CalculateCommand(SPlayerCommandRequest &command)
             }
         }
     }
-    */
+    
     DCycle++;
 }

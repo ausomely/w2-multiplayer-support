@@ -143,14 +143,14 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of assets
 20
 # Starting assets Type Owner X Y
-GoldVein 1 0 2
+GoldMine 1 0 2
 Peasant 1 3 7
-GoldVein 0 61 10
-GoldVein 0 3 22
-GoldVein 0 21 33
+GoldMine 0 61 10
+GoldMine 0 3 22
+GoldMine 0 21 33
 Peasant 2 8 50
-GoldVein 0 61 50
-GoldVein 0 5 54
+GoldMine 0 61 50
+GoldMine 0 5 54
 Footman 1 5 7
 Footman 1 6 7
 Footman 1 7 7

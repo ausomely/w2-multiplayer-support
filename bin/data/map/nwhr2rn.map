@@ -81,11 +81,11 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of assets
 8
 # Starting assets Type Owner X Y
-GoldVein 1 0 0
-GoldVein 1 29 0
+GoldMine 1 0 0
+GoldMine 1 29 0
 Peasant 2 3 4
 Peasant 1 28 4
 Peasant 3 4 27
 Peasant 4 26 28
-GoldVein 2 29 29
-GoldVein 2 0 29
+GoldMine 2 29 29
+GoldMine 2 0 29

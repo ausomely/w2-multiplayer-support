@@ -671,18 +671,6 @@ void CApplicationData::Activate()
         return;
     }
 
-    PrintDebug(DEBUG_LOW, "Loading GoldVein\n");
-    RenderSplashStep();
-    TempDataSource = ImageDirectory->DataSource("GoldVein.dat");
-    DAssetTilesets[to_underlying(EAssetType::GoldVein)] =
-        std::make_shared<CGraphicMulticolorTileset>();
-    if (!DAssetTilesets[to_underlying(EAssetType::GoldVein)]->LoadTileset(
-            DPlayerRecolorMap, TempDataSource))
-    {
-        PrintError("Failed to load gold vein tileset.\n");
-        return;
-    }
-
     PrintDebug(DEBUG_LOW, "Loading GoldMine\n");
     RenderSplashStep();
     TempDataSource = ImageDirectory->DataSource("GoldMine.dat");

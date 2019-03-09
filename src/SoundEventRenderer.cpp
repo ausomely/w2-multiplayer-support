@@ -28,7 +28,6 @@ CSoundEventRenderer::CSoundEventRenderer(
     Names[to_underlying(EAssetType::Footman)] = "footman";
     Names[to_underlying(EAssetType::Archer)] = "archer";
     Names[to_underlying(EAssetType::Ranger)] = "archer";
-    Names[to_underlying(EAssetType::GoldVein)] = "gold-mine";
     Names[to_underlying(EAssetType::GoldMine)] = "gold-mine";
     Names[to_underlying(EAssetType::TownHall)] = "town-hall";
     Names[to_underlying(EAssetType::Keep)] = "keep";
