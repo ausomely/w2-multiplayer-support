@@ -10,6 +10,7 @@ GameRoom::GameRoom(std::shared_ptr<User> host, const RoomInfo::RoomInformation &
     players.push_back(owner);
     host->id = 1;
     endNum = 0;
+    readyNum = 0;
 }
 
 void GameRoom::CopyRoomInfo(const RoomInfo::RoomInformation &roomInformation) {
@@ -157,6 +158,25 @@ void GameRoom::SetPlayerComand(const GameInfo::PlayerCommandRequest &playerComma
         playerCommandPackage.set_messages(2, playerCommandPackage.messages()[1]);
         playerCommandPackage.set_messages(1, playerCommandPackage.messages()[0]);
         playerCommandPackage.set_messages(0, playerCommandRequest.message());
+    }
+    readyNum++;
+    if(readyNum == size) {
+        readyNum = 0;
+        for(auto &It: players) {
+            boost::asio::streambuf stream_buffer;
+            std::ostream output_stream(&stream_buffer);
+            playerCommandPackage.SerializeToOstream(&output_stream);
+
+            //write game package to socket
+            boost::asio::async_write(It->socket, stream_buffer,
+                [this, It](boost::system::error_code err, std::size_t ) {
+                if (err) {
+                    leave(It);
+                    It->Logout();
+                    It->lobby.leave(It);
+                }
+            });
+        }
     }
 }
 

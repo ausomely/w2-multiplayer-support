@@ -15,7 +15,7 @@ public:
     bool IsHealthEffect;
 };
 
-//Assets are going to be added 
+//Assets are going to be added
 class CEffectsAddAsset : public CEffects
 {
     private:
@@ -25,7 +25,7 @@ class CEffectsAddAsset : public CEffects
 
 
     public:
-        explicit CEffectsAddAsset(std::string assetName, int amount, 
+        explicit CEffectsModifyPlayerResources(std::string resourceName, int amount, 
             std::shared_ptr<CContextRetrieval> contextRetrieval);
         void DoEffect(EPlayerNumber Player) override;
         void DoEffectArea(EPlayerNumber Player, int x_begin, int y_begin, int x_end, int
@@ -41,7 +41,7 @@ class CEffectsRemoveAsset : public CEffects
         std::shared_ptr<CContextRetrieval> DContextRetrieval;
 
     public:
-        explicit CEffectsRemoveAsset(std::string assetName, int amount, 
+        explicit CEffectsRemoveAsset(std::string assetName, int amount,
             std::shared_ptr<CContextRetrieval> contextRetrieval);
         void DoEffect(EPlayerNumber Player) override;
     void DoEffectArea(EPlayerNumber Player, int x_begin, int y_begin, int x_end, int
@@ -69,7 +69,7 @@ class CEffectsModifyPlayerResources : public CEffects
         std::shared_ptr<CContextRetrieval> DContextRetrieval;
 
     public:
-        explicit CEffectsModifyPlayerResources(std::string assetName, int amount, 
+        explicit CEffectsModifyPlayerResources(std::string assetName, int amount,
             std::shared_ptr<CContextRetrieval> contextRetrieval);
         void DoEffect(EPlayerNumber Player) override;
     void DoEffectArea(EPlayerNumber Player, int x_begin, int y_begin, int x_end, int

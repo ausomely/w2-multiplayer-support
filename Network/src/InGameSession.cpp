@@ -53,7 +53,7 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 GameInfo::PlayerCommandRequest playerCommandRequest;
                 playerCommandRequest.ParseFromArray(userPtr->data, length);
                 userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, (userPtr->id) - 1);
-                DoWrite(userPtr);
+                DoRead(userPtr);
             }
         }
 

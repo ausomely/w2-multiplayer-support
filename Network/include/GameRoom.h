@@ -26,6 +26,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
         int capacity;
         int size;
         int endNum;
+        int readyNum;
         std::string map;
         GameInfo::PlayerCommandPackage playerCommandPackage;
         RoomInfo::RoomInformation roomInfo;
