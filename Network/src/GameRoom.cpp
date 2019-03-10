@@ -210,6 +210,7 @@ void GameRoom::InitializeGame() {
 
     // set tcp_no_delay for sending game play data
     for(auto& It: players) {
+        It->playerNum = It->id;
         boost::asio::ip::tcp::no_delay option(true);
         It->socket.set_option(option);
     }
@@ -226,7 +227,7 @@ void GameRoom::IncreaseEndNum() {
 void GameRoom::EndGame() {
     roomInfo.set_active(false);
     playerCommandPackage.Clear();
-    for(int i = 2; i <= size; i++) {
+    for(int i = 1; i <= size; i++) {
         roomInfo.set_ready(i, false);
     }
     for(auto& It: players) {

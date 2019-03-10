@@ -41,6 +41,7 @@ class User: public std::enable_shared_from_this<User>
         boost::asio::streambuf response;
         std::shared_ptr<Session> currentSession;
         int id; // -1 if not in a room
+        int playerNum;
     public:
         User(tcp::socket socket_, Lobby& lobby_, boost::asio::io_service& io_serv);
         void InitializeSession();

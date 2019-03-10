@@ -23,6 +23,7 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             // game over, go back to room
             if(strcmp(userPtr->data, "Back") == 0) {
                 userPtr->currentRoom.lock()->SendRoomInfo(userPtr);
+                userPtr->currentRoom.lock()->UpdateRoomList(userPtr);
                 userPtr->ChangeSession(InRoomSession::Instance());
             }
             // end the game
@@ -52,7 +53,7 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
             else {
                 GameInfo::PlayerCommandRequest playerCommandRequest;
                 playerCommandRequest.ParseFromArray(userPtr->data, length);
-                userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, (userPtr->id) - 1);
+                userPtr->currentRoom.lock()->SetPlayerComand(playerCommandRequest, (userPtr->playerNum) - 1);
                 DoRead(userPtr);
             }
         }
