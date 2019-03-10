@@ -275,11 +275,11 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of assets
 22
 # Starting assets Type Owner X Y
-GoldMine 1 125 0
-GoldMine 1 11 0
+GoldMine 0 125 0
+GoldMine 0 11 0
 Peasant 5 67 3
 Peasant 6 9 4
-GoldMine 1 62 4
+GoldMine 0 62 4
 GoldMine 0 42 13
 GoldMine 0 117 36
 GoldMine 0 0 39

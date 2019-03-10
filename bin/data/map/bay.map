@@ -272,11 +272,11 @@ FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 # Number of assets
 18
 # Starting assets Type Owner X Y
-GoldMine 1 28 0
-GoldMine 1 119 3
+GoldMine 0 28 0
+GoldMine 0 119 3
 TownHall 1 69 13
-GoldMine 1 7 19
-GoldMine 1 125 24
+GoldMine 0 7 19
+GoldMine 0 125 24
 Peasant 1 71 31
 GoldMine 0 68 32
 GoldMine 0 29 42
