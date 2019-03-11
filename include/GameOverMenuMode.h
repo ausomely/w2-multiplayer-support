@@ -23,6 +23,7 @@ class CGameOverMenuMode : public CButtonMenuMode
 
   public:
     explicit CGameOverMenuMode(const SPrivateConstructorType &key);
+    void InitializeChange(std::shared_ptr<CApplicationData> context) override;
 
     static std::shared_ptr<CApplicationMode> Instance();
 };

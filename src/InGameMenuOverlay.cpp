@@ -46,7 +46,7 @@ void CInGameMenuOverlay::Input(int x, int y, bool clicked)
 {
     int ButtonIndex;
 
-    if (DButtonStack->ButtonPressedInStack())
+    if (!DContext->DLeftDown && DButtonStack->ButtonPressedInStack())
     {
         switch (DButtonStack->ButtonPressedIndex())
         {

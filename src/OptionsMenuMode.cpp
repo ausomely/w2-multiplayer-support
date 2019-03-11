@@ -35,6 +35,15 @@ COptionsMenuMode::COptionsMenuMode(const SPrivateConstructorType &key)
     DButtonFunctions.push_back(MainMenuButtonCallback);
 }
 
+void COptionsMenuMode::InitializeChange(std::shared_ptr<CApplicationData> context)
+{
+    int CanvasWidth = context->DWorkingBufferSurface->Width();
+    int CanvasHeight = context->DWorkingBufferSurface->Height();
+
+    DButtonStack.reset(new CVerticalButtonAlignment(context, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight));
+}
+
 //! @brief Opens sound options
 void COptionsMenuMode::SoundOptionsButtonCallback(
     std::shared_ptr<CApplicationData> context)

@@ -37,7 +37,7 @@ CHorizontalButtonAlignment::CHorizontalButtonAlignment(
 
     // Bump up size to proportions in Main Menu
     DMaxWidth = DMaxWidth * 5/4;
-    DMaxHeight = DMaxHeight * 3/2;
+    DMaxHeight = DStackHeight = DMaxHeight * 3/2;
     DButRen->Width(DMaxWidth);
     DButRen->Height(DMaxHeight);
 
@@ -56,12 +56,12 @@ void CHorizontalButtonAlignment::FindXOffset(int Width)
     // Find stack width the buttons
     if (1 < NumberOfButtons)
     {
-        StackWidth = NumberOfButtons * DMaxWidth + 
+        DStackWidth = NumberOfButtons * DMaxWidth + 
             (NumberOfButtons - 1) * DButtonGap;
     }
     else
     {
-        StackWidth = static_cast<size_t>(DMaxWidth);
+        DStackWidth = static_cast<size_t>(DMaxWidth);
     }
 
     switch (DPlacement)
@@ -71,7 +71,7 @@ void CHorizontalButtonAlignment::FindXOffset(int Width)
         case EPosition::North:
         case EPosition::South:
         {
-            DXOffset = static_cast<int>(.5 * Width - 0.5 * StackWidth);
+            DXOffset = static_cast<int>(.5 * Width - 0.5 * DStackWidth);
         }
         break;
 
@@ -80,7 +80,7 @@ void CHorizontalButtonAlignment::FindXOffset(int Width)
         case EPosition::East:
         case EPosition::SouthEast:
         {
-            DXOffset = static_cast<int>(Width - StackWidth - DContext->DBorderWidth);
+            DXOffset = static_cast<int>(Width - DStackWidth - DContext->DBorderWidth);
         }
         break;
 

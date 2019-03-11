@@ -53,9 +53,13 @@ void CInGameMenuMode::ExitGameButtonCallback(
 //! @brief Starts song for the menu
 void CInGameMenuMode::InitializeChange(std::shared_ptr<CApplicationData> context)
 {
-    context->DSoundLibraryMixer->StopSong();
-    context->DSoundLibraryMixer->PlaySong(
-        context->DSoundLibraryMixer->FindSong("menu"), context->DMusicVolume);
+    int CanvasWidth = context->DWorkingBufferSurface->Width();
+    int CanvasHeight = context->DWorkingBufferSurface->Height();
+
+    DButtonStack.reset(new CVerticalButtonAlignment(context, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight));
+    context->StopPlayingMusic();
+    context->StartPlayingMusic("menu");
 }
 
 std::shared_ptr<CApplicationMode> CInGameMenuMode::Instance()

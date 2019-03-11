@@ -40,6 +40,7 @@ class CMultiPlayerOptionsMenuMode : public CButtonMenuMode
 
   public:
     explicit CMultiPlayerOptionsMenuMode(const SPrivateConstructorType &key);
+    void InitializeChange(std::shared_ptr<CApplicationData> context) override;
 
     static std::shared_ptr<CApplicationMode> Instance();
 };

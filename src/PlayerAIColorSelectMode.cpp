@@ -50,12 +50,15 @@ std::shared_ptr<CApplicationMode> CPlayerAIColorSelectMode::Instance()
 void CPlayerAIColorSelectMode::InitializeChange(
     std::shared_ptr<CApplicationData> context)
 {
+    DContext = context;
     DButtonHovered = false;
     DButtonFunctions.clear();
     DButtonLocations.clear();
     DButtonTexts.clear();
     DColorButtonLocations.clear();
     DPlayerTypeButtonLocations.clear();
+
+    SetFontsAndColors();
 
     if (context->MultiPlayer())
     {
@@ -126,6 +129,13 @@ void CPlayerAIColorSelectMode::InitializeChange(
     // Specify the cancel button text and callback function
     DButtonTexts.push_back(CancelButtonText);
     DButtonFunctions.push_back(CancelButtonCallback);
+
+    int CanvasWidth = DContext->DWorkingBufferSurface->Width();
+    int CanvasHeight = DContext->DWorkingBufferSurface->Height();
+    DButtonStack.reset(new CVerticalButtonAlignment(DContext, DButtonTexts,
+        EPosition::SouthEast, CanvasWidth, CanvasHeight));
+    DButtonStack->SetWidth(DContext->DMiniMapSurface->Width());
+
 
 }
 
@@ -206,6 +216,11 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
         DButtonFunctions.push_back(MPHostPlayGameButtonCallback);
         DButtonTexts.push_back(CancelButtonText);
         DButtonFunctions.push_back(CancelButtonCallback);
+        int CanvasWidth = DContext->DWorkingBufferSurface->Width();
+        int CanvasHeight = DContext->DWorkingBufferSurface->Height();
+        DButtonStack.reset(new CVerticalButtonAlignment(DContext, DButtonTexts,
+            EPosition::SouthEast, CanvasWidth, CanvasHeight));
+        DButtonStack->SetWidth(DContext->DMiniMapSurface->Width());
     }
 
     // ready to start game!
@@ -223,7 +238,7 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
 
     DPlayerNumberRequestingChange = EPlayerNumber::Neutral;
     DPlayerColorChangeRequest = EPlayerColor::None;
-    DPlayerNumberRequesTypeChange = EPlayerNumber::Neutral;
+    DPlayerNumberRequestTypeChange = EPlayerNumber::Neutral;
 
     // True if left mouse button is clicked and it has not already been down
     if (context->DLeftClick && !context->DLeftDown)
@@ -281,25 +296,19 @@ void CPlayerAIColorSelectMode::Input(std::shared_ptr<CApplicationData> context)
                        (context->DLoadingPlayerTypes[Index + 2] == CApplicationData::ptHuman &&
                        context->DPlayerNames[Index + 2] == "None")))
                 {
-                    DPlayerNumberRequesTypeChange =
+                    DPlayerNumberRequestTypeChange =
                         static_cast<EPlayerNumber>(Index + 2);
                     break;
                 }
             }
         }
-
-        // Iterate over buttons on bottom, right-hand corner of screen
-        for (int Index = 0; Index < DButtonLocations.size(); Index++)
-        {
-
-            // If a pointer is over a button's location, then pass the game's
-            // context to the registered callback function.
-            if (DButtonLocations[Index].PointInside(CurrentX, CurrentY))
-            {
-                DButtonFunctions[Index](context);
-            }
-        }
     }
+
+    if (!context->DLeftDown && DButtonStack->ButtonPressedInStack())
+    {
+        DButtonFunctions[DButtonStack->ButtonPressedIndex()](context);
+    }
+
     // Process chat text field
     if (context->MultiPlayer())
     {
@@ -376,7 +385,7 @@ void CPlayerAIColorSelectMode::Calculate(
 
     // The following is to deal with the request to change the AI's difficulty
     // True if the type change is for an active player
-    if (EPlayerNumber::Neutral != DPlayerNumberRequesTypeChange)
+    if (EPlayerNumber::Neutral != DPlayerNumberRequestTypeChange)
     {
 
         // True if this is a single player game
@@ -385,26 +394,26 @@ void CPlayerAIColorSelectMode::Calculate(
             // Based on current player type, set the next player type
             // according to the case's settings
             switch (context->DLoadingPlayerTypes[to_underlying(
-                DPlayerNumberRequesTypeChange)])
+                DPlayerNumberRequestTypeChange)])
             {
                 // Current type is AIEasy, get set to AIMedium
                 case CApplicationData::ptAIEasy:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIMedium;
                     break;
 
                 // Current type is AIMedium, get set to AIHard
                 case CApplicationData::ptAIMedium:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIHard;
                     break;
 
                 // For all types that don't have a case, set the type to AIEasy
                 default:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIEasy;
                     break;
             }
@@ -416,35 +425,35 @@ void CPlayerAIColorSelectMode::Calculate(
             // Based on current player type, set the next player type
             // according to the case's settings
             switch (context->DLoadingPlayerTypes[to_underlying(
-                DPlayerNumberRequesTypeChange)])
+                DPlayerNumberRequestTypeChange)])
             {
                 // Current player type is human, set that player type to AIEasy
                 case CApplicationData::ptHuman:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIEasy;
-                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequesTypeChange),
+                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequestTypeChange),
                         true);
                     break;
 
                 // Current type is AIEasy, get set to AIMedium
                 case CApplicationData::ptAIEasy:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIMedium;
                     break;
 
                 // Current type is AIMedium, get set to AIHard
                 case CApplicationData::ptAIMedium:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptAIHard;
                     break;
 
                 // Current type is AIHard, get set to None
                 case CApplicationData::ptAIHard:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptNone;
                     context->roomInfo.set_capacity(context->roomInfo.capacity() - 1);
                     break;
@@ -452,10 +461,10 @@ void CPlayerAIColorSelectMode::Calculate(
                 // to a Human
                 default:
                     context->DLoadingPlayerTypes[to_underlying(
-                        DPlayerNumberRequesTypeChange)] =
+                        DPlayerNumberRequestTypeChange)] =
                         CApplicationData::ptHuman;
                     context->roomInfo.set_capacity(context->roomInfo.capacity() + 1);
-                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequesTypeChange),
+                    context->roomInfo.set_ready(to_underlying(DPlayerNumberRequestTypeChange),
                         false);
                     break;
             }
@@ -489,7 +498,6 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     CButtonRenderer::EButtonState ButtonState =
     CButtonRenderer::EButtonState::None;
     bool ButtonXAlign = false, ButtonHovered = false;
-    LargeFontSize = to_underlying(CUnitDescriptionRenderer::EFontSize::Large);
 
     // Get the current X,Y position of the pointer on the drawing surface
     CurrentX = context->DCurrentX;
@@ -499,23 +507,6 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
     // BufferWidth set to width of the drawing surface
     // BufferHeight set to height of the drawing surface
     context->RenderMenuTitle(DTitle, TitleHeight, BufferWidth, BufferHeight);
-
-    GoldColor =
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->FindColor("gold");
-    WhiteColor =
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->FindColor("white");
-    ShadowColor =
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->FindColor("black");
-    RedColor =
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->FindColor("red");
 
     // Get the width and the height of the mini map
     MiniMapWidth = context->DMiniMapSurface->Width();
@@ -542,42 +533,29 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 
     TempString =
     std::to_string(context->DSelectedMap->PlayerCount()) + " Players";
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(context->DWorkingBufferSurface,
-                         MiniMapCenter - TextWidth / 2, TextTop, WhiteColor,
-                         ShadowColor, 1, TempString);
+    context->DFonts[DLargeFontID]->MeasureText(TempString, TextWidth, TextHeight);
+    DrawText(DContext, TempString, MiniMapCenter-TextWidth/2, TextTop, DWhiteColor);
 
-    TextTop += TextHeight;
+    TextTop += DTextHeight;
     TempString = std::to_string(context->DSelectedMap->Width()) + " x " +
                  std::to_string(context->DSelectedMap->Height());
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(context->DWorkingBufferSurface,
-                         MiniMapCenter - TextWidth / 2, TextTop, WhiteColor,
-                         ShadowColor, 1, TempString);
-
+    context->DFonts[DLargeFontID]->MeasureText(TempString, TextWidth, TextHeight);
+    DrawText(DContext, TempString, MiniMapCenter - 0.5*TextWidth, TextTop,
+                     DWhiteColor);
     // Set Y coordinate for the top of current row to the bottom Y coordinate
     // of the title of that top, center of the screen
     TextTop = TitleHeight;
     TempString = "Player";
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(context->DWorkingBufferSurface,
-                         context->DBorderWidth, TextTop, WhiteColor,
-                         ShadowColor, 1, TempString);
+    DrawText(DContext, TempString, DContext->DBorderWidth, TextTop, DWhiteColor);
 
-    TextTop += TextHeight;
+    TextTop += DTextHeight;
     context->DButtonRenderer->Text("AI Easy", true);
     ColorButtonHeight = context->DButtonRenderer->Height();
     RowHeight =
     context->DButtonRenderer->Height() + context->DInnerBevel->Width() * 2;
-    if (RowHeight < TextHeight)
+    if (RowHeight < DTextHeight)
     {
-        RowHeight = TextHeight;
+        RowHeight = DTextHeight;
     }
     context->DButtonRenderer->Text("X", true);
     context->DButtonRenderer->Height(ColorButtonHeight);
@@ -603,7 +581,7 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
             PlayerNames[Index] = TempString = std::to_string(Index) + ". " + context->DPlayerNames[Index];
         }
         context
-        ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
+        ->DFonts[DLargeFontID]
         ->MeasureText(TempString, TextWidth, TextHeight);
         if (MaxTextWidth < TextWidth)
         {
@@ -613,52 +591,38 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 
 
     TempString = "Color";
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(
-    context->DWorkingBufferSurface,
-    context->DBorderWidth + MaxTextWidth +
-    (ColumnWidth * (to_underlying(EPlayerColor::Max) + 1)) / 2 -
-    TextWidth / 2,
-    TitleHeight, WhiteColor, ShadowColor, 1, TempString);
-
+    DrawText(DContext, TempString, DContext->DBorderWidth + MaxTextWidth +
+       (ColumnWidth * (to_underlying(EPlayerColor::Max) + 1)) / 2 - TextWidth/2,
+       TitleHeight, DWhiteColor);
 
     DColorButtonLocations.clear();
 
     // Draw rows of color buttons for each player in the game
     for (int Index = 1; Index <= context->DSelectedMap->PlayerCount(); Index++)
     {
-        int ActivationColor;
+        TempString = PlayerNames[Index];
+        int Color;
         int PlayerNumber = to_underlying(context->DPlayerNumber);
 
         // First check is for multiplayer
         // If player has committed to the game, use activation color for name
         if (context->DReadyPlayers[Index] && context->DLoadingPlayerTypes[Index] ==
-            CApplicationData::ptHuman)
+            CApplicationData::ptHuman && context->DPlayerNumber != EPlayerNumber::Player1)
         {
-            ActivationColor = RedColor;
+            Color = DRedColor;
         }
         // Otherwise, color the current player's name to stand out from others
         else if (Index == PlayerNumber)
         {
-            ActivationColor = GoldColor;
+            Color = DGoldColor;
         }
         // Color all other players generically
         else
         {
-            ActivationColor = WhiteColor;
+            Color = DWhiteColor;
         }
 
-        TempString = PlayerNames[Index];
-        context
-        ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-        ->MeasureText(TempString, TextWidth, TextHeight);
-        context
-        ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-        ->DrawTextWithShadow(
-        context->DWorkingBufferSurface, context->DBorderWidth, TextTop,
-        ActivationColor, ShadowColor, 1, TempString);
+        DrawText(DContext, TempString, DContext->DBorderWidth, TextTop, Color);
 
         // Iterate over all the possible player colors
         for (int ColorIndex = 1; ColorIndex < to_underlying(EPlayerColor::Max);
@@ -711,13 +675,8 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
 
     TextTop = TitleHeight;
     TempString = "Difficulty";
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(
-    context->DWorkingBufferSurface,
-    AIButtonLeft + (context->DButtonRenderer->Width() - TextWidth) / 2,
-    TextTop, WhiteColor, ShadowColor, 1, TempString);
+    DrawText(DContext, TempString, AIButtonLeft + 0.5*
+        (DContext->DButtonRenderer->Width() - TextWidth), TextTop, DWhiteColor);
 
     ButtonXAlign = false;
     if ((AIButtonLeft <= CurrentX) &&
@@ -768,26 +727,8 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         TextTop += RowHeight;
     }
 
-    DButtonLocations.clear();
-
-    // Following is setting attributes of the buttons on the bottom, right-hand
-    // side of the window.
-
-    context->DButtonRenderer->ButtonColor(EPlayerColor::None);
-
-    // Read in button text for Play Game button
-    context->DButtonRenderer->Text(DButtonTexts[0], true);
-    // Set height of the button
-    context->DButtonRenderer->Height(context->DButtonRenderer->Height() * 3/2);
-    // Set width of the button
-    context->DButtonRenderer->Width(MiniMapWidth);
-    // ButtonLeft gets width of drawing surface minus width of button and minus
-    // the border width.
-    // Sets the X coordinate position of left edge of button
     ButtonLeft =
     BufferWidth - context->DButtonRenderer->Width() - context->DBorderWidth;
-
-
 
     // ButtonTop gets height of drawing surface minus 2.25 times the height
     // of button and minus the border width.
@@ -816,41 +757,13 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
         }
     }
 
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->MeasureText(TempString, TextWidth, TextHeight);
-    context
-    ->DFonts[to_underlying(CUnitDescriptionRenderer::EFontSize::Large)]
-    ->DrawTextWithShadow(
-    context->DWorkingBufferSurface, ButtonLeft + 7, ButtonTop - 50,
-    RedColor, ShadowColor, 1, TempString);
+    context->DFonts[DLargeFontID]->MeasureText(TempString, TextWidth, TextHeight);
+    int Xoffset = DButtonStack->Xoffset() + (DButtonStack->Width()-TextWidth)/2;
+    int Yoffset = DButtonStack->Yoffset() - 2*TextHeight;
+    DrawText(DContext, TempString, Xoffset, Yoffset, DGoldColor);
 
-
-    // Set initial button state
-    ButtonState = CButtonRenderer::EButtonState::None;
-
-    // Check if X position of pointer is within X coordinate range of button
-    if ((ButtonLeft <= CurrentX) &&
-        (ButtonLeft + context->DButtonRenderer->Width() > CurrentX))
-    {
-        ButtonXAlign = true;
-    }
-
-    // If pointer is within X coordinate range of button
-    if (ButtonXAlign)
-    {
-        // Check if Y position of pointer is within Y coordinate range of button
-        if ((ButtonTop <= CurrentY) &&
-            ((ButtonTop + context->DButtonRenderer->Height() > CurrentY)))
-        {
-            // Set to pressed if left mouse button down
-            // Otherwise the pointer is hovering, so set to hover
-            ButtonState = context->DLeftDown
-                          ? CButtonRenderer::EButtonState::Pressed
-                          : CButtonRenderer::EButtonState::Hover;
-            ButtonHovered = true;
-        }
-    }
+    DButtonStack->DrawStack(DContext->DWorkingBufferSurface, CurrentX, CurrentY,
+       DContext->DLeftDown);
 
     // Draw the chat window
     if (context->MultiPlayer())
@@ -861,76 +774,38 @@ void CPlayerAIColorSelectMode::Render(std::shared_ptr<CApplicationData> context)
             DChatOverlay->Xoffset(), DChatOverlay->Yoffset(), -1, -1, 0, 0);
     }
 
-    // Draw the button with colors correlating to the button state
-    // Point of origin for the button is (ButtonLeft, ButtonTop)
-    context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
-                                         ButtonLeft, ButtonTop, ButtonState);
-    // SRectangle contains all the coordinates to make the shape
-    // of the button.
-    // Push button dimensions onto vector of button locations
-    DButtonLocations.push_back(
-    SRectangle({ButtonLeft, ButtonTop, context->DButtonRenderer->Width(),
-                context->DButtonRenderer->Height()}));
-
-    // Set Y position of top edge of button
-    ButtonTop = BufferHeight - context->DButtonRenderer->Height() -
-                context->DBorderWidth;
-
-    // NOTE: X position set previously in ButtonLeft will be reused
-
-    // Clear button state
-    ButtonState = CButtonRenderer::EButtonState::None;
-
-    // Using value from check of button placed directly above this one
-    // True if the pointer is within the X coordinate range of the button
-    if (ButtonXAlign)
-    {
-        // True if the pointer is within the Y coordinate range of the button
-        if ((ButtonTop <= CurrentY) &&
-            ((ButtonTop + context->DButtonRenderer->Height() > CurrentY)))
-        {
-            // Set to pressed if left mouse button down
-            // Otherwise the pointer is hovering, so set to hover
-            ButtonState = context->DLeftDown
-                          ? CButtonRenderer::EButtonState::Pressed
-                          : CButtonRenderer::EButtonState::Hover;
-            ButtonHovered = true;
-        }
-    }
-
-    // Set attributes for the next button
-    context->DButtonRenderer->Text(DButtonTexts[1], false);
-
-    // Draw the button with colors correlating to the button state
-    // Point of origin for the button is (ButtonLeft, ButtonTop)
-    context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
-                                         ButtonLeft, ButtonTop, ButtonState);
-
-    // SRectangle contains all the coordinates to make the shape
-    // of the button.
-    // Push button dimensions onto vector of button locations
-    DButtonLocations.push_back(
-    SRectangle({ButtonLeft, ButtonTop, context->DButtonRenderer->Width(),
-                context->DButtonRenderer->Height()}));
-
     // If the button has not been previously hovered and it is currently hovered
-    if (!DButtonHovered && ButtonHovered)
+    if (!DButtonHovered && DButtonStack->PointerHovering())
     {
-        // Play a sound effect for the new hover event
-        context->DSoundLibraryMixer->PlayClip(
-        context->DSoundLibraryMixer->FindClip("tick"),
-        context->DSoundVolume, 0.0);
+        context->StartPlayingClip("tick");
     }
 
     // If the application mode is changing
     if (context->ModeIsChanging())
     {
-        // Play a sound effect for the change in mode
-        context->DSoundLibraryMixer->PlayClip(
-        context->DSoundLibraryMixer->FindClip("place"),
-        context->DSoundVolume, 0.0);
+        context->StartPlayingClip("place");
     }
 
     // Keep track of the button hovered state
-    DButtonHovered = ButtonHovered;
+    DButtonHovered = DButtonStack->PointerHovering();
+}
+
+void CPlayerAIColorSelectMode::DrawText(std::shared_ptr<CApplicationData> context,
+                                      std::string text, int xpos, int ypos,
+                                      int color)
+{
+    context->DFonts[DLargeFontID]->MeasureText(text, DTextWidth, DTextHeight);
+    context->DFonts[DLargeFontID]->DrawTextWithShadow(
+        context->DWorkingBufferSurface, xpos, ypos, color, DShadowColor, 1,
+        text);
+}
+
+// Set font size ID and color values for fonts
+void CPlayerAIColorSelectMode::SetFontsAndColors()
+{
+    DLargeFontID = to_underlying(CUnitDescriptionRenderer::EFontSize::Large);
+    DGoldColor = DContext->DFonts[DLargeFontID]->FindColor("gold");
+    DWhiteColor = DContext->DFonts[DLargeFontID]->FindColor("white");
+    DShadowColor = DContext->DFonts[DLargeFontID]->FindColor("black");
+    DRedColor = DContext->DFonts[DLargeFontID]->FindColor("red");
 }

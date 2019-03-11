@@ -93,9 +93,46 @@ CButtonAlignment::DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int
         if (DButtons[Index]->Pressed())
         {
             DButtonPressedInStack = true;
-            break;
         }
     }
+}
+
+// Reconfigure buttons. Used when width/height has changed.
+void CButtonAlignment::ReconfigureButtons()
+{
+    std::vector<std::string> Texts;
+
+    for (auto Button : DButtons)
+    {
+        Texts.push_back(Button->Text());
+    }
+
+    DButtons.clear();
+    DButtons.reserve(Texts.size());
+    FindXOffset(DCanvasWidth);
+    FindYOffset(DCanvasHeight);
+    CreateButtons(Texts);
+}
+
+// Set width of buttons in the stack
+void CButtonAlignment::SetWidth(int width)
+{
+    DMaxWidth = width;
+    DButRen->SetBaseDimensions();
+    DButRen->Width(DMaxWidth);
+    DButRen->Height(DMaxHeight);
+    ReconfigureButtons();
+}
+
+// Set height of buttons in the stack
+void CButtonAlignment::SetHeight(int height)
+{
+    DMaxHeight = height;
+    DButRen->SetBaseDimensions();
+    DButRen->Height(DMaxHeight);
+    DButRen->Width(DMaxWidth);
+    ReconfigureButtons();
+
 }
 
 // Return stack index of button pressed, or sentinel value if none are pressed

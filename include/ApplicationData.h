@@ -346,11 +346,11 @@ class CApplicationData : public std::enable_shared_from_this<CApplicationData>
 
     // Output
     void DrawBackground(std::shared_ptr<CGraphicSurface> surface,
-        int &pagewidth, int &pageheight);
+        int pagewidth, int pageheight);
     void DrawInnerBevel(std::shared_ptr<CGraphicSurface> surface,
-        int &pagewidth, int &pageheight);
+        int pagewidth, int pageheight);
     void DrawOuterBevel(std::shared_ptr<CGraphicSurface> surface,
-        int &pagewidth, int &pageheight);
+        int pagewidth, int pageheight);
 
     void RenderMenuTitle(const std::string &title, int &titlebottomy,
                          int &pagewidth, int &pageheight);

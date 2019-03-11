@@ -25,11 +25,12 @@
 #include "RoomInfo.pb.h"
 #include "EditOptionsMode.h"
 #include "ChatOverlay.h"
+#include "VerticalButtonAlignment.h"
 
 using TPlayerAIColorSelectCallbackFunction =
     void (*)(std::shared_ptr<CApplicationData>);
 
-class CPlayerAIColorSelectMode : public CApplicationMode
+class CPlayerAIColorSelectMode : public CEditOptionsMode
 {
   protected:
     struct SPrivateConstructorType
@@ -44,14 +45,15 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     std::vector<SRectangle> DColorButtonLocations;
     std::vector<SRectangle> DPlayerTypeButtonLocations;
     static int DCountdownTimer;
+    std::unique_ptr<CVerticalButtonAlignment> DButtonStack;
     EPlayerNumber DPlayerNumberRequestingChange;
     EPlayerColor DPlayerColorChangeRequest;
-    EPlayerNumber DPlayerNumberRequesTypeChange;
+    EPlayerNumber DPlayerNumberRequestTypeChange;
     bool DButtonHovered;
     int DMapOffset;
-    int TextWidth, TextHeight, MaxTextWidth;
-    int LargeFontSize;
-    int GoldColor, WhiteColor, ShadowColor, RedColor;
+    int DTextWidth, DTextHeight, DMaxTextWidth;
+    int DLargeFontID;
+    int DGoldColor, DWhiteColor, DShadowColor, DRedColor;
 
     std::unique_ptr<CChatOverlay> DChatOverlay;
 
@@ -62,6 +64,11 @@ class CPlayerAIColorSelectMode : public CApplicationMode
     static void PlayGameButtonCallback(
         std::shared_ptr<CApplicationData> context);
     static void CancelButtonCallback(std::shared_ptr<CApplicationData> context);
+    void SetFontsAndColors();
+
+    void DrawText(std::shared_ptr<CApplicationData> context,
+                                      std::string text, int xpos, int ypos,
+                                      int color);
 
     CPlayerAIColorSelectMode(const CPlayerAIColorSelectMode &) = delete;
     const CPlayerAIColorSelectMode &operator=(

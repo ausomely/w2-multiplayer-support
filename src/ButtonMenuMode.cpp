@@ -17,6 +17,8 @@
 #include "ButtonMenuMode.h"
 #include "ApplicationData.h"
 #include "Debug.h"
+#include "ButtonAlignment.h"
+#include "VerticalButtonAlignment.h"
 
 CButtonMenuMode::CButtonMenuMode()
 {
@@ -26,17 +28,14 @@ CButtonMenuMode::CButtonMenuMode()
 //! @brief Handles keyboard and mouse input while the game is running
 void CButtonMenuMode::Input(std::shared_ptr<CApplicationData> context)
 {
-    int CurrentX, CurrentY;
-    CurrentX = context->DCurrentX;
-    CurrentY = context->DCurrentY;
-    if (context->DLeftClick && !context->DLeftDown)
+    int CurrentX = context->DCurrentX;
+    int CurrentY = context->DCurrentY;
+
+    if (nullptr != DButtonStack)
     {
-        for (int Index = 0; Index < DButtonLocations.size(); Index++)
+        if (!context->DLeftDown && DButtonStack->ButtonPressedInStack())
         {
-            if (DButtonLocations[Index].PointInside(CurrentX, CurrentY))
-            {
-                DButtonFunctions[Index](context);
-            }
+            DButtonFunctions[DButtonStack->ButtonPressedIndex()](context);
         }
     }
 }
@@ -46,83 +45,29 @@ void CButtonMenuMode::Calculate(std::shared_ptr<CApplicationData> context) {}
 //! @brief Handles displaying of the buttons
 void CButtonMenuMode::Render(std::shared_ptr<CApplicationData> context)
 {
-    int CurrentX, CurrentY;
-    int BufferWidth, BufferHeight;
-    int TitleHeight;
-    int ButtonLeft, ButtonSkip, ButtonTop;
-    int ButtonIndex;
-    bool ButtonXAlign = false, ButtonHovered = false;
+    int CurrentX = context->DCurrentX;
+    int CurrentY = context->DCurrentY;
+    bool LeftDown = context->DLeftDown;
+    auto Surface = context->DWorkingBufferSurface;
+    int TitleHeight, BufferWidth, BufferHeight;
 
-    CurrentX = context->DCurrentX;
-    CurrentY = context->DCurrentY;
     context->RenderMenuTitle(DTitle, TitleHeight, BufferWidth, BufferHeight);
-    context->DButtonRenderer->Text(DButtonTexts.front(), true);
-    for (auto Text : DButtonTexts)
+
+    if (nullptr != DButtonStack)
     {
-        context->DButtonRenderer->Text(Text);
+        DButtonStack->DrawStack(Surface, CurrentX, CurrentY, LeftDown);
     }
-    context->DButtonRenderer->Height(context->DButtonRenderer->Height() * 3 /
-                                     2);
-    context->DButtonRenderer->Width(context->DButtonRenderer->Width() * 5 / 4);
-    ButtonSkip = context->DButtonRenderer->Height() * 3 / 2;
-    ButtonLeft = BufferWidth / 2 - context->DButtonRenderer->Width() / 2;
-    ButtonTop = (BufferHeight - TitleHeight) / 2 -
-                (ButtonSkip * (DButtonTexts.size() - 1) +
-                 context->DButtonRenderer->Height()) /
-                    2;
-    ButtonTop += context->DOuterBevel->Width();
-    if ((ButtonLeft <= CurrentX) &&
-        ((ButtonLeft + context->DButtonRenderer->Width() > CurrentX)))
+
+    if (nullptr != DButtonStack &&
+        (!DButtonHovered && DButtonStack->PointerHovering()))
     {
-        ButtonXAlign = true;
-    }
-    ButtonIndex = 0;
-    DButtonLocations.resize(DButtonTexts.size());
-    for (auto Text : DButtonTexts)
-    {
-        if (Text.length())
-        {
-            CButtonRenderer::EButtonState ButtonState =
-                CButtonRenderer::EButtonState::None;
-            if (ButtonXAlign)
-            {
-                if ((ButtonTop <= CurrentY) &&
-                    ((ButtonTop + context->DButtonRenderer->Height() >
-                      CurrentY)))
-                {
-                    ButtonState = context->DLeftDown
-                                      ? CButtonRenderer::EButtonState::Pressed
-                                      : CButtonRenderer::EButtonState::Hover;
-                    ButtonHovered = true;
-                }
-            }
-            context->DButtonRenderer->Text(Text);
-            context->DButtonRenderer->DrawButton(context->DWorkingBufferSurface,
-                                                 ButtonLeft, ButtonTop,
-                                                 ButtonState);
-            DButtonLocations[ButtonIndex] = SRectangle(
-                {ButtonLeft, ButtonTop, context->DButtonRenderer->Width(),
-                 context->DButtonRenderer->Height()});
-        }
-        else
-        {
-            DButtonLocations[ButtonIndex] = SRectangle({0, 0, 0, 0});
-        }
-        ButtonIndex++;
-        ButtonTop += ButtonSkip;
-    }
-    if (!DButtonHovered && ButtonHovered)
-    {
-        context->DSoundLibraryMixer->PlayClip(
-            context->DSoundLibraryMixer->FindClip("tick"),
-            context->DSoundVolume, 0.0);
+        context->StartPlayingClip("tick");
     }
 
     if (context->ModeIsChanging())
     {
-        context->DSoundLibraryMixer->PlayClip(
-            context->DSoundLibraryMixer->FindClip("place"),
-            context->DSoundVolume, 0.0);
+        context->StartPlayingClip("place");
     }
-    DButtonHovered = ButtonHovered;
+
+    DButtonHovered = DButtonStack->PointerHovering();
 }

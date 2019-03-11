@@ -856,12 +856,11 @@ void CApplicationData::Activate()
     DDrawingArea->Invalidate();
 
     DApplicationMode = DNextApplicationMode = CMainMenuMode::Instance();
+    DNextApplicationMode->InitializeChange(shared_from_this());
 
     DApplication->SetTimer(TIMEOUT_INTERVAL, this, TimeoutCallback);
 
-    DSoundLibraryMixer->StopSong();
-    DSoundLibraryMixer->PlaySong(DSoundLibraryMixer->FindSong("menu"),
-                                 DMusicVolume);
+    StartPlayingMusic("menu");
     DLoadingResourceContext = nullptr;
 }
 
@@ -1221,7 +1220,7 @@ CPixelPosition CApplicationData::MiniMapToDetailedMap(const CPixelPosition &pos)
 }
 
 void CApplicationData::DrawBackground(
-    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+    std::shared_ptr<CGraphicSurface> surface, int pagewidth, int pageheight)
 {
     for (int YPos = 0; YPos < pageheight;
          YPos += DBackgroundTileset->TileHeight())
@@ -1236,7 +1235,7 @@ void CApplicationData::DrawBackground(
 }
 
 void CApplicationData::DrawInnerBevel(
-    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+    std::shared_ptr<CGraphicSurface> surface, int pagewidth, int pageheight)
 {
     DInnerBevel->DrawBevel(surface, DInnerBevel->Width(),
         DInnerBevel->Width(),
@@ -1245,7 +1244,7 @@ void CApplicationData::DrawInnerBevel(
 }
 
 void CApplicationData::DrawOuterBevel(
-    std::shared_ptr<CGraphicSurface> surface, int &pagewidth, int &pageheight)
+    std::shared_ptr<CGraphicSurface> surface, int pagewidth, int pageheight)
 {
     DOuterBevel->DrawBevel(surface, DOuterBevel->Width(),
         DOuterBevel->Width(),

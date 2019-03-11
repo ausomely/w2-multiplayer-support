@@ -42,6 +42,8 @@ class CEditOptionsMode : public CApplicationMode
     std::vector<TEditOptionsTextValidationCallbackFunction>
         DEditValidationFunctions;
 
+    std::shared_ptr<CApplicationData> DContext;
+
     CEditOptionsMode(const CEditOptionsMode &) = delete;
     const CEditOptionsMode &operator=(const CEditOptionsMode &) = delete;
     CEditOptionsMode();

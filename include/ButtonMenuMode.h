@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 #include "ApplicationMode.h"
-#include "Rectangle.h"
+#include "VerticalButtonAlignment.h"
 
 using TButtonMenuCallbackFunction = void (*)(std::shared_ptr<CApplicationData>);
 
@@ -30,7 +30,7 @@ class CButtonMenuMode : public CApplicationMode
     std::string DTitle;
     std::vector<std::string> DButtonTexts;
     std::vector<TButtonMenuCallbackFunction> DButtonFunctions;
-    std::vector<SRectangle> DButtonLocations;
+    std::unique_ptr<CVerticalButtonAlignment> DButtonStack;
     bool DButtonHovered;
 
     CButtonMenuMode(const CButtonMenuMode &) = delete;

@@ -26,6 +26,16 @@ CJoinMultiPlayerOptions::CJoinMultiPlayerOptions(
     DButtonFunctions.push_back(MultiPlayerGameButtonCallback);
 }
 
+void CJoinMultiPlayerOptions::InitializeChange(
+            std::shared_ptr<CApplicationData> context)
+{
+    int CanvasWidth = context->DWorkingBufferSurface->Width();
+    int CanvasHeight = context->DWorkingBufferSurface->Height();
+
+    DButtonStack.reset(new CVerticalButtonAlignment(context, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight));
+}
+
 //! @brief Opens Join Multiplayer-game menu
 void CJoinMultiPlayerOptions::DirectConnectionButtonCallback(
     std::shared_ptr<CApplicationData> context)

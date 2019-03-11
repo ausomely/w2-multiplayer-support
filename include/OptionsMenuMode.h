@@ -39,6 +39,7 @@ class COptionsMenuMode : public CButtonMenuMode
 
   public:
     explicit COptionsMenuMode(const SPrivateConstructorType &key);
+    void InitializeChange(std::shared_ptr<CApplicationData> context) override;
 
     static std::shared_ptr<CApplicationMode> Instance();
 };

@@ -34,7 +34,7 @@ CVerticalButtonAlignment::CVerticalButtonAlignment(
     MeasureButtons(texts);
 
     // Proportionally bump up button sizes
-    DMaxWidth = DMaxWidth * 5 / 4;
+    DMaxWidth = DStackWidth = DMaxWidth * 5 / 4;
     DMaxHeight = DMaxHeight * 3 / 2;
     DButRen->Width(DMaxWidth);
     DButRen->Height(DMaxHeight);
@@ -85,12 +85,12 @@ void CVerticalButtonAlignment::FindYOffset(int Height)
     // Find stack height the buttons
     if (1 < NumberOfButtons)
     {
-        StackHeight =
+        DStackHeight =
             NumberOfButtons * DMaxHeight + (NumberOfButtons - 1) * DButtonGap;
     }
     else
     {
-        StackHeight = static_cast<size_t>(DMaxHeight);
+        DStackHeight = static_cast<size_t>(DMaxHeight);
     }
 
     switch (DPlacement)
@@ -100,7 +100,7 @@ void CVerticalButtonAlignment::FindYOffset(int Height)
         case EPosition::Center:
         case EPosition::East:
         {
-            DYOffset = static_cast<int>(0.5 * Height - 0.5 * StackHeight);
+            DYOffset = static_cast<int>(0.5 * Height - 0.5 * DStackHeight);
         }
             break;
 
@@ -110,7 +110,7 @@ void CVerticalButtonAlignment::FindYOffset(int Height)
         case EPosition::SouthEast:
         {
             DYOffset =
-                static_cast<int>(Height - StackHeight - DContext->DBorderWidth);
+                static_cast<int>(Height - DStackHeight - DContext->DBorderWidth);
         }
             break;
 

@@ -42,6 +42,8 @@ class CButtonAlignment
 
     bool DButtonHovered;
     int DButtonGap;
+    int DStackHeight;
+    int DStackWidth;
     int DMaxWidth;
     int DMaxHeight;
     int DXOffset;
@@ -58,6 +60,7 @@ class CButtonAlignment
     std::unique_ptr<CButtonRenderer> DButRen;
     std::vector<std::shared_ptr<CButton> > DButtons;
     bool DButtonPressedInStack;
+    void ReconfigureButtons();
 
   public:
     virtual ~CButtonAlignment() = default;
@@ -67,8 +70,21 @@ class CButtonAlignment
     void MeasureButtons(std::vector<std::string> texts);
     virtual void FindXOffset(int CanvasWidth) = 0;
     virtual void FindYOffset(int CanvasHeight) = 0;
+    virtual void CreateButtons(std::vector<std::string> texts) = 0;
 
     void DrawStack(std::shared_ptr<CGraphicSurface> surface, int x, int y, bool clicked);
+    void SetWidth(int width);
+    void SetHeight(int height);
+    //! Button width
+    int Width()
+    {
+        return DMaxWidth;
+    }
+    //! Button height
+    int Height()
+    {
+        return DMaxHeight;
+    }
     void SetButtonColor(EPlayerColor color);
     void MarkInactiveButton(int index);
     void ClearInactiveButton(int index);
@@ -87,6 +103,23 @@ class CButtonAlignment
     {
         return DButtonHovered;
     }
+    int Xoffset()
+    {
+        return DXOffset;
+    }
+    int Yoffset()
+    {
+        return DYOffset;
+    }
+    int StackHeight()
+    {
+        return DStackHeight;
+    }
+    int StackWidth()
+    {
+        return DStackWidth;
+    }
+
 
 };
 

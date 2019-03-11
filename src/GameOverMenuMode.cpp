@@ -18,6 +18,16 @@ CGameOverMenuMode::CGameOverMenuMode(const SPrivateConstructorType &key)
     DButtonFunctions.push_back(ExitGameButtonCallback);
 }
 
+void CGameOverMenuMode::InitializeChange(
+            std::shared_ptr<CApplicationData> context)
+{
+    int CanvasWidth = context->DWorkingBufferSurface->Width();
+    int CanvasHeight = context->DWorkingBufferSurface->Height();
+
+    DButtonStack.reset(new CVerticalButtonAlignment(context, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight));
+}
+
 //! @brief Return to Main menu of the game
 void CGameOverMenuMode::LeaveRoomButtonCallback(
     std::shared_ptr<CApplicationData> context)

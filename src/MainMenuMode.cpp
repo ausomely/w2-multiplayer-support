@@ -39,6 +39,15 @@ CMainMenuMode::CMainMenuMode(const SPrivateConstructorType &key)
     DButtonFunctions.push_back(ExitGameButtonCallback);
 }
 
+void CMainMenuMode::InitializeChange(std::shared_ptr<CApplicationData> context)
+{
+    int CanvasWidth = context->DWorkingBufferSurface->Width();
+    int CanvasHeight = context->DWorkingBufferSurface->Height();
+
+    DButtonStack.reset(new CVerticalButtonAlignment(context, DButtonTexts,
+        EPosition::Center, CanvasWidth, CanvasHeight));
+}
+
 //! @brief Opens single player menu
 void CMainMenuMode::SinglePlayerGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
@@ -73,7 +82,7 @@ void CMainMenuMode::OptionsButtonCallback(
 void CMainMenuMode::ExitGameButtonCallback(
     std::shared_ptr<CApplicationData> context)
 {
-    context->DMainWindow->Close();
+    context->ShutdownGame();
 }
 
 //! @brief Creates an instance of Main Menu

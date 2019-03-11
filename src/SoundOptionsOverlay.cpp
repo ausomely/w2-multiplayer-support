@@ -166,7 +166,7 @@ void CSoundOptionsOverlay::ProcessKeyStrokes()
 
 void CSoundOptionsOverlay::ProcessButtonStack()
 {
-    if (DButtonStack->ButtonPressedInStack())
+    if (!DContext->DLeftDown && DButtonStack->ButtonPressedInStack())
     {
         if (0 == DButtonStack->ButtonPressedIndex())
         {
