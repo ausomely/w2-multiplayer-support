@@ -43,8 +43,7 @@ class CAssetDecoratedMap : public CTerrainMap
     } SResourceInitialization, *SResourceInitializationRef;
 
   protected:
-    friend class CLoad;
-    std::list<std::shared_ptr<CPlayerAsset> > DAssets; 
+    std::list<std::shared_ptr<CPlayerAsset> > DAssets;
     std::list<SAssetInitialization> DAssetInitializationList;
     std::list<SResourceInitialization> DResourceInitializationList;
     std::vector<std::vector<int> > DSearchMap;
@@ -59,16 +58,6 @@ class CAssetDecoratedMap : public CTerrainMap
     std::string DScenarioFilename;
 
   public:
-    template<class Archive>
-    void serialize(Archive &ar)
-    {
-        ar(cereal::base_class<CTerrainMap>(this),
-           CEREAL_NVP(DAssets),
-           CEREAL_NVP(DSearchMap),
-           CEREAL_NVP(DLumberAvailable),
-           CEREAL_NVP(DStoneAvailable)
-        );
-    }
     CAssetDecoratedMap();
     CAssetDecoratedMap(const CAssetDecoratedMap &map);
     virtual ~CAssetDecoratedMap();
