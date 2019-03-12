@@ -20,6 +20,7 @@ class GameRoom: public std::enable_shared_from_this<GameRoom>
            maximum number of players,
            the name of the map
     */
+    friend User;
     protected:
         std::vector< std::shared_ptr<User> > players;
         std::shared_ptr<User> owner;

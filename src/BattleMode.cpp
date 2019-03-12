@@ -1048,18 +1048,18 @@ void CBattleMode::Calculate(std::shared_ptr<CApplicationData> context)
           {
               game_over_song = context->DSoundLibraryMixer->FindSong("lose");
               // send lose to server
+              context->ClientPointer->SendMessage("Lose");
           }
           else
           {
               game_over_song = context->DSoundLibraryMixer->FindSong("win");
               // send win to server
+              context->ClientPointer->SendMessage("Win");
           }
 
           context->DSoundLibraryMixer->PlaySong(game_over_song,
                                                 context->DMusicVolume);
           context->DActiveGame = false;
-
-          context->ClientPointer->SendMessage("End");
 
           boost::asio::ip::tcp::no_delay option(false);
           context->ClientPointer->socket.set_option(option);

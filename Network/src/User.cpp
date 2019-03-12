@@ -32,7 +32,7 @@ void User::SendFinish() {
     });
 }
 
-void User::WriteMatchResult(bool win) {
+void User::WriteMatchResult() {
       // Function to write results to the web server after the match has ended
       // Currently there is a problem with the response -- whether or not this is a problem here or with the web server is unknown
 
@@ -46,11 +46,20 @@ void User::WriteMatchResult(bool win) {
 
       // Create JSON to send
       ptree root;
+      ptree participants;
+      std::string IDs;
 
-      root.add("winner", win );
+      for(auto &It: currentRoom.lock()->players) {
+          ptree id;
+          id.put<int>("", It->uid);
+          participants.push_back(std::make_pair("", id));
+      }
+      root.add_child("participants", participants);
+      root.put<int>("winner_id", uid);
 
       write_json (buf, root, true);
       std::string json = buf.str();
+      std::cout << json << std::endl;
 
       // Write header
       request_stream << "POST /match.json/ HTTP/1.1\r\n";
@@ -73,11 +82,11 @@ void User::WriteMatchResult(bool win) {
       });
 }
 
-void User::ReadMatchResult(){
+void User::ReadMatchResult() {
     // Reads the response from the web server about the match results
     boost::asio::async_read_until(webServerSocket, response, "\r\n",
         [this](boost::system::error_code err, std::size_t length) {
-        //std::cout << "Reading match result" << std::endl;
+
         if (!err) {
             std::istream response_stream(&this->response);
             std::string http_version;
@@ -89,13 +98,15 @@ void User::ReadMatchResult(){
             if (!response_stream || http_version.substr(0, 5) != "HTTP/")
             {
                 std::cout << "Invalid response\n";
-            }
-            if (status_code != 201)
-            {
-                std::cout << "Response returned with status code " << status_code << "\n";
-            }
 
-            std::cout << "Posted match result successfully" << std::endl;
+                if (status_code != 201)
+                {
+                    std::cout << "Response returned with status code " << status_code << "\n";
+                }
+                else {
+                    std::cout << "Posted match result successfully" << std::endl;
+                }
+            }
 
         } else {
             std::cout << "Error reading results response" << std::endl;

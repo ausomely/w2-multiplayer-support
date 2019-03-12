@@ -27,8 +27,11 @@ void InGameSession::DoRead(std::shared_ptr<User> userPtr) {
                 userPtr->ChangeSession(InRoomSession::Instance());
             }
             // end the game
-            else if(strcmp(userPtr->data, "End") == 0) {
+            else if(strcmp(userPtr->data, "Win") == 0 || strcmp(userPtr->data, "Lose") == 0) {
                 userPtr->currentRoom.lock()->IncreaseEndNum();
+                if(strcmp(userPtr->data, "Win") == 0) {
+                    userPtr->WriteMatchResult();
+                }
                 DoRead(userPtr);
             }
 

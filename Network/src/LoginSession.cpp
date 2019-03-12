@@ -144,6 +144,7 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
             unsigned int status_code;
             response_stream >> status_code;
             std::string status_message;
+            ptree tree;
 
             std::getline(response_stream, status_message);
             if (!response_stream || http_version.substr(0, 5) != "HTTP/")
@@ -171,6 +172,19 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
                         userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\r'), userPtr->jwt.end() );
                         userPtr->jwt.erase( std::remove(userPtr->jwt.begin(), userPtr->jwt.end(), '\n'), userPtr->jwt.end() );
                     }
+
+                    //json response line
+                    if (strncmp(header.c_str(), "{", 1) == 0) {
+                        std::stringstream json;
+                        json << header;
+                        //read json string in ptree for extraction
+                        read_json(json, tree);
+                        //get needed values from json
+                        userPtr->uid = tree.get<int>("id");
+                        userPtr->rank = tree.get<int>("elo_points");
+                        userPtr->eloPoints = tree.get<int>("elo_rank");
+                        std::cout << "UID: " << userPtr->uid << "\nRank: " << userPtr->eloPoints << std::endl;
+                   }
                 }
 
                 userPtr->lobby.join(userPtr);
