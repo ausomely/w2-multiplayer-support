@@ -149,7 +149,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
 {
     int RightX, BottomY;
 
-    
+
     for (int YOff = 0; YOff < size; YOff++)
     {
         for (int XOff = 0; XOff < size; XOff++)
@@ -178,7 +178,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
     for (auto Asset : DAssets)
     {
         int Offset = EAssetType::GoldMine == Asset->Type() ? 1 : 0;
-      
+
         if (EAssetType::None == Asset->Type())
         {
             continue;
@@ -665,7 +665,7 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
         // Read in scenario filename if it's present
         if (!LineSource.Read(TempString))
         {
-            PrintDebug(DEBUG_LOW, "No scenario file given in map: %s.\n");
+            PrintDebug(DEBUG_LOW, "No scenario file given in map.\n");
         }
         // LineSource.Read() succeeded and TempString has non-zero size
         else if (TempString.length())

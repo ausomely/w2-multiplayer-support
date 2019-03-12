@@ -163,7 +163,6 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
                 std::string header;
                 //read header information until authorization line
                 while (std::getline(response_stream, header)) {// && header != "\r") {
-                    //std::cout << header << std::endl;
                     if (strncmp(header.c_str(), "Authorization", 13) == 0) {
                         //extract jwt from authorization line
                         userPtr->jwt = header.substr(22);
@@ -186,7 +185,7 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
                         std::cout << "UID: " << userPtr->uid << "\nRank: " << userPtr->eloPoints << std::endl;
                    }
                 }
-
+                userPtr->response.consume(userPtr->response.size());
                 userPtr->lobby.join(userPtr);
 
                 //close the user's connection to web server
