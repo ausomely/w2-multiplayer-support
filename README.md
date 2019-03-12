@@ -105,7 +105,14 @@ Each individual game sends the actions that that user is doing to the server, wh
 The main class that handles the multiplayer communication is Client in Client.cpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
 
 ### Network Interface design for other platforms:
+Initial Designs for screens to be added:
 ![Current Design with the interface of finding games](Interface/FindGame.png?raw=true "Title")
 
 ![Current Design with the interface of waiting for a game to start](Interface/WaitInLobby.png?raw=true "Title")
+
+![Final Options Screen](Interface/MultiplayerOptionsScreen.png?raw=true "Initial Multiplayer Screen Options")
+
+![Final Host or Join Game Screen](Interface/HostOrJoinScreen.png?raw=true "Hosting or Joining Screen Options")
+
+![Final Join Game Screen](Interface/JoinGameScreen.png?raw=true "List of Games on Join Screen")
 
