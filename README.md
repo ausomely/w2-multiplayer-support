@@ -53,7 +53,9 @@ In order to play a multiplayer game, one of the players must choose to host the 
 ## Server Protocols:
 
 ### Multiplayer Protocol (Probably Remove This):
-Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. For now, we have LoginSession, where we exchange the user information such as username and password and authenticate the information with web server, and InGameSession, where we exchange the player commands, and store them locally and remotely.
+Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. The first is LoginSession, where we exchange the user information such as username and password and authenticate the information with web server. This is followed by Accepted Session, were the user chooses between joining or hosting a game. Once they create a hosted game or select a game to join, they will be placed in a game room and moved to InRoomSession. Once the game begins they move to InGameSession, where we exchange the player commands, and store them locally and remotely.The diagram below shows the flow of the sessions throughout the game:
+
+![Multiplayer Game flow Diagram](Interface/GameFlow.png?raw=true "Flow of Sessions in Multiplayer Games")
 
 #### ***Login Session***:
 Listens for connecting clients; establishes a TCP connection with them and attempts to authenticate that person with the web server. Upon successful authentication, the client is able to proceed to the multiplayer options menu. The server remembers the client; storing them on the active users list, and placing that user to ***Accepted Session***. Note that all of this is done asynchronously so the server does not hang when attempting to log a user on; allowing the server to continously listen and do other operations.
@@ -71,7 +73,7 @@ The session a user will be placed in if they choose to host a new game on the se
 Once a player hosts a game room, or someone joins one, they switch into this session. As players continue to join, and changes in the state of a game room occur, the room is constantly updated and those changes are sent to anyone to see in ***Find Game Session***. Upon backing out of a game room, the user is placed back into accepted session.
 
 #### ***In Game Session***:
-Once all players in a room session are ready, and the host starts, all players in the game room are sent into ***In Game Session***. From here, this is where the gameplay actually happens. As the game is turn based, and all inputs of the user processed upon the game-cycle timer, at the end of each turn, all users inputs are ready, taken and added to a protobuf package, and then sent to the server. From here, on the next turn, the users will then do another move, send to the server that turns moves, and then finally recieve last turns moves and process those. The game is always one step behind; but this allows for everyone to stay in sync with one another and is a small price to pay to prevent the game from freezing each turn waiting for players to submit their packet to the server and then recieve the turns moves and process them. Upon the game ending, the results of the match are sent and processed by the web server, and the players exit back into ***Accepted Session***.
+Once all players in a room session are ready, and the host starts, all players in the game room are sent into ***In Game Session***. From here, this is where the gameplay actually happens. As the game is programatically turn based, at the end of each game cycle, all inputs of the user are extracted, placed into a protobuf package, sent to the server. Once each players actions for the cycle are obtained, they are sent out to each of the players. From here, the players will all obtain everyone elses moves for the turn, and process all inputs for each player. As this is a TCP connection, there is slight delay as consequence. All players are frozen until the moves for the turn by each player are sent to the server, and the server sends them back to the player. The delay however is very minimal unless there are many players in the game. At the end of the game, the players have the choice to either leave the game room (be placed back into ***Accepted Session***) or stay (remain in ***In Room Session***). If a player quits in the middle of the game, they will be placed back into ***Accepted Session***.
 
 ### Web Server Protocol
 When a user connects to our game server, a login session is started to get authentication information from the user. Once our game server has the user’s credentials, we place them in a JSON format below.
@@ -83,8 +85,19 @@ When a user connects to our game server, a login session is started to get authe
 	}
 }
 ```
-Then we convert it into a string and put the string into the HTTP POST request and send it to the web server. Since we only care about if the authentication is a success or not, we only extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session).
+Then we convert it into a string and put the string into the HTTP POST request and send it to the web server. To determine if authentication has succeded or not, we extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session). Additional information is extracted from the returned JSON, primarity the id number, elo points, and elo rank, which are stored as part of the user class.
+```
+{
+  "id": 2,
+  "email": "jsbevilacqua@ucdavis.edu",
+  "username": "jacobbev",
+  "elo_points": 1000,
+  "elo_rank": 2,
+  "profile_image_url": "https://s3-us-west-1.amazonaws.com/ecs160-images/default.jpg"
+}
 
+```
+At the end of the game, the match result is also reported to the web server. Additionally, when the user exits the game, they are logged out. This is done by sending an empty JSON to the web server.
 
 ## Interfaces:
 When the user clicks on the multiplayer menu, their username and password is taken from the game and sent to the web server for authentication. 
@@ -93,8 +106,13 @@ Each individual game sends the actions that that user is doing to the server, wh
 
 The main class that handles the multiplayer communication is Client in Client.cpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
 
-### Network Interface design for other platforms: (subject to change)
-![Current Design with the interface of finding games](Interface/FindGame.png?raw=true "Title")
+### Network Interface design for other platforms:
+The image below shows the first screen that the uswer will encounter when playing a game.
+![Final Options Screen](Interface/MultiplayerOptionsScreen.png?raw=true "Initial Multiplayer Screen Options")
 
-![Current Design with the interface of waiting for a game to start](Interface/WaitInLobby.png?raw=true "Title")
+The image below shows the next screen, where they can choose between hosting a game or joining an already existing game.
+![Final Host or Join Game Screen](Interface/HostOrJoinScreen.png?raw=true "Hosting or Joining Screen Options")
+
+If they choose to join a game, they will be provided with a list of games currently being hosted that they can join, as shown below.
+![Final Join Game Screen](Interface/JoinGameScreen.png?raw=true "List of Games on Join Screen")
 
