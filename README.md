@@ -53,7 +53,9 @@ In order to play a multiplayer game, one of the players must choose to host the 
 ## Server Protocols:
 
 ### Multiplayer Protocol (Probably Remove This):
-Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. For now, we have LoginSession, where we exchange the user information such as username and password and authenticate the information with web server, and InGameSession, where we exchange the player commands, and store them locally and remotely.
+Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. The first is LoginSession, where we exchange the user information such as username and password and authenticate the information with web server. This is followed by Accepted Session, were the user chooses between joining or hosting a game. Once they create a hosted game or select a game to join, they will be placed in a game room and moved to InRoomSession. Once the game begins they move to InGameSession, where we exchange the player commands, and store them locally and remotely.The diagram below shows the flow of the sessions throughout the game:
+
+![Multiplayer Game flow Diagram](Interface/GameFlow.png?raw=true "Flow of Sessions in Multiplayer Games")
 
 #### ***Login Session***:
 Listens for connecting clients; establishes a TCP connection with them and attempts to authenticate that person with the web server. Upon successful authentication, the client is able to proceed to the multiplayer options menu. The server remembers the client; storing them on the active users list, and placing that user to ***Accepted Session***. Note that all of this is done asynchronously so the server does not hang when attempting to log a user on; allowing the server to continously listen and do other operations.
@@ -105,14 +107,12 @@ Each individual game sends the actions that that user is doing to the server, wh
 The main class that handles the multiplayer communication is Client in Client.cpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
 
 ### Network Interface design for other platforms:
-Initial Designs for screens to be added:
-![Current Design with the interface of finding games](Interface/FindGame.png?raw=true "Title")
-
-![Current Design with the interface of waiting for a game to start](Interface/WaitInLobby.png?raw=true "Title")
-
+The image below shows the first screen that the uswer will encounter when playing a game.
 ![Final Options Screen](Interface/MultiplayerOptionsScreen.png?raw=true "Initial Multiplayer Screen Options")
 
+The image below shows the next screen, where they can choose between hosting a game or joining an already existing game.
 ![Final Host or Join Game Screen](Interface/HostOrJoinScreen.png?raw=true "Hosting or Joining Screen Options")
 
+If they choose to join a game, they will be provided with a list of games currently being hosted that they can join, as shown below.
 ![Final Join Game Screen](Interface/JoinGameScreen.png?raw=true "List of Games on Join Screen")
 
