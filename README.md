@@ -52,10 +52,26 @@ In order to play a multiplayer game, one of the players must choose to host the 
 
 ## Server Protocols:
 
-### Multiplayer Protocol:
-Our server implemented a TCP connection between the client (the game). Our server divided the whole process of exchanging information into several session. For now, we have LoginSession, where we exchange the user information such as username and password and authenticate the information with web server, and InGameSession, where we exchange the player commands, and store them locally and remotely.
+### Multiplayer Protocol (Probably Remove This):
+Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. For now, we have LoginSession, where we exchange the user information such as username and password and authenticate the information with web server, and InGameSession, where we exchange the player commands, and store them locally and remotely.
 
-For exchanging different information such as username, password and player commands, we used protobuf to package the informaton and serialize it to a stream buffer in the form of binary string. Then we used asynchronous operations to send the information on the client side and receive them on the server side.
+#### Login Session:
+Listens for connecting clients; establishes a TCP connection with them and attempts to authenticate that person with the web server. Upon successful authentication, the client is able to proceed to the multiplayer options menu. The server remembers the client; storing them on the active users list, and placing that user to ***Accepted Session***. Note that all of this is done asynchronously so the server does not hang when attempting to log a user on; allowing the server to continously listen and do other operations.
+
+#### Accepted Session:
+The default lobby for a client to be in. The server essentially treats a user here as idle. Upon a user pressing "back" here, the connection will be ended and the user removed from the active users list.
+
+#### Find Game Session:
+The session a user will be placed in if they choose to look up existing game rooms. The server will first send a list of active games and their details to the client when joining this session. Upon any changes to the list of active game rooms, the server will continue to broadcast these changes to the client so long as they remain in this session. Note that any game in progress is unjoinable, but will remain on the list of game rooms. Upon backing out, the user is placed back into ***Accepted Session***.
+
+#### Host Game Session:
+The session a user will be placed in if they choose to host a new game on the server. In this session, a game room will be created on the server, and the details of the room will be available for people to see for anyone in ***Find Game Session***.
+
+#### In Room Session:
+Once a player hosts a game room, or someone joins one, they switch into this session. As players continue to join, and changes in the state of a game room occur, the room is constantly updated and those changes are sent to anyone to see in ***Find Game Session***. Upon backing out of a game room, the user is placed back into accepted session.
+
+#### In Game Session:
+Once all players in a room session are ready, and the host starts, all players in the game room are sent into ***In Game Session***. From here, this is where the gameplay actually happens. As the game is turn based, and all inputs of the user processed upon the game-cycle timer, at the end of each turn, all users inputs are ready, taken and added to a protobuf package, and then sent to the server. From here, on the next turn, the users will then do another move, send to the server that turns moves, and then finally recieve last turns moves and process those. The game is always one step behind; but this allows for everyone to stay in sync with one another and is a small price to pay to prevent the game from freezing each turn waiting for players to submit their packet to the server and then recieve the turns moves and process them. Upon the game ending, the results of the match are sent and processed by the web server, and the players exit back into ***Accepted Session***.
 
 ### Web Server Protocol:
 When a user connects to our game server, a login session is started to get authentication information from the user. Once our game server has the user’s credentials, we place them in a JSON format below.
