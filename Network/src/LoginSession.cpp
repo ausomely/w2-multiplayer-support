@@ -164,6 +164,7 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
                 //read header information until authorization line
                 while (std::getline(response_stream, header)) {// && header != "\r") {
                     if (strncmp(header.c_str(), "Authorization", 13) == 0) {
+
                         //extract jwt from authorization line
                         userPtr->jwt = header.substr(22);
 

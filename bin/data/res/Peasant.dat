@@ -5,13 +5,13 @@ Peasant
 # Armor
 0
 # Sight
-100
+4
 # Sight during construction
 0
 # Size
 1
 # Speed
-50
+10
 # Gold Cost
 400
 # Lumber Cost
@@ -25,7 +25,7 @@ Peasant
 # Reload Steps
 0
 # Basic Damage
-30
+3
 # Piercing Damage
 2
 # Range
