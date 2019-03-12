@@ -1343,7 +1343,7 @@ void CApplicationData::LoadGameMap(int index)
 
     // Reset static counter every time a map is loaded
     if (1 != CPlayerAsset::GetIdCounter()) {
-        CPlayerAsset::ResetIDCounter();
+        CPlayerAsset::ResetIdCounter();
         CPlayerData::umap.clear();
         for (int Index = 0; Index < to_underlying(EPlayerNumber::Max); Index++)
         {

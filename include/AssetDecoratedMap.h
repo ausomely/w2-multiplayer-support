@@ -19,6 +19,7 @@
 #include <array>
 #include <list>
 #include <map>
+
 #include "PlayerAsset.h"
 #include "TerrainMap.h"
 #include "VisibilityMap.h"
@@ -42,6 +43,7 @@ class CAssetDecoratedMap : public CTerrainMap
     } SResourceInitialization, *SResourceInitializationRef;
 
   protected:
+    friend class CLoad;
     std::list<std::shared_ptr<CPlayerAsset> > DAssets; 
     std::list<SAssetInitialization> DAssetInitializationList;
     std::list<SResourceInitialization> DResourceInitializationList;
@@ -52,7 +54,21 @@ class CAssetDecoratedMap : public CTerrainMap
     static std::map<std::string, int> DMapNameTranslation;
     static std::vector<std::shared_ptr<CAssetDecoratedMap> > DAllMaps;
 
+    // Scenario scripting related
+    bool DHasScenario;
+    std::string DScenarioFilename;
+
   public:
+    template<class Archive>
+    void serialize(Archive &ar)
+    {
+        ar(cereal::base_class<CTerrainMap>(this),
+           CEREAL_NVP(DAssets),
+           CEREAL_NVP(DSearchMap),
+           CEREAL_NVP(DLumberAvailable),
+           CEREAL_NVP(DStoneAvailable)
+        );
+    }
     CAssetDecoratedMap();
     CAssetDecoratedMap(const CAssetDecoratedMap &map);
     virtual ~CAssetDecoratedMap();
@@ -65,6 +81,21 @@ class CAssetDecoratedMap : public CTerrainMap
     static std::shared_ptr<CAssetDecoratedMap> DuplicateMap(int index);
     std::map<std::shared_ptr<CPlayerAsset>, int> AssetsDirectionTime;
     std::map<std::shared_ptr<CPlayerAsset>, int> AssetsDirection;
+
+    const bool MapHasScenario() const
+    {
+        return DHasScenario;
+    }
+    void SetupScenario(bool truth, std::string name)
+    {
+        DHasScenario = truth;
+        DScenarioFilename = name;
+    }
+
+    const std::string GetScenarioFilename() const
+    {
+        return DScenarioFilename;
+    }
 
     int PlayerCount() const
     {

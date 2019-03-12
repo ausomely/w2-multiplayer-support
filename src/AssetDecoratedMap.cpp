@@ -35,6 +35,12 @@ CAssetDecoratedMap::CAssetDecoratedMap(const CAssetDecoratedMap &map)
     DAssetInitializationList = map.DAssetInitializationList;
     DResourceInitializationList = map.DResourceInitializationList;
 
+    // Copy over scenario configuration
+    if (map.MapHasScenario())
+    {
+        SetupScenario(map.MapHasScenario(), map.GetScenarioFilename());
+    }
+
     for(auto asset: DAssets)
     {
         // If asset not building and is not already in map
@@ -143,7 +149,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
 {
     int RightX, BottomY;
 
-
+    
     for (int YOff = 0; YOff < size; YOff++)
     {
         for (int XOff = 0; XOff < size; XOff++)
@@ -172,7 +178,7 @@ bool CAssetDecoratedMap::CanPlaceAsset(const CTilePosition &pos, int size,
     for (auto Asset : DAssets)
     {
         int Offset = EAssetType::GoldMine == Asset->Type() ? 1 : 0;
-
+      
         if (EAssetType::None == Asset->Type())
         {
             continue;
@@ -560,11 +566,13 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
     SAssetInitialization TempAssetInit;
     int ResourceCount, AssetCount, InitialLumber, InitialStone = 400;
     bool ReturnStatus = false;
+    DHasScenario = false;
 
     if (!CTerrainMap::LoadMap(source))
     {
         return false;
     }
+
     try
     {
         if (!LineSource.Read(TempString))
@@ -653,6 +661,18 @@ bool CAssetDecoratedMap::LoadMap(std::shared_ptr<CDataSource> source)
             }
             DAssetInitializationList.push_back(TempAssetInit);
         }
+
+        // Read in scenario filename if it's present
+        if (!LineSource.Read(TempString))
+        {
+            PrintDebug(DEBUG_LOW, "No scenario file given in map: %s.\n");
+        }
+        // LineSource.Read() succeeded and TempString has non-zero size
+        else if (TempString.length())
+        {
+            SetupScenario(true, TempString);
+        }
+
 
         DLumberAvailable.resize(DTerrainMap.size());
         for (int RowIndex = 0; RowIndex < DLumberAvailable.size(); RowIndex++)
