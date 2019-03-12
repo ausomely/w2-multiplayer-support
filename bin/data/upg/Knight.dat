@@ -1,5 +1,5 @@
 # Upgrade Name
-WeaponUpgrade2
+BuildKnight
 # Armor Improvement
 0
 # Sight Improvement
@@ -7,25 +7,19 @@ WeaponUpgrade2
 # Speed Improvement
 0
 # Basic Damage Improvement
-2
+0
 # Piercing Damage Improvement
 0
 # Range Improvement
 0
 # Gold Cost
-800
+1500
 # Lumber Cost
 0
 # Time (s)
-25
+3
 # Number of Assets
-1
+2
 # Asset Names
 Footman
-# Asset Requirement Count
-1
-# List of Asset Requirements
-Blacksmith
-# Upgrade Requirement Count
-0
-# List of Upgrade Requirements
+Knight

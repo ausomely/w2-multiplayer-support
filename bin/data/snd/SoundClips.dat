@@ -24,7 +24,7 @@ menu
 intro
 ./music/intro.mp3
 # Number of clips
-76
+88
 # Clip name/path
 archer-acknowledge1
 ./archer/acknowledge1.wav
@@ -178,3 +178,27 @@ peasant-selected4
 ./peasant/selected4.wav
 peasant-work-completed
 ./peasant/work-completed.wav
+knight-acknowledge1
+./knight/acknowledge1.wav
+knight-acknowledge2
+./knight/acknowledge2.wav
+knight-acknowledge3
+./knight/acknowledge3.wav
+knight-acknowledge4
+./knight/acknowledge4.wav
+knight-annoyed1
+./knight/annoyed1.wav
+knight-annoyed2
+./knight/annoyed2.wav
+knight-annoyed3
+./knight/annoyed3.wav
+knight-ready
+./knight/ready.wav
+knight-selected1
+./knight/selected1.wav
+knight-selected2
+./knight/selected2.wav
+knight-selected3
+./knight/selected3.wav
+knight-selected4
+./knight/selected4.wav

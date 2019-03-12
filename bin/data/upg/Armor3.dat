@@ -22,3 +22,11 @@ ArmorUpgrade3
 1
 # Asset Names
 Footman
+# Asset Requirement Count
+1
+# List of Asset Requirements
+Blacksmith
+# Upgrade Requirement Count
+1
+# List of Upgrade Requirements
+ArmorUpgrade2

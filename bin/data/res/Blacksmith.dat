@@ -31,10 +31,11 @@ Blacksmith
 # Range
 0
 # Capability Count
-2
+3
 # Name of Capabilities
 WeaponUpgrade2
 ArmorUpgrade2
+BuildKnight
 # Requirement Count
 0
 # List of Requirements

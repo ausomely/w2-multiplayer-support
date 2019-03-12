@@ -37,6 +37,7 @@ class CPixelType
         Rubble,
         Peasant,
         Footman,
+        Knight,
         Archer,
         Ranger,
         GoldMine,

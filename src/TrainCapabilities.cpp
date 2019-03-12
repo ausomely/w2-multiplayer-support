@@ -75,6 +75,7 @@ CPlayerCapabilityTrainNormal::CRegistrant::CRegistrant()
         new CPlayerCapabilityTrainNormal("Footman")));
     CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityTrainNormal>(
         new CPlayerCapabilityTrainNormal("Archer")));
+
 }
 
 CPlayerCapabilityTrainNormal::CPlayerCapabilityTrainNormal(

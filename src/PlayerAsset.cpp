@@ -24,13 +24,14 @@ int CPlayerAsset::DIdCounter = 1;
 std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType> >
     CPlayerAssetType::DRegistry;
 std::vector<std::string> CPlayerAssetType::DTypeStrings(
-    {"None", "Peasant", "Footman", "Archer", "Ranger", "GoldMine", "TownHall",
+    {"None", "Peasant", "Footman","Knight", "Archer", "Ranger", "GoldMine", "TownHall",
      "Keep", "Castle", "Farm", "Barracks", "LumberMill", "Blacksmith",
      "ScoutTower", "GuardTower", "CannonTower"});
 std::unordered_map<std::string, EAssetType> CPlayerAssetType::
     DNameTypeTranslation({{"None", EAssetType::None},
                           {"Peasant", EAssetType::Peasant},
                           {"Footman", EAssetType::Footman},
+                          {"Knight", EAssetType::Knight},
                           {"Archer", EAssetType::Archer},
                           {"Ranger", EAssetType::Ranger},
                           {"GoldMine", EAssetType::GoldMine},
@@ -123,6 +124,7 @@ EAssetCapabilityType CPlayerCapability::NameToType(const std::string &name)
             {{"None", EAssetCapabilityType::None},
              {"BuildPeasant", EAssetCapabilityType::BuildPeasant},
              {"BuildFootman", EAssetCapabilityType::BuildFootman},
+             {"BuildKnight", EAssetCapabilityType::BuildKnight},
              {"BuildArcher", EAssetCapabilityType::BuildArcher},
              {"BuildRanger", EAssetCapabilityType::BuildRanger},
              {"BuildGoldMine", EAssetCapabilityType::BuildGoldMine},
@@ -176,6 +178,7 @@ std::string CPlayerCapability::TypeToName(EAssetCapabilityType type)
         "None",
         "BuildPeasant",
         "BuildFootman",
+        "BuildKnight",
         "BuildArcher",
         "BuildRanger",
         "BuildGoldMine",
@@ -264,10 +267,10 @@ bool CPlayerUpgrade::LoadUpgrades(std::shared_ptr<CDataContainer> container)
 bool CPlayerUpgrade::Load(std::shared_ptr<CDataSource> source)
 {
     CCommentSkipLineDataSource LineSource(source, '#');
-    std::string Name, TempString;
+    std::string Name, TempString, RequirementName;
     std::shared_ptr<CPlayerUpgrade> PlayerUpgrade;
-    EAssetCapabilityType UpgradeType;
-    int AffectedAssetCount;
+    EAssetCapabilityType UpgradeType, UpgradeRequirement;
+    int AffectedAssetCount, AssetRequirementCount, UpgradeRequirementCount;
     bool ReturnStatus = false;
 
     if (nullptr == source)
@@ -378,6 +381,40 @@ bool CPlayerUpgrade::Load(std::shared_ptr<CDataSource> source)
             PlayerUpgrade->DAffectedAssets.push_back(
                 CPlayerAssetType::NameToType(TempString));
         }
+        if (!LineSource.Read(TempString))
+        {
+            PrintError("Failed to get upgrade asset requirement count.\n");
+            goto LoadExit;
+        }
+        AssetRequirementCount = std::stoi(TempString);
+        for (int Index = 0; Index < AssetRequirementCount; Index++)
+        {
+            if (!LineSource.Read(TempString))
+            {
+                PrintError("Failed to read upgrade asset requirement %d.\n",
+                    Index);
+                goto LoadExit;
+            }
+            PlayerUpgrade->DAssetRequirements.push_back(
+                CPlayerAssetType::NameToType(TempString));
+        }
+        if (!LineSource.Read(TempString))
+        {
+            PrintError("Failed to get upgrade capability requirement count.\n");
+            goto LoadExit;
+        }
+        UpgradeRequirementCount = std::stoi(TempString);
+        for (int Index = 0; Index < UpgradeRequirementCount; Index++)
+        {
+            if (!LineSource.Read(TempString))
+            {
+                PrintError("Failed to read upgrade capability requirement %d.\n",
+                    Index);
+                goto LoadExit;
+            }
+            PlayerUpgrade->DAssetCapabilityRequirements.push_back(
+                CPlayerCapability::NameToType(TempString));
+        }
         ReturnStatus = true;
     }
     catch (std::exception &E)
@@ -387,6 +424,40 @@ bool CPlayerUpgrade::Load(std::shared_ptr<CDataSource> source)
 LoadExit:
     return ReturnStatus;
 }
+
+//! Lookup requirements of a given upgrade capability type
+// Given an asset type string, lookup both the asset and upgrade capability
+// requirements.
+std::vector<std::string> CPlayerUpgrade::LookupUpgradeRequirements(std::string name)
+{
+    std::vector<std::string> Results;
+
+    auto UpgradePtr = CPlayerUpgrade::FindUpgradeFromName(name);
+    auto AssetReqs = UpgradePtr->AssetRequirements();
+
+    // Given upgrade has asset requirements. Lookup name and push onto Results
+    if (!AssetReqs.empty())
+    {
+        for (auto EType : AssetReqs)
+        {
+            Results.push_back(CPlayerAssetType::TypeToName(EType));
+        }
+    }
+
+    auto CapabilityReqs = UpgradePtr->AssetCapabilityRequirements();
+
+    // Given upgrade has capability requirements. Lookup name and push onto Results.
+    if (!CapabilityReqs.empty())
+    {
+        for (auto EType : CapabilityReqs)
+        {
+            Results.push_back(CPlayerCapability::TypeToName(EType));
+        }
+    }
+
+    return Results;
+}
+
 
 std::shared_ptr<CPlayerUpgrade> CPlayerUpgrade::FindUpgradeFromType(
     EAssetCapabilityType type)
@@ -852,7 +923,7 @@ std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<CPlayerAssetType
         std::shared_ptr<CPlayerAssetType> NewAssetType(
             new CPlayerAssetType(It.second));
         NewAssetType->DThis = NewAssetType;
-
+        
         NewAssetType->DNumber = number;
         NewAssetType->DColor = color;
         (*ReturnRegistry)[It.first] = NewAssetType;

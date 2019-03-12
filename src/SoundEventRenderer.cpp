@@ -26,6 +26,7 @@ CSoundEventRenderer::CSoundEventRenderer(
     Names[to_underlying(EAssetType::None)] = "basic";
     Names[to_underlying(EAssetType::Peasant)] = "peasant";
     Names[to_underlying(EAssetType::Footman)] = "footman";
+    Names[to_underlying(EAssetType::Knight)] = "knight";
     Names[to_underlying(EAssetType::Archer)] = "archer";
     Names[to_underlying(EAssetType::Ranger)] = "archer";
     Names[to_underlying(EAssetType::GoldMine)] = "gold-mine";
@@ -169,7 +170,7 @@ CSoundEventRenderer::CSoundEventRenderer(
         {
             DReadyIndices[TypeIndex].push_back(ClipIndex);
         }
-        else if (to_underlying(EAssetType::Footman) == TypeIndex)
+        else if (to_underlying(EAssetType::Footman) == TypeIndex || to_underlying(EAssetType::Knight) == TypeIndex)
         {
             ClipIndex = DSoundMixer->FindClip(
                 Names[to_underlying(EAssetType::None)] + "-ready");

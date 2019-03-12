@@ -22,6 +22,7 @@
 #include "GameDataTypes.h"
 #include "Position.h"
 
+
 class CPlayerAsset;
 class CPlayerAssetType;
 class CPlayerData;
@@ -121,13 +122,15 @@ class CPlayerUpgrade
     int DResearchTime;
 
     std::vector<EAssetType> DAffectedAssets;
+    std::vector<EAssetType> DAssetRequirements;
+    std::vector<EAssetCapabilityType> DAssetCapabilityRequirements;
+
     static std::unordered_map<std::string, std::shared_ptr<CPlayerUpgrade> >
         DRegistryByName;
     static std::unordered_map<int, std::shared_ptr<CPlayerUpgrade> >
         DRegistryByType;
 
   public:
-
     bool DUpgradeActive;
 
     CPlayerUpgrade();
@@ -187,6 +190,17 @@ class CPlayerUpgrade
         return DAffectedAssets;
     };
 
+    std::vector<EAssetType> AssetRequirements()
+    {
+        return DAssetRequirements;
+    };
+
+    std::vector<EAssetCapabilityType> AssetCapabilityRequirements()
+    {
+        return DAssetCapabilityRequirements;
+    };
+
+    static std::vector<std::string> LookupUpgradeRequirements(std::string name);
 
     static bool LoadUpgrades(std::shared_ptr<CDataContainer> container);
     static bool Load(std::shared_ptr<CDataSource> source);
@@ -438,10 +452,6 @@ class CPlayerAsset
     CPlayerAsset();
     ~CPlayerAsset();
 
-    static void ResetIDCounter() {
-        DIdCounter = 1;
-    }
-
     static int UpdateFrequency()
     {
         return DUpdateFrequency;
@@ -487,7 +497,7 @@ class CPlayerAsset
         DId = NewId;
     };
 
-    void IncIdCounter()
+    static void IncIdCounter()
     {
         DIdCounter++;
     };
@@ -495,6 +505,11 @@ class CPlayerAsset
     static int GetIdCounter()
     {
         return DIdCounter;
+    };
+
+    static void ResetIdCounter()
+    {
+        DIdCounter = 1;
     };
 
     uint32_t RandomId() const

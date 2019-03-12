@@ -39,6 +39,8 @@ CUnitActionRenderer::CUnitActionRenderer(std::shared_ptr<CBevel> bevel,
         DIconTileset->FindTile("peasant");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildFootman)] =
         DIconTileset->FindTile("footman");
+    DCommandIndices[to_underlying(EAssetCapabilityType::BuildKnight)] =
+        DIconTileset->FindTile("knight");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildArcher)] =
         DIconTileset->FindTile("archer");
     DCommandIndices[to_underlying(EAssetCapabilityType::BuildRanger)] =

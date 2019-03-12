@@ -538,3 +538,314 @@ void CPlayerCapabilityBuildRanger::CActivatedCapability::Cancel()
     DActor->PopCommand();
 }
 
+
+class CPlayerCapabilityBuildKnight : public CPlayerCapability
+{
+  protected:
+    class CRegistrant
+    {
+      public:
+        CRegistrant();
+    };
+    static CRegistrant DRegistrant;
+
+    class CActivatedCapability : public CActivatedPlayerCapability
+    {
+      protected:
+        std::shared_ptr<CPlayerAssetType> DUpgradingType;
+        std::string DUnitName;
+        int DCurrentStep;
+        int DTotalSteps;
+        int DLumber;
+        int DGold;
+
+      public:
+        CActivatedCapability(std::shared_ptr<CPlayerAsset> actor,
+                             std::shared_ptr<CPlayerData> playerdata,
+                             std::shared_ptr<CPlayerAsset> target,
+                             std::shared_ptr<CPlayerAssetType> upgradingtype,
+                             const std::string &unitname, int lumber, int gold,
+                             int steps);
+        virtual ~CActivatedCapability(){};
+
+        int PercentComplete(int max);
+        bool IncrementStep();
+        void Cancel();
+    };
+    std::string DUnitName;
+    CPlayerCapabilityBuildKnight(const std::string &unitname);
+
+  public:
+    virtual ~CPlayerCapabilityBuildKnight(){};
+
+    bool CanInitiate(std::shared_ptr<CPlayerAsset> actor,
+                     std::shared_ptr<CPlayerData> playerdata);
+    bool CanApply(std::shared_ptr<CPlayerAsset> actor,
+                  std::shared_ptr<CPlayerData> playerdata,
+                  std::shared_ptr<CPlayerAsset> target);
+    bool ApplyCapability(std::shared_ptr<CPlayerAsset> actor,
+                         std::shared_ptr<CPlayerData> playerdata,
+                         std::shared_ptr<CPlayerAsset> target);
+};
+
+CPlayerCapabilityBuildKnight::CRegistrant
+    CPlayerCapabilityBuildKnight::DRegistrant;
+
+CPlayerCapabilityBuildKnight::CRegistrant::CRegistrant()
+{
+    CPlayerCapability::Register(std::shared_ptr<CPlayerCapabilityBuildKnight>(
+        new CPlayerCapabilityBuildKnight("Knight")));
+}
+
+CPlayerCapabilityBuildKnight::CPlayerCapabilityBuildKnight(
+    const std::string &unitname)
+        : CPlayerCapability(std::string("Build") + unitname, ETargetType::None)
+{
+    DUnitName = unitname;
+}
+
+bool CPlayerCapabilityBuildKnight::CanInitiate(
+    std::shared_ptr<CPlayerAsset> actor,
+    std::shared_ptr<CPlayerData> playerdata)
+{
+    if (EAssetType::Blacksmith == actor->Type())
+    {
+        auto Upgrade = CPlayerUpgrade::FindUpgradeFromName(
+            std::string("Build") + DUnitName);
+
+        if (Upgrade)
+        {
+            if (Upgrade->LumberCost() > playerdata->Lumber())
+            {
+                return false;
+            }
+            if (Upgrade->GoldCost() > playerdata->Gold())
+            {
+                return false;
+            }
+            // if (Upgrade->StoneCost() > playerdata->Stone())
+            // {
+            //     return false;
+            // }
+            if (!playerdata->AssetRequirementsMet(DUnitName))
+            {
+                return false;
+            }
+        }
+    }
+    else if (EAssetType::Barracks == actor->Type())
+    {
+        auto AssetIterator = playerdata->AssetTypes()->find(DUnitName);
+
+        if (AssetIterator != playerdata->AssetTypes()->end())
+        {
+            auto AssetType = AssetIterator->second;
+            if (AssetType->LumberCost() > playerdata->Lumber())
+            {
+                return false;
+            }
+            if (AssetType->GoldCost() > playerdata->Gold())
+            {
+                return false;
+            }
+            // if (AssetType->StoneCost() > playerdata->Stone())
+            // {
+            //     return false;
+            // }
+            if ((AssetType->FoodConsumption() + playerdata->FoodConsumption()) >
+                playerdata->FoodProduction())
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool CPlayerCapabilityBuildKnight::CanApply(
+    std::shared_ptr<CPlayerAsset> actor,
+    std::shared_ptr<CPlayerData> playerdata,
+    std::shared_ptr<CPlayerAsset> target)
+{
+    return CanInitiate(actor, playerdata);
+}
+
+bool CPlayerCapabilityBuildKnight::ApplyCapability(
+    std::shared_ptr<CPlayerAsset> actor,
+    std::shared_ptr<CPlayerData> playerdata,
+    std::shared_ptr<CPlayerAsset> target)
+{
+    if (EAssetType::Blacksmith == actor->Type())
+    {
+        auto Upgrade = CPlayerUpgrade::FindUpgradeFromName(
+            std::string("Build") + DUnitName);
+
+        if (Upgrade)
+        {
+            SAssetCommand NewCommand;
+
+            actor->ClearCommand();
+            NewCommand.DAction = EAssetAction::Capability;
+            NewCommand.DCapability = AssetCapabilityType();
+            NewCommand.DAssetTarget = target;
+            NewCommand.DActivatedCapability =
+                std::make_shared<CActivatedCapability>(
+                    actor, playerdata, target, actor->AssetType(), DUnitName,
+                    Upgrade->LumberCost(), Upgrade->GoldCost(),
+                    CPlayerAsset::UpdateFrequency() * Upgrade->ResearchTime());
+            actor->PushCommand(NewCommand);
+
+            return true;
+        }
+    }
+    else if (EAssetType::Barracks == actor->Type())
+    {
+        auto AssetIterator = playerdata->AssetTypes()->find(DUnitName);
+
+        if (AssetIterator != playerdata->AssetTypes()->end())
+        {
+            auto AssetType = AssetIterator->second;
+            auto NewAsset = playerdata->CreateAsset(DUnitName);
+            SAssetCommand NewCommand;
+            CTilePosition TilePosition;
+            TilePosition.SetFromPixel(actor->Position());
+            NewAsset->TilePosition(TilePosition);
+            NewAsset->HitPoints(1);
+
+            NewCommand.DAction = EAssetAction::Capability;
+            NewCommand.DCapability = AssetCapabilityType();
+            NewCommand.DAssetTarget = NewAsset;
+            NewCommand.DActivatedCapability =
+                std::make_shared<CActivatedCapability>(
+                    actor, playerdata, NewAsset, actor->AssetType(), DUnitName,
+                    AssetType->LumberCost(), AssetType->GoldCost(),
+                    CPlayerAsset::UpdateFrequency() * AssetType->BuildTime());
+            actor->PushCommand(NewCommand);
+        }
+    }
+    return false;
+}
+
+CPlayerCapabilityBuildKnight::CActivatedCapability::CActivatedCapability(
+    std::shared_ptr<CPlayerAsset> actor,
+    std::shared_ptr<CPlayerData> playerdata,
+    std::shared_ptr<CPlayerAsset> target,
+    std::shared_ptr<CPlayerAssetType> upgradingtype,
+    const std::string &unitname, int lumber, int gold, int steps)
+        : CActivatedPlayerCapability(actor, playerdata, target)
+{
+    DUnitName = unitname;
+    DCurrentStep = 0;
+    DTotalSteps = steps;
+    DLumber = lumber;
+    DGold = gold;
+    DPlayerData->DecrementLumber(DLumber);
+    DPlayerData->DecrementGold(DGold);
+    if (EAssetType::Blacksmith == actor->Type())
+    {
+        DUpgradingType = upgradingtype;
+        DUpgradingType->RemoveCapability(
+            CPlayerCapability::NameToType(std::string("Build") + DUnitName));
+    }
+    else if (EAssetType::Barracks == actor->Type())
+    {
+        SAssetCommand AssetCommand;
+
+        AssetCommand.DAction = EAssetAction::Construct;
+        AssetCommand.DAssetTarget = DActor;
+        DTarget->PushCommand(AssetCommand);
+    }
+}
+
+int CPlayerCapabilityBuildKnight::CActivatedCapability::PercentComplete(int max)
+{
+    return DCurrentStep * max / DTotalSteps;
+}
+
+bool CPlayerCapabilityBuildKnight::CActivatedCapability::IncrementStep()
+{
+    if (EAssetType::Barracks == DActor->Type())
+    {
+        int AddHitPoints =
+            (DTarget->MaxHitPoints() * (DCurrentStep + 1) / DTotalSteps) -
+            (DTarget->MaxHitPoints() * DCurrentStep / DTotalSteps);
+
+        DTarget->IncrementHitPoints(AddHitPoints);
+        if (DTarget->HitPoints() > DTarget->MaxHitPoints())
+        {
+            DTarget->HitPoints(DTarget->MaxHitPoints());
+        }
+    }
+
+    DCurrentStep++;
+    DActor->IncrementStep();
+    if (DCurrentStep >= DTotalSteps)
+    {
+        SGameEvent TempEvent;
+
+        if (EAssetType::Blacksmith == DActor->Type())
+        {
+            auto BarracksIterator = DPlayerData->AssetTypes()->find("Barracks");
+            auto KnightIterator = DPlayerData->AssetTypes()->find("Knight");
+            auto BlacksmithIterator =
+                DPlayerData->AssetTypes()->find("Blacksmith");
+
+            TempEvent.DType = EEventType::WorkComplete;
+            TempEvent.DAsset = DActor;
+
+            BarracksIterator->second->AddCapability(
+                EAssetCapabilityType::BuildKnight);
+            BarracksIterator->second->RemoveCapability(
+                EAssetCapabilityType::BuildFootman);
+         
+            // Upgrade all Archers
+            for (auto WeakAsset : DPlayerData->Assets())
+            {
+                if (auto Asset = WeakAsset.lock())
+                {
+                    if (EAssetType::Footman == Asset->Type())
+                    {
+                        int HitPointIncrement =
+                            KnightIterator->second->HitPoints() -
+                            Asset->MaxHitPoints();
+
+                        Asset->ChangeType(KnightIterator->second);
+                        Asset->IncrementHitPoints(HitPointIncrement);
+                    }
+                }
+            }
+        }
+        else if (EAssetType::Barracks == DActor->Type())
+        {
+            TempEvent.DType = EEventType::Ready;
+            TempEvent.DAsset = DTarget;
+
+            DTarget->PopCommand();
+            DTarget->TilePosition(DPlayerData->PlayerMap()->FindAssetPlacement(
+                DTarget, DActor,
+                CTilePosition(DPlayerData->PlayerMap()->Width() - 1,
+                              DPlayerData->PlayerMap()->Height() - 1)));
+        }
+        DPlayerData->AddGameEvent(TempEvent);
+        DActor->PopCommand();
+        return true;
+    }
+    return false;
+}
+
+void CPlayerCapabilityBuildKnight::CActivatedCapability::Cancel()
+{
+    DPlayerData->IncrementLumber(DLumber);
+    DPlayerData->IncrementGold(DGold);
+    if (EAssetType::Blacksmith == DActor->Type())
+    {
+        DUpgradingType->AddCapability(
+            CPlayerCapability::NameToType(std::string("Build") + DUnitName));
+    }
+    else if (EAssetType::Barracks == DActor->Type())
+    {
+        DPlayerData->DeleteAsset(DTarget);
+    }
+    DActor->PopCommand();
+}

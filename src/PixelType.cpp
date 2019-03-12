@@ -67,6 +67,9 @@ CPixelType::CPixelType(const CPlayerAsset &asset)
         case EAssetType::Footman:
             DType = EAssetTerrainType::Footman;
             break;
+        case EAssetType::Knight:
+            DType = EAssetTerrainType::Knight;
+            break;
         case EAssetType::Archer:
             DType = EAssetTerrainType::Archer;
             break;
@@ -146,6 +149,8 @@ EAssetType CPixelType::AssetType() const
             return EAssetType::Peasant;
         case EAssetTerrainType::Footman:
             return EAssetType::Footman;
+        case EAssetTerrainType::Knight:
+            return EAssetType::Knight;
         case EAssetTerrainType::Archer:
             return EAssetType::Archer;
         case EAssetTerrainType::Ranger:

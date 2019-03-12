@@ -648,6 +648,17 @@ void CApplicationData::Activate()
         PrintError("Failed to load footman tileset.\n");
         return;
     }
+    PrintDebug(DEBUG_LOW, "Loading Knight\n");
+    RenderSplashStep();
+    TempDataSource = ImageDirectory->DataSource("Knight.dat");
+    DAssetTilesets[to_underlying(EAssetType::Knight)] =
+        std::make_shared<CGraphicMulticolorTileset>();
+    if (!DAssetTilesets[to_underlying(EAssetType::Knight)]->LoadTileset(
+            DPlayerRecolorMap, TempDataSource))
+    {
+        PrintError("Failed to load Knight tileset.\n");
+        return;
+    }
     PrintDebug(DEBUG_LOW, "Loading Archer\n");
     RenderSplashStep();
     TempDataSource = ImageDirectory->DataSource("Archer.dat");

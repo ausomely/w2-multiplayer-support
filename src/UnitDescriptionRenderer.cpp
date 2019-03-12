@@ -67,6 +67,8 @@ CUnitDescriptionRenderer::CUnitDescriptionRenderer(
         DIconTileset->FindTile("peasant");
     DAssetIndices[to_underlying(EAssetType::Footman)] =
         DIconTileset->FindTile("footman");
+    DAssetIndices[to_underlying(EAssetType::Knight)] =
+        DIconTileset->FindTile("knight");
     DAssetIndices[to_underlying(EAssetType::Archer)] =
         DIconTileset->FindTile("archer");
     DAssetIndices[to_underlying(EAssetType::Ranger)] =
@@ -124,6 +126,8 @@ CUnitDescriptionRenderer::CUnitDescriptionRenderer(
         DIconTileset->FindTile("marksmanship");
     DResearchIndices[to_underlying(EAssetCapabilityType::BuildRanger)] =
         DIconTileset->FindTile("ranger");
+    DResearchIndices[to_underlying(EAssetCapabilityType::BuildKnight)] =
+        DIconTileset->FindTile("knight");
 }
 
 CUnitDescriptionRenderer::~CUnitDescriptionRenderer() {}
