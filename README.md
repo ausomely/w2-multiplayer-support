@@ -52,7 +52,7 @@ In order to play a multiplayer game, one of the players must choose to host the 
 
 ## Server Protocols:
 
-### Multiplayer Protocol (Probably Remove This):
+### Multiplayer Protocol:
 Our server establishes a TCP connection between the client (the game). Our server divides the whole process of exchanging information into several sessions. The first is LoginSession, where we exchange the user information such as username and password and authenticate the information with web server. This is followed by Accepted Session, were the user chooses between joining or hosting a game. Once they create a hosted game or select a game to join, they will be placed in a game room and moved to InRoomSession. Once the game begins they move to InGameSession, where we exchange the player commands, and store them locally and remotely.The diagram below shows the flow of the sessions throughout the game:
 
 ![Multiplayer Game flow Diagram](Interface/GameFlow.png?raw=true "Flow of Sessions in Multiplayer Games")
