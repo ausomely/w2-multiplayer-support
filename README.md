@@ -83,8 +83,19 @@ When a user connects to our game server, a login session is started to get authe
 	}
 }
 ```
-Then we convert it into a string and put the string into the HTTP POST request and send it to the web server. Since we only care about if the authentication is a success or not, we only extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session).
+Then we convert it into a string and put the string into the HTTP POST request and send it to the web server. To determine if authentication has succeded or not, we extract the status code from the response, which should be 200 if succeeds. If authenticated, the user is placed in the “In Game” session (will change to primary lobby session). Additional information is extracted from the returned JSON, primarity the id number, elo points, and elo rank, which are stored as part of the user class.
+```
+{
+  "id": 2,
+  "email": "jsbevilacqua@ucdavis.edu",
+  "username": "jacobbev",
+  "elo_points": 1000,
+  "elo_rank": 2,
+  "profile_image_url": "https://s3-us-west-1.amazonaws.com/ecs160-images/default.jpg"
+}
 
+```
+At the end of the game, the match result is also reported to the web server. Additionally, when the user exits the game, they are logged out. This is done by sending an empty JSON to the web server.
 
 ## Interfaces:
 When the user clicks on the multiplayer menu, their username and password is taken from the game and sent to the web server for authentication. 
@@ -93,7 +104,7 @@ Each individual game sends the actions that that user is doing to the server, wh
 
 The main class that handles the multiplayer communication is Client in Client.cpp, an instance of which is part of the game data. This class is called from the MainMenuMode.cpp to authenticate the user information and establish a connection to the server, and is also used BattleMode.cpp whenever an action takes place to send the action information to the server. 
 
-### Network Interface design for other platforms: (subject to change)
+### Network Interface design for other platforms:
 ![Current Design with the interface of finding games](Interface/FindGame.png?raw=true "Title")
 
 ![Current Design with the interface of waiting for a game to start](Interface/WaitInLobby.png?raw=true "Title")
