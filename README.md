@@ -116,3 +116,6 @@ The image below shows the next screen, where they can choose between hosting a g
 If they choose to join a game, they will be provided with a list of games currently being hosted that they can join, as shown below.
 ![Final Join Game Screen](Interface/JoinGameScreen.png?raw=true "List of Games on Join Screen")
 
+Once the user joins a game, they will be added to the room. At this point they can message the other players in the room, which can been seen in the image below.
+![Game Room Screen](Interface/GameRoom.png?raw=true "Game Room with Messaging")
+
