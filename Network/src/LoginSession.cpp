@@ -180,12 +180,12 @@ void LoginSession::FinishAuthentication(std::shared_ptr<User> userPtr){
                         read_json(json, tree);
                         //get needed values from json
                         userPtr->uid = tree.get<int>("id");
-                        userPtr->rank = tree.get<int>("elo_points");
-                        userPtr->eloPoints = tree.get<int>("elo_rank");
-                        std::cout << "UID: " << userPtr->uid << "\nRank: " << userPtr->eloPoints << std::endl;
+                        userPtr->eloPoints = tree.get<int>("elo_points");
+                        userPtr->rank = tree.get<int>("elo_rank");
+                        std::cout << "UID: " << userPtr->uid << "\nRank: " << userPtr->rank << std::endl;
                    }
                 }
-                userPtr->response.consume(userPtr->response.size());
+
                 userPtr->lobby.join(userPtr);
 
                 //close the user's connection to web server

@@ -84,6 +84,7 @@ void User::WriteMatchResult() {
 
 void User::ReadMatchResult() {
     // Reads the response from the web server about the match results
+    response.consume(response.size());
     boost::asio::async_read_until(webServerSocket, response, "\r\n",
         [this](boost::system::error_code err, std::size_t length) {
 
@@ -98,17 +99,17 @@ void User::ReadMatchResult() {
             if (!response_stream || http_version.substr(0, 5) != "HTTP/")
             {
                 std::cout << "Invalid response\n";
-
-                if (status_code != 201)
-                {
-                    std::cout << "Response returned with status code " << status_code << "\n";
-                }
-                else {
-                    std::cout << "Posted match result successfully" << std::endl;
-                }
+            }
+            else if (status_code != 201)
+            {
+                std::cout << "Response returned with status code " << status_code << "\n";
+            }
+            else {
+                std::cout << "Posted match result successfully" << std::endl;
             }
 
-        } else {
+        }
+        else {
             std::cout << "Error reading results response" << std::endl;
         }
 
